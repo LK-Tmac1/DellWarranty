@@ -7,14 +7,12 @@ config_path = "/Users/kunliu/Desktop/work/dell_config.yml"
 with open(config_path, 'r') as input:
 	config = yaml.load(input)
 
-def svctags_random(per, suffix, d):
-	#per = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+def svctags_random(per, d, suffix):
 	result_T = itertools.product(per ,repeat=d)
 	result_L = []
 	for r_T in result_T:
 		result_L.append(''.join(r_T) + suffix)
 	return result_L
-
 
 def svctags_flatten(svctags_L):
 	"""
@@ -39,10 +37,13 @@ def filter_invalid_svctags(svctags_L):
 			valid_svc_L.append(svc)
 	return valid_svc_L
 
-def svctags_generator(svctags_L, offset=100):
-	valid_svc_L = filter_invalid_svctags(svctags_L)
+def svctags_generator_batch(d=4, suffix="", offset=100, per="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"):
+	svctags_random_L = svctags_random(per, d, suffix)
+	valid_svc_L = filter_invalid_svctags(svctags_random_L)
+	
 	temp_L = []
 	turn = 1
+	
 	while turn * offset <= len(valid_svc_L):
 		begin = (turn - 1) * offset
 		end = turn * offset
@@ -54,11 +55,10 @@ def svctags_generator(svctags_L, offset=100):
 	result_L = []
 	for L in temp_L:
 		result_L.append(svctags_flatten(L))
+	
 	return result_L
 
 
-
-filter_invalid_svctags(svctags_L)
 offset=100
 api_key=config['api_key']
 data_format="json"
