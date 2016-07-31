@@ -1,11 +1,6 @@
-import requests
 import yaml
 import itertools
 
-config_path = "/Users/kunliu/Desktop/work/dell_config.yml"
-
-with open(config_path, 'r') as input:
-	config = yaml.load(input)
 
 def svctags_random(per, d, suffix):
 	"""
@@ -71,11 +66,3 @@ def valid_svctags_batch(suffix, d=4, offset=100, per="ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
 L = svctags_generator_batch("3JR32", d=2)
 
-api_key=config['api_key']
-data_format="json"
-svctags_L=["3P3JR32", "G3VG2W1","DCVYWW1","GGVG2W1","GGGG2W1"]
-api_url="https://api.dell.com/support/v2/assetinfo/warranty/tags.%s?svctags=%s&apikey=%s"
-url = api_url % (data_format, svctags_L[0], api_key)
-
-json_resp = requests.get(url).json()
-dell_asset_array = json_resp['GetAssetWarrantyResponse']['GetAssetWarrantyResult']['Response']['DellAsset']
