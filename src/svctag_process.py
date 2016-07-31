@@ -11,7 +11,7 @@ def svctags_random(per, d, suffix):
 	result_T = itertools.product(per ,repeat=d)
 	result_L = []
 	for r_T in result_T:
-		result_L.append(''.join(r_T) + suffix)
+		result_L.append("".join(r_T) + suffix)
 	return result_L
 
 def svctags_flatten(svctags_L):
@@ -40,7 +40,7 @@ def filter_invalid_svctags(svctags_L):
 			valid_svc_L.append(svc)
 	return valid_svc_L
 
-def valid_svctags_batch(suffix, d=4, offset=100, per="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"):
+def valid_svctags_batch(suffix, d=3, offset=100, per="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"):
 	svctags_random_L = svctags_random(per, d, suffix)
 	print "1. %s random service tags generated =====" % len(svctags_random_L)
 	valid_svc_L = filter_invalid_svctags(svctags_random_L)
