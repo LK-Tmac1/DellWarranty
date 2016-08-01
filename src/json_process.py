@@ -26,7 +26,6 @@ def get_response_by_valid_tags(svctags, url):
 	"""
 	json_resp = requests.get(url).json()
 	step = 10
-	# 
 	while not check_response_valid(json_resp) and step > 0:
 		json_resp = requests.get(url).json()
 		step -= 1
@@ -45,5 +44,4 @@ dell_asset = json_resp["GetAssetWarrantyResponse"]["GetAssetWarrantyResult"]["Re
 
 
 if type(dell_asset) == dict:
-
-if type(dell_asset) is list:
+	dell_asset = [dell_asset]
