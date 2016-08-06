@@ -15,17 +15,16 @@ def check_response_valid(json_response):
 	a = "GetAssetWarrantyResponse"
 	b = "GetAssetWarrantyResult"
 	c = "Faults"
-	if  a in json_response and b in json_response[a] and c in json_response[a][b]:
+	if a in json_response and b in json_response[a] and c in json_response[a][b]:
 		return True if json_response[a][b][c] is None else False
 	return False
 
-def get_response_by_valid_tags(svctags, url):
+def get_response_by_valid_tags(svctags, url, step=10):
 	"""
 	Assuming the svctags are all valid, if the response is an exception, then keep on trying
 	until step is 0
 	"""
 	json_resp = requests.get(url).json()
-	step = 10
 	while not check_response_valid(json_resp) and step > 0:
 		json_resp = requests.get(url).json()
 		step -= 1

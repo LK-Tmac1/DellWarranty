@@ -1,5 +1,6 @@
 import yaml
 import itertools
+import requests
 
 
 def svctags_random(per, d, suffix):
@@ -36,7 +37,7 @@ def filter_invalid_svctags(svctags_L):
 	for svc in svctags_L:
 		i+=1
 		if check_svctag_valid(svc):
-			print "~~~~~~~~~~~~~Valid tag:", svc, "remained=", str(i)
+			print "~~~~~~~~~~~~~Valid tag:", svc, "remained=", str(len(svctags_L) - i)
 			valid_svc_L.append(svc)
 	return valid_svc_L
 
@@ -47,7 +48,6 @@ def valid_svctags_batch(suffix, d=3, offset=100, per="ABCDEFGHIJKLMNOPQRSTUVWXYZ
 	print "2. %s invalid service tags filtered out -----" % (len(svctags_random_L) - len(valid_svc_L))
 	temp_L = []
 	turn = 1
-	
 	while turn * offset <= len(valid_svc_L):
 		begin = (turn - 1) * offset
 		end = turn * offset
@@ -61,8 +61,7 @@ def valid_svctags_batch(suffix, d=3, offset=100, per="ABCDEFGHIJKLMNOPQRSTUVWXYZ
 	for L in temp_L:
 		result_L.append(svctags_flatten(L))
 	print "4. Flatten valid tags as a List of List, %s in total ******" % len(result_L)
-	
 	return result_L
 
-L = svctags_generator_batch("3JR32", d=2)
+L = valid_svctags_batch("3JR32", d=2)
 
