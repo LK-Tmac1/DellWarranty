@@ -27,14 +27,11 @@ def add_translation_NA(dell_asset, NA_dict):
 			NA_dict[w.service_en] = dell_asset.svctag
 	return NA_dict
 
-def email_NA_translation(NA_dict, config_path):
+def email_NA_translation(NA_dict, mail_from, mail_to, mail_api_key, mail_post_url):
 	# Given a list of DellAsset object, find all those warranties without
 	# available translation in Chinese, and send them to a given email address
-	with open(config_path, "r") as value:
-		config = yaml.load(value)
-	data = {"from": config['mailgun_from'],
-			"to": config['mailgun_to'],
+	data = {"from": mail_from,
+			"to": mail_to,
 			"subject": "Translation request on " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
 			"text": yaml.safe_dump(NA_dict, allow_unicode=True, default_flow_style=False) }
-	return requests.post(config['mailgun_post_url'], auth=("api", config['mailgun_api_key']), data=data)
-
+	return requests.post(mail_post_url, auth=("api", mail_api_key), data=data)

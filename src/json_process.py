@@ -1,9 +1,5 @@
 import requests
 
-config_path = "/Users/kunliu/Desktop/work/dell_config.yml"
-
-with open(config_path, "r") as value:
-	config = yaml.load(value)
 
 def check_response_valid(json_response):
 	"""
@@ -29,18 +25,4 @@ def get_response_by_valid_tags(svctags, url, step=10):
 		json_resp = requests.get(url).json()
 		step -= 1
 	return json_resp
-
-api_key=config["api_key"]
-data_format="json"
-svctags_L=["3P3JR32", "G3VG2W1","DCVYWW1","GGVG2W1","GGGG2W1"]
-api_url="https://api.dell.com/support/v2/assetinfo/warranty/tags.%s?svctags=%s&apikey=%s"
-url = api_url % (data_format, "G3VG2W1|DCVYWW1", api_key)
-
-json_resp = requests.get(url).json()
-dell_asset = json_resp["GetAssetWarrantyResponse"]["GetAssetWarrantyResult"]["Response"]["DellAsset"]
-"MachineDescription"
-"ServiceTag"
-
-
-if type(dell_asset) == dict:
-	dell_asset = [dell_asset]
+	
