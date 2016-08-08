@@ -1,35 +1,40 @@
-import yaml, os
+import yaml, os, requests, smtplib
+from entity import DellAsset
+from datetime import datetime
+from email.mime.text import MIMEText
 
-def read_translation(file_path):
+
+def read_translation_url(url_path):
 	# Read input file and return a translation dictionary
 	# With key as the service english and value as service chinese
-	tran_dict = {}
-	if os.path.isfile(file_path):
-		with open(file_path, "r") as value:
-			tran_dict = yaml.load(value)
-	return tran_dict
+	resp = requests.get(url_path)
+	return yaml.load(resp.content)
 
-def write_translation(output_path, tran_dict, overwrite=True):
-	# Given a new translation dict, update the translation file
-	mode = "w" if overwrite else "a"
-	with open(output_path, mode) as output_file:
-		output_file.write(yaml.safe_dump(tran_dict, allow_unicode=True, default_flow_style=False))
-
-def separate_translation_dict(tran_dict):
-	# Separate those services with/out available Chinese translation from the dict
-	NA_dict = {}
+def filter_translation(tran_dict):
+	# Filter those services without available Chinese translation from the dict
 	for k, v in tran_dict.items():
 		if v is None or v == 'null' or len(v.encode('utf-8')) == 0:
 			tran_dict.pop(k)
-			NA_dict[k] = None
-	return tran_dict, NA_dict
+	return tran_dict
 
-def update_translation(input_path, tran_dict, output_path=""):
-	# 1. Update those serivces already translated and overwrite the output
-	# 2. For services not translated, append them to the output
-	tran_dict = import_translation(input_path)
-	print tran_dict
-	tran_dict, NA_dict = separate_translation_dict(tran_dict)
-	output_path = input_path if output_path == "" else output_path
-	write_translation(output_path, tran_dict)
-	write_translation(output_path, NA_dict, overwrite=False)
+def add_translation_NA(dell_asset, NA_dict):
+	# Given a DellAsset, if there is any warranty without available translation,
+	# i.e. None or 'null' or empty, return a dictionary with the service name of 
+	# the warranty as the key and the dell asset service tag as the value
+	NA_dict = {} if NA_dict is None else NA_dict
+	for w in dell_asset.get_warranty():
+		if w.service_ch is None or w.service_ch == 'null':
+			NA_dict[w.service_en] = dell_asset.svctag
+	return NA_dict
+
+def email_NA_translation(NA_dict, config_path):
+	# Given a list of DellAsset object, find all those warranties without
+	# available translation in Chinese, and send them to a given email address
+	with open(config_path, "r") as value:
+		config = yaml.load(value)
+	data = {"from": config['mailgun_from'],
+			"to": config['mailgun_to'],
+			"subject": "Translation request on " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+			"text": yaml.safe_dump(NA_dict, allow_unicode=True, default_flow_style=False) }
+	return requests.post(config['mailgun_post_url'], auth=("api", config['mailgun_api_key']), data=data)
+

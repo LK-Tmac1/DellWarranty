@@ -2,8 +2,8 @@ import requests
 
 config_path = "/Users/kunliu/Desktop/work/dell_config.yml"
 
-with open(config_path, "r") as input:
-	config = yaml.load(input)
+with open(config_path, "r") as value:
+	config = yaml.load(value)
 
 def check_response_valid(json_response):
 	"""
