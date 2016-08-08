@@ -1,4 +1,5 @@
 import requests
+from entity import Warranty, DellAsset
 
 
 def check_response_valid(json_response):
@@ -26,3 +27,5 @@ def get_response_by_valid_tags(svctags, url, step=10):
 		step -= 1
 	return json_resp
 	
+def json_to_entities(json_data):
+	# Given a JSON format data, return a list of DellAsset objects
