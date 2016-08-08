@@ -1,7 +1,4 @@
-import yaml
-import itertools
-import requests
-
+import yaml, itertools, requests
 
 def svctags_random(per, d, suffix):
 	"""
