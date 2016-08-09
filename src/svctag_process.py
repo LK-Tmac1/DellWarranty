@@ -2,11 +2,9 @@ import itertools, requests
 
 
 def svctags_random(per, d, suffix):
-	"""
-	Generate cartisen product of per, say per="ABC", d=3 then
-	AAA, AAB, AAC, ABA, ABB, ABC, ACA...
-	If suffix specified, then add it to each result above.
-	"""
+	# Generate cartisen product of per, say per="ABC", d=3 then
+	# AAA, AAB, AAC, ABA, ABB, ABC, ACA...
+	# If suffix specified, then add it to each result above.
 	result_T = itertools.product(per ,repeat=d)
 	result_L = []
 	for r_T in result_T:
@@ -14,9 +12,7 @@ def svctags_random(per, d, suffix):
 	return result_L
 
 def svctags_flatten(svctags_L):
-	"""
-	Given a list of service tags, return the concatenated string delimited by "|"
-	"""
+	# Given a list of service tags, return the concatenated string delimited by "|"
 	if len(svctags_L) == 0:
 		return ""
 	elif len(svctags_L) == 1:

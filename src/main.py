@@ -21,8 +21,11 @@ if __name__ == '__main__':
 	json_resp = requests.get(url).json()
 	dell_asset = json_resp["GetAssetWarrantyResponse"]["GetAssetWarrantyResult"]["Response"]["DellAsset"]
 
-	if type(dell_asset) == dict:
-		dell_asset = [dell_asset]
+	json_data=get_response("G3VG2W1|FL3JR32",url)
+	dell_asset_object_L=json_to_entities(json_data)
+	e,f=translate_dell_warranty(yml_url_path, dell_asset_L=dell_asset_object_L)
+
+
 
 
 L = valid_svctags_batch(suffix="3JR32", dell_support_url="http://www.dell.com/support/home/cn/zh/cndhs1/product-support/servicetag/", d=2)
