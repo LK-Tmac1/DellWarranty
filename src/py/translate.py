@@ -1,5 +1,5 @@
 from datetime import datetime
-from utility import send_email, load_yaml_file
+from utility import load_yaml_file, get_current_time
 
 
 def filter_NA_translation(tran_dict):
@@ -19,18 +19,6 @@ def reverse_NA_translation(NA_dict):
 			NA_dict_reverse[v] = ""
 		NA_dict_reverse[v] = NA_dict_reverse[v] + ", " + k
 	return NA_dict_reverse
-
-def email_csv_attachment(suffix, config, csv_path, NA_data=None):
-	# If all services translation available, just send CSV as attachment
-	# Otherwise, write the service_en and svctag as text on the email
-	current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-	subject = "CSV output generated on %s, %s" % (suffix, current_time)
-	text = "No additional translation needed for this %s" % (suffix)
-	if NA_data is not None:
-		subject = "Translation request on %s, %s " % (suffix, current_time)
-		text = yaml.safe_dump(NA_data, allow_unicode=True, default_flow_style=False)
-	files = [("attachment", open(csv_path))]
-	return send_email(subject=subject, text=text, files=files, config=config)
 
 def update_NA_translation(csv_input_path, translate_url_path, csv_output_path):
 	# Given a CSV file, update all the services translations based on the 

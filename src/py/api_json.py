@@ -23,9 +23,9 @@ def check_response_valid(json_response):
 	# 	u"Code": 503}}, u"Response": None}}}
 	return True if get_value_by_key(json_response, [l1, l2, "Faults"]) is None else False
 
-def get_response(svctags, url, step=10):
+def get_response(svctags, url, step):
 	# Assuming the svctags are all valid, if the response is an exception, then keep on trying until step is 0
-	json_resp = requests.get(url).json()
+	json_resp = requests.get(url+svctags).json()
 	while not check_response_valid(json_resp) and step > 0:
 		json_resp = requests.get(url).json()
 		step -= 1
@@ -55,5 +55,9 @@ def json_to_entities(json_data):
 		dell_asset_object_L.append(DellAsset(machine_id=machine_id,svctag=svctag,ship_date=ship_date, warranty_L=warranty_L))
 	return dell_asset_object_L
 
-
-
+def get_entities_batch(svctag_L, url, step=10):
+	global_entities_L = []
+	for svctag in svctag_L:
+		json_data = get_response(svctag, url, step)
+		global_entities_L.extend(json_to_entities(json_data))
+	return global_entities_L

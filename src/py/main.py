@@ -1,33 +1,42 @@
 import yaml, requests
 from svctag_process import valid_svctags_batch
-from json_process import check_response_valid, get_response_by_valid_tags
-from entity import Warranty, DellAsset
-from utility import load_yaml_config
+from json_process import get_entities_batch
+from utility import load_yaml_config, get_current_time, send_email
+from translate import translate_dell_warranty
 
 config_path = "/Users/kunliu/Desktop/work/dell_config.yml"
-suffix = "JR32"
-digit = 3
-csv_output_path = ""
 
-
-if __name__ == '__main__':
+def main(suffix, digit, password):
 	config = load_yaml_config(config_path)
+	
+	if password != config['password']:
+		return 1
+	if len(suffix) + int(digit) != 7:
+		return 2
 
-	api_key=config["dell_api_key"]
-	svctags_L=["3P3JR32", "G3VG2W1","DCVYWW1","GGVG2W1","GGGG2W1"]
-	api_url=config['dell_api_url']
-	url = api_url % ("G3VG2W1|DCVYWW1", api_key)
+	csv_output_path = "/output/%s_%s" % (suffix, get_current_time())
+	
+	valid_svctag_L = valid_svctags_batch(suffix=suffix, dell_support_url=config["dell_support_url"], d=digit)
 
-	json_resp = requests.get(url).json()
-	dell_asset = json_resp["GetAssetWarrantyResponse"]["GetAssetWarrantyResult"]["Response"]["DellAsset"]
+	url = config['dell_api_url'] % config["dell_api_key"]
+	
+	dell_entities_L = get_entities_batch(svctag_L=valid_svctag_L, url=url)
+	
+	transl_url = config["git_translate_url"]
+	
+	dell_asset_L, NA_dict = translate_dell_warranty(yml_url_path=transl_url, dell_asset_L=dell_entities_L)
+	
+	if save_entity_csv(dell_asset_L=dell_asset_L, output_path=csv_output_path):
+		if email_csv_attachment(suffix=suffix, config=config, csv_path=csv_output_path, NA_dict=NA_dict):
+			return 0
+		else:
+			send_email(subject="Send email error", text=csv_output_path, attachment_L=None, config=config)	
+	else:
+		send_email(subject="Save output error", text=csv_output_path, attachment_L=None, config=config)
+	
+	return 4
 
-	json_data=get_response("G3VG2W1|FL3JR32",url)
-	dell_asset_object_L=json_to_entities(json_data)
-	e,f=translate_dell_warranty(yml_url_path, dell_asset_L=dell_asset_object_L)
-
-
-
-
+"""
 L = valid_svctags_batch(suffix="3JR32", dell_support_url="http://www.dell.com/support/home/cn/zh/cndhs1/product-support/servicetag/", d=2)
 
 a = Warranty("2012-12-21T13:00:00", "2015-12-22T12:59:59", "Parts Only Warranty", "true","仅限部件保修(POW)")
@@ -35,4 +44,4 @@ b = Warranty("2011-01-21T13:00:00", "2012-01-12T12:59:59", "Next Business Day re
 c = Warranty("2014-01-21T13:00:00", "2016-11-22T12:59:59", "Parts Only Warranty (Carry-In Service)", "true","仅限部件保修(送修服务)")
 
 d = DellAsset("XPS 13 L322X", "G3VG2W1", "2012-12-21T13:00:00", [a,b,c])
-
+"""
