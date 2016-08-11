@@ -5,10 +5,11 @@ from translate import translate_dell_warranty
 from email_job import send_email, email_csv_attachment
 import traceback, sys, os
 
-# python main.py --config_path=/Users/kunliu/Desktop/work/dell_config.yml --suffix=3VG2W1 --digit=1
+# python main.py --parent_path=/Users/kunliu/Desktop/dell/ --suffix=3VG2W1 --digit=1
+# python main.py --parent_path=/home/ec2-user/dell/ --suffix=3VG2W1 --digit=1
 
-required_arg_list = ['--config_path=', '--suffix=', '--digit=']
-global_parent_path = "/Users/kunliu/Desktop/dell_warranty/"
+required_arg_list = ['--parent_path=', '--suffix=', '--digit=']
+
 
 if __name__ == "__main__":
 	print "Starting..."
@@ -16,9 +17,10 @@ if __name__ == "__main__":
 	arguments = parse_cmd_args(sys.argv, required_arg_list)
 	suffix = arguments['suffix']
 	digit = arguments['digit']
-	config = read_file(arguments['config_path'], isYML=True)
-	valid_svctag_path = "%svalid_svctags/suffix=%s_d=%s.txt" % (global_parent_path, suffix, digit)
-	csv_output_path = "%soutput/%s/%s.csv" % (global_parent_path, suffix, get_current_time().replace(" ", "_"))
+	parent_path = arguments['parent_path']
+	config = read_file(parent_path+"dell_config.yml", isYML=True)
+	valid_svctag_path = "%svalid_svctags/suffix=%s_d=%s.txt" % (parent_path, suffix, digit)
+	csv_output_path = "%soutput/%s/%s.csv" % (parent_path, suffix, get_current_time().replace(" ", "_"))
 	url = config['dell_api_url'] % config["dell_api_key"]
 	transl_url = config["git_translate_url"]
 	error_subject = "[Error] Job running on %s, suffix=%s, digit=%s" % (get_current_time(), suffix, digit)

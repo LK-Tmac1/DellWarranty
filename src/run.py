@@ -13,7 +13,7 @@ result_page_dict = {
 	2 : 'invalid_input.html'
 }
 
-config_path = "/Users/kunliu/Desktop/work/dell_config.yml"
+parent_path = "/Users/kunliu/Desktop/dell/"
 
 @app.route('/home')
 def home():
@@ -25,10 +25,9 @@ def submit_job():
 	suffix = request.form['suffix']
 	password = request.form['password']
 	digit = request.form['prefix_d']
-	#valid = verify_job_parameter(config_path, password, suffix, digit)
-	valid = 0
+	valid = verify_job_parameter(parent_path+"dell_config.yml", password, suffix, digit)
 	if valid == 0:
-		cmd_L = ["python", "./py/main.py", "--config_path="+config_path, "--suffix="+suffix, "--digit="+digit]
+		cmd_L = ["python", "./py/main.py", "--parent_path="+parent_path, "--suffix="+suffix, "--digit="+digit]
 		subprocess.Popen(cmd_L)
 	return render_template(result_page_dict[valid])
 
