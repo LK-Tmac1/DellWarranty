@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+
 from flask import Flask, render_template
 from flask.globals import request
-from py.utility import verify_job_parameter, get_current_time
+from py.utility import verify_job_parameter
 import subprocess
 
 app = Flask(__name__)
@@ -26,8 +28,8 @@ def submit_job():
 	#valid = verify_job_parameter(config_path, password, suffix, digit)
 	valid = 0
 	if valid == 0:
-		args = "--config_path=%s --suffix=%s --digit=%s" % (config_path, suffix, digit)
-		subprocess.Popen(["python", "./py/main.py", args])
+		cmd_L = ["python", "./py/main.py", "--config_path="+config_path, "--suffix="+suffix, "--digit="+digit]
+		subprocess.Popen(cmd_L)
 	return render_template(result_page_dict[valid])
 
 if __name__ == "__main__":
