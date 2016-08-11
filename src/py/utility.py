@@ -1,10 +1,6 @@
 import yaml, requests, datetime, os
 
 
-def create_dir_if_not_exist(path, isDir=False):
-	if not os.path.exists(path):
-		os.makedirs(path if isDir else path[0:path.rfind("/")+1])
-
 def parse_cmd_args(arguments, required_arg_list):
 	arg_map = {}
 	for iarg in range(1,len(arguments)):
@@ -45,7 +41,10 @@ def verify_job_parameter(config_path, password, suffix, digit):
 		return 0
 
 def save_object_to_path(object_L, output_path):
-	create_dir_if_not_exist(output_path, isDir=False)
+	parent_dir = output_path[0:output_path.rfind("/")]
+	# If output parent dir does not exist, create it
+	if not os.path.exists(parent_dir):
+		os.makedirs(parent_dir)
 	with open(output_path, 'w') as output:
 		for obj in object_L:
 			output.write(str(obj) + "\n")

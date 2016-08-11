@@ -1,5 +1,5 @@
 import itertools, requests, os
-from utility import create_dir_if_not_exist, read_file, save_object_to_path
+from utility import read_file, save_object_to_path
 
 def svctags_random(d, suffix, per="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"):
 	# Generate cartisen product of per, say per="ABC", d=3 then

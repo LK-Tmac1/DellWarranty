@@ -17,11 +17,13 @@ if __name__ == "__main__":
 	suffix = arguments['suffix']
 	digit = arguments['digit']
 	config = read_file(arguments['config_path'], isYML=True)
-	valid_svctag_path = "%s/valid_svctags/suffix=%s_d=%s.txt" % (global_parent_path, suffix, digit)
-	csv_output_path = "%s/output/%s/%s.csv" % (global_parent_path, suffix, get_current_time().replace(" ", "_"))
+	valid_svctag_path = "%svalid_svctags/suffix=%s_d=%s.txt" % (global_parent_path, suffix, digit)
+	csv_output_path = "%soutput/%s/%s.csv" % (global_parent_path, suffix, get_current_time().replace(" ", "_"))
 	url = config['dell_api_url'] % config["dell_api_key"]
 	transl_url = config["git_translate_url"]
 	error_subject = "[Error] Job running on %s, suffix=%s, digit=%s" % (get_current_time(), suffix, digit)
+	print csv_output_path
+	print valid_svctag_path
 	
 	try:
 		# Generate valid service tags from all possible random permutations
