@@ -1,5 +1,4 @@
-from datetime import datetime
-from utility import load_yaml_file, get_current_time
+from utility import load_yaml_file
 
 
 def filter_NA_translation(tran_dict):
@@ -36,6 +35,4 @@ def translate_dell_warranty(yml_url_path, dell_asset_L):
 			else:
 				NA_dict[warranty.service_en] = dell_asset.svctag
 	return dell_asset_L, NA_dict
-
-
 
