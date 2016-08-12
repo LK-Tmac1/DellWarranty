@@ -26,4 +26,4 @@ def email_csv_attachment(suffix, config, csv_path, NA_dict):
 		text = "Translation request on %s, %s\n\n\n" % (suffix, current_time)
 		text += yaml.safe_dump(NA_dict.keys(), allow_unicode=True, default_flow_style=False)
 	files = [("attachment", open(csv_path))]
-	return send_email(subject=subject_prefix+subject, text=text, files=files, config=config)
+	return send_email(subject=subject_prefix+subject, text=text, attachment_L=files, config=config)
