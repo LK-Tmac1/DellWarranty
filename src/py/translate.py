@@ -25,7 +25,7 @@ def update_NA_translation(csv_input_path, translate_url_path, csv_output_path):
 	return ""
 
 def translate_dell_warranty(yml_url_path, dell_asset_L):
-	tran_dict = read_file(yml_url_path, isTML=True, isURL=True)
+	tran_dict = read_file(yml_url_path, isYML=True, isURL=True)
 	tran_dict = filter_NA_translation(tran_dict)
 	NA_dict = {}
 	for dell_asset in dell_asset_L:
