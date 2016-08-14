@@ -19,29 +19,30 @@ if __name__ == "__main__":
 	digit = arguments['digit']
 	parent_path = arguments['parent_path']
 	config = read_file(parent_path+"dell_config.yml", isYML=True)
-	valid_svctag_path = "%svalid_svctags/suffix=%s_d=%s.txt" % (parent_path, suffix, digit)
-	csv_output_path = "%soutput/%s/%s.csv" % (parent_path, suffix, get_current_time().replace(" ", "_"))
+	valid_svctag_path = "%svalid_svctags.txt" % parent_path
+	csv_output_path = "%soutput/suffix=%s_d=%s.csv" % (parent_path, suffix, digit.replace(" ", "_"))
 	url = config['dell_api_url'] % config["dell_api_key"]
-	transl_url = config["git_translate_url"]
-	error_subject = "[Error] Job running on %s, suffix=%s, digit=%s" % (get_current_time(), suffix, digit)
+	transl_url = config["translation_url"]
+	config['email_subject_error'] = config['email_subject_error'] % (get_current_time(), suffix, digit)
+	config['email_subject_warning'] = config['email_subject_warning'] % (get_current_time(), suffix, digit)
+	
 	print csv_output_path
 	print valid_svctag_path
 	
 	try:
 		# Generate valid service tags from all possible random permutations
 		valid_svctag_L = valid_svctags_batch(suffix=suffix, dell_support_url=config["dell_support_url"], d=digit, valid_svctag_path=valid_svctag_path)
+		print valid_svctag_L, "============ main"
 		# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
-		dell_entities_L = get_entities_batch(svctag_L=valid_svctag_L, url=url)
+		dell_entities_L = get_entities_batch(svctag_L=valid_svctag_L, url=url, config=config)
 		# Translate all Warranties of each DellAsset, and find those warranties without available translation
 		dell_asset_L, NA_dict = translate_dell_warranty(yml_url_path=transl_url, dell_asset_L=dell_entities_L)
 		# Save output into the csv_path
 		save_object_to_path(object_L=dell_asset_L, output_path=csv_output_path)
 		# Email the csv output and also all NA translation
 		email_csv_attachment(suffix=suffix, config=config, csv_path=csv_output_path, NA_dict=NA_dict)
-	except ValueError:
-		print "HERE>>>>>>>>>>>>>>>>"
-		text = "Service Profile Throttle Limit Reached\nURL=" + url
-		send_email(subject=error_subject, text=text, attachment_L=None, config=config)
 	except:
-		send_email(subject=error_subject, text=traceback.print_exc(), attachment_L=None, config=config)
+		print "HERE>>>>>>>>>>>>>>>> main"
+		print traceback.print_exc()
+		send_email(subject=config['email_subject_error'], text=traceback.print_exc(), attachment_L=None, config=config)
 
