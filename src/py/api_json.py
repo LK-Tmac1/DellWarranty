@@ -2,7 +2,7 @@
 
 import requests, os
 from entity import Warranty, DellAsset
-from email import send_email
+from email_job import send_email
 
 
 l1 = "GetAssetWarrantyResponse"
@@ -11,6 +11,7 @@ l2 = "GetAssetWarrantyResult"
 def get_value_by_key(json_data, key_L):
 	# Given a json dict data, and a list of keys, find the value of the last key
 	temp_data = json_data
+	print json_data
 	for key in key_L:
 		if key in temp_data:
 			temp_data = temp_data[key]

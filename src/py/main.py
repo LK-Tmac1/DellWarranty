@@ -19,8 +19,8 @@ if __name__ == "__main__":
 	digit = arguments['digit']
 	parent_path = arguments['parent_path']
 	config = read_file(parent_path+"dell_config.yml", isYML=True)
-	valid_svctag_path = "%svalid_svctags.txt" % parent_path
-	csv_output_path = "%soutput/suffix=%s_d=%s.csv" % (parent_path, suffix, digit.replace(" ", "_"))
+	valid_svctag_path = "%svalid_svctags/%s_%s.txt" % (parent_path, suffix, digit)
+	csv_output_path = "%soutput/%s_%s.csv" % (parent_path, suffix, digit.replace(" ", "_"))
 	url = config['dell_api_url'] % config["dell_api_key"]
 	transl_url = config["translation_url"]
 	config['email_subject_error'] = config['email_subject_error'] % (get_current_time(), suffix, digit)

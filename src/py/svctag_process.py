@@ -30,6 +30,7 @@ def svctags_flatten(valid_svc_L, offset=100):
 			result_L.append(L[0])
 		elif len(L) > 1:
 			result_L.append("|".join(L))
+	print result_L
 	return result_L
 
 def check_svctag_valid(svctag, dell_support_url):
@@ -38,12 +39,10 @@ def check_svctag_valid(svctag, dell_support_url):
 
 def filter_invalid_svctags(svctags_L, dell_support_url):
 	valid_svc_L = []
-	i = 0
 	for svc in svctags_L:
-		i+=1
 		if check_svctag_valid(svctag=svc, dell_support_url=dell_support_url):
 			valid_svc_L.append(svc)
-			print "~~~~~~~~~~~~~Valid tag:", svc, "remained=", str(len(svctags_L) - i)
+			print "~~~~~~~~~~~~~Valid tag:", svc, "now in total=", str(len(valid_svc_L))
 	return valid_svc_L
 
 def valid_svctags_batch(dell_support_url, suffix, valid_svctag_path, d, update_svc=False):
