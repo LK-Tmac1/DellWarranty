@@ -86,10 +86,10 @@ def get_entities_batch(svctag_L, url, config):
 			subject = ""
 			if json_data == 1:
 				subject=config['email_subject_error']
-				text = "Service Profile Throttle Limit Reached\nURL=" + req_url	
+				text = "Service Profile Throttle Limit Reached\n\nURL=" + req_url	
 			elif json_data == 2:
 				subject=config['email_subject_warning']
-				text = "Unkown reasons for failing to get response\nURL=" + req_url
+				text = "Unkown reasons for failing to get response\n\nURL=" + req_url
 			send_email(subject=subject, text=text, attachment_L=None, config=config)
 		else:
 			global_entities_L.extend(json_to_entities(json_data))
