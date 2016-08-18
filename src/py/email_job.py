@@ -1,5 +1,6 @@
 import requests, yaml
 from utility import get_current_time
+from translate import reverse_NA_translation
 
 
 def send_email(subject, text, attachment_L, config):
@@ -24,8 +25,9 @@ def email_csv_attachment(suffix, config, csv_path, NA_dict):
 	if NA_dict is not None:
 		subject_prefix = "[Need Translation] "
 		text = "Translation request on %s, %s\n\n\n" % (suffix, current_time)
+		NA_dict = reverse_NA_translation(NA_dict)
 		for k, v in NA_dict.items():
-			temp = k + ": " + v
+			temp = str(k) + ": " + str(v)
 			text += yaml.safe_dump(temp, allow_unicode=True, default_flow_style=False)
 	files = [("attachment", open(csv_path))]
 	return send_email(subject=subject_prefix + subject, text=text, attachment_L=files, config=config)

@@ -32,13 +32,15 @@ if __name__ == "__main__":
 		# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 		dell_entities_L = get_entities_batch(svctag_L=valid_svctag_L, url=url, config=config)
 		# Translate all Warranties of each DellAsset, and find those warranties without available translation
-		dell_asset_L, NA_dict = translate_dell_warranty(yml_url_path=transl_url, dell_asset_L=dell_entities_L)
-		# Save output into the csv_path
-		save_object_to_path(object_L=dell_asset_L, output_path=csv_output_path)
-		# Email the csv output and also all NA translation
-		email_csv_attachment(suffix=suffix, config=config, csv_path=csv_output_path, NA_dict=NA_dict)
+		if len(dell_entities_L) > 0: 
+			dell_asset_L, NA_dict = translate_dell_warranty(yml_url_path=transl_url, dell_asset_L=dell_entities_L)
+			# Save output into the csv_path
+			if len(dell_asset_L) > 0:
+				save_object_to_path(object_L=dell_asset_L, output_path=csv_output_path)
+				# Email the csv output and also all NA translation
+				if email_csv_attachment(suffix=suffix, config=config, csv_path=csv_output_path, NA_dict=NA_dict):
+					print "Sending email done..."
 	except:
-		# print "HERE>>>>>>>>>>>>>>>> main"
-		print traceback.print_exc()
 		send_email(subject=config['email_subject_error'], text=traceback.print_exc(), attachment_L=None, config=config)
+	print "HERE>>>>>>>>>>>>>>>> main"
 

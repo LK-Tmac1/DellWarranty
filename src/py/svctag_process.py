@@ -10,7 +10,6 @@ def svctags_random(d, suffix, per="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"):
 	result_L = []
 	for r_T in result_T:
 		result_L.append("".join(r_T) + suffix)
-	print "=======%s number of random svctag generated" % (len(result_L))
 	return result_L
 
 def svctags_flatten(valid_svc_L, offset=100):
@@ -34,7 +33,6 @@ def svctags_flatten(valid_svc_L, offset=100):
 			if temp_svc[len(temp_svc) - 1] == "|":
 				temp_svc = temp_svc[0:len(temp_svc) - 2]
 			result_L.append(temp_svc)
-	print result_L
 	return result_L
 
 def check_svctag_valid(svctag, dell_support_url):
@@ -46,7 +44,6 @@ def filter_invalid_svctags(svctags_L, dell_support_url):
 	for svc in svctags_L:
 		if check_svctag_valid(svctag=svc, dell_support_url=dell_support_url):
 			valid_svc_L.append(svc)
-			print "~~~~~~~~~~~~~Valid tag:", svc, "now in total=", str(len(valid_svc_L))
 	return valid_svc_L
 
 def valid_svctags_batch(dell_support_url, suffix, valid_svctag_path, d, update_svc=False):

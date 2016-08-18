@@ -30,9 +30,10 @@ def translate_dell_warranty(yml_url_path, dell_asset_L):
 	NA_dict = {}
 	for dell_asset in dell_asset_L:
 		for warranty in dell_asset.get_warranty():
-			if warranty.service_en in tran_dict:
-				warranty.set_service_ch(tran_dict[warranty.service_en])
-			else:
-				NA_dict[warranty.service_en] = dell_asset.svctag
+			if warranty is not None and warranty.service_en is not None:
+				if warranty.service_en in tran_dict:
+					warranty.set_service_ch(tran_dict[warranty.service_en])
+				else:
+					NA_dict[warranty.service_en] = dell_asset.svctag
 	return dell_asset_L, NA_dict
 

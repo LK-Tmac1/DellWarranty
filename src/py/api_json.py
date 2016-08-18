@@ -8,9 +8,8 @@ l2 = "GetAssetWarrantyResult"
 
 def get_value_by_key(json_data, key_L):
 	# Given a json dict data, and a list of keys, find the value of the last key
-	if json_data is not None:
-		temp_data = json_data
-		print json_data, "get_value_by_key"
+	temp_data = json_data
+	while temp_data is not None:
 		for key in key_L:
 			if key in temp_data:
 				temp_data = temp_data[key]
@@ -37,7 +36,6 @@ def get_response(req_url, step):
 	respon = requests.get(req_url)
 	exceed_quote = "User application has exceeded the allotted usage quota for the day"
 	if str(respon.content).find(exceed_quote) > 0:
-		print exceed_quote
 		return 1
 	if not check_response_valid(respon):
 		if step > 0:
@@ -55,7 +53,6 @@ def json_to_entities(json_data):
 	dell_asset_L = get_value_by_key(json_data, [l1,l2,"Response","DellAsset"])
 	dell_asset_object_L = []
 	if dell_asset_L is None:
-		print "dell_asset_L is None, ))))))))))))) api_json.json_to_entities"
 		return []
 	if type(dell_asset_L) == dict:
 		dell_asset_L = [dell_asset_L]
@@ -77,14 +74,12 @@ def json_to_entities(json_data):
 		svctag=json_value_transform(da["ServiceTag"])
 		ship_date=json_value_transform(da["ShipDate"])
 		dell_asset_object_L.append(DellAsset(machine_id=machine_id,svctag=svctag,ship_date=ship_date, warranty_L=warranty_L))
-		print dell_asset_object_L[-1], "\n~~~~~~~~~~~~~~~~~~~~ api_json.json_to_entities"
 	return dell_asset_object_L
 
 def get_entities_batch(svctag_L, url, config):
 	global_entities_L = []
 	for svctag in svctag_L:
 		req_url = url+svctag
-		print req_url, '\n######################### get_entities_batch'
 		json_data = get_response(req_url, step=10)
 		if type(json_data) is not dict:
 			text = ""
