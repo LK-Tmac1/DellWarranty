@@ -3,12 +3,16 @@ import yaml, requests, datetime, os
 
 def parse_cmd_args(arguments, required_arg_list):
 	arg_map = {}
-	for iarg in range(1,len(arguments)):
+	for iarg in range(1, len(arguments)):
 		arg = arguments[iarg]
 		for a in required_arg_list:
 			if arg.startswith(a):
-				arg_map[a[2:-1]] = arg.split("=",1)[1]
+				arg_map[a[2:-1]] = arg.split("=", 1)[1]
 				break
+	if arg_map == {}:
+		arg_map = {	"parent_path":"/Users/Kun/Desktop/dell/",
+					"suffix" : "3VG2W1",
+					"digit" : 1 }
 	return arg_map
 
 def get_current_time():
@@ -47,5 +51,5 @@ def save_object_to_path(object_L, output_path):
 		os.makedirs(parent_dir)
 	with open(output_path, 'w') as output:
 		for obj in object_L:
-			output.write(str(obj) + "\n")
+			output.write(str(obj)+"\n")
 	return True

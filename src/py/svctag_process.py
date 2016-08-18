@@ -1,11 +1,12 @@
 import itertools, requests, os
 from utility import read_file, save_object_to_path
 
+
 def svctags_random(d, suffix, per="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"):
 	# Generate cartisen product of per, say per="ABC", d=3 then
 	# AAA, AAB, AAC, ABA, ABB, ABC, ACA...
 	# If suffix specified, then add it to each result above.
-	result_T = itertools.product(per ,repeat=int(d))
+	result_T = itertools.product(per , repeat=int(d))
 	result_L = []
 	for r_T in result_T:
 		result_L.append("".join(r_T) + suffix)
@@ -29,12 +30,15 @@ def svctags_flatten(valid_svc_L, offset=100):
 		if len(L) == 1:
 			result_L.append(L[0])
 		elif len(L) > 1:
-			result_L.append("|".join(L))
+			temp_svc = "|".join(L)
+			if temp_svc[len(temp_svc) - 1] == "|":
+				temp_svc = temp_svc[0:len(temp_svc) - 2]
+			result_L.append(temp_svc)
 	print result_L
 	return result_L
 
 def check_svctag_valid(svctag, dell_support_url):
-	resp_suffix = requests.get(dell_support_url+svctag).url
+	resp_suffix = requests.get(dell_support_url + svctag).url
 	return True if str(resp_suffix).endswith(svctag) else False
 
 def filter_invalid_svctags(svctags_L, dell_support_url):

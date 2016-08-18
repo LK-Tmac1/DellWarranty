@@ -10,11 +10,15 @@ class Warranty(object):
 		self.end_date = end_date
 		self.service_en = service_en
 		self.is_provider = is_provider
-		self.service_ch = service_ch
+		self.set_service_ch(service_ch)
 	def __repr__(self):
 		start_D = parse(self.start_date)
 		end_D = parse(self.end_date)
-		return "%s,%s,%s年%s月%s日,%s年%s月%s日,%s" % (self.service_en,self.service_ch, start_D.year, start_D.month, start_D.day, end_D.year, end_D.month, end_D.day, self.is_provider)
+		return "%s,%s,%s年%s月%s日,%s年%s月%s日,%s" % (self.service_en, self.service_ch, start_D.year, start_D.month, start_D.day, end_D.year, end_D.month, end_D.day, self.is_provider)
+	def set_service_ch(self, service_ch):
+		self.service_ch = service_ch
+		if self.service_ch is not None:
+			self.service_ch = self.service_ch.encode('utf-8')
 
 
 class DellAsset(object):
@@ -27,11 +31,13 @@ class DellAsset(object):
 	def __repr__(self):
 		ship_D = parse(self.ship_date)
 		dell_asset = DellAsset.header + "," + Warranty.header + "\n"
-		dell_asset += "%s,%s,%s年%s月%s日" %(self.machine_id, self.svctag, ship_D.year, ship_D.month, ship_D.day)
+		dell_asset += "%s,%s,%s年%s月%s日" % (self.machine_id, self.svctag, ship_D.year, ship_D.month, ship_D.day)
 		if len(self.warranty_L) > 0:
 			dell_asset += "," + str(self.warranty_L[0]) + "\n"
 			for w in xrange(1, len(self.warranty_L)):
-				dell_asset += ",,,"+str(self.warranty_L[w]) + "\n"
+				dell_asset += ",,," + str(self.warranty_L[w]) + "\n"
 		return dell_asset
 	def get_warranty(self):
 		return self.warranty_L
+
+# w1 = Warranty("2013-12-22T17:59:59", "2013-12-22T17:59:59","ABC", "DELL")
