@@ -14,6 +14,8 @@ required_arg_list = ['--parent_path=', '--suffix=', '--digit=']
 if __name__ == "__main__":
 	# Prepare arguments for a job
 	arguments = parse_cmd_args(sys.argv, required_arg_list)
+	if arguments == {}:
+		arguments = {"parent_path":"/Users/Kun/Desktop/dell/", "suffix" : "5QYW1", "digit" : 2 }
 	suffix = arguments['suffix']
 	digit = arguments['digit']
 	parent_path = arguments['parent_path']
@@ -28,19 +30,18 @@ if __name__ == "__main__":
 	try:
 		# Generate valid service tags from all possible random permutations
 		valid_svctag_L = valid_svctags_batch(suffix=suffix, dell_support_url=config["dell_support_url"], d=digit, valid_svctag_path=valid_svctag_path)
-		#print valid_svctag_L, "============ main"
+		# print valid_svctag_L, "============ main"
 		# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 		dell_entities_L = get_entities_batch(svctag_L=valid_svctag_L, url=url, config=config)
 		# Translate all Warranties of each DellAsset, and find those warranties without available translation
 		if len(dell_entities_L) > 0: 
 			dell_asset_L, NA_dict = translate_dell_warranty(yml_url_path=transl_url, dell_asset_L=dell_entities_L)
 			# Save output into the csv_path
-			if len(dell_asset_L) > 0:
-				save_object_to_path(object_L=dell_asset_L, output_path=csv_output_path)
-				# Email the csv output and also all NA translation
-				if email_csv_attachment(suffix=suffix, config=config, csv_path=csv_output_path, NA_dict=NA_dict):
-					print "Sending email done..."
+			save_object_to_path(object_L=dell_asset_L, output_path=csv_output_path)
+			# Email the csv output and also all NA translation
+			if email_csv_attachment(suffix=suffix, config=config, csv_path=csv_output_path, NA_dict=NA_dict):
+				print "Sending email done..."
 	except:
-		send_email(subject=config['email_subject_error'], text=traceback.print_exc(), attachment_L=None, config=config)
+		send_email(subject=config['email_subject_error'], text=traceback.print_exc(), config=config)
 	print "HERE>>>>>>>>>>>>>>>> main"
 

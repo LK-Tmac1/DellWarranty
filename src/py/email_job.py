@@ -3,7 +3,7 @@ from utility import get_current_time
 from translate import reverse_NA_translation
 
 
-def send_email(subject, text, attachment_L, config):
+def send_email(subject, text, config, attachment_L=None):
 	data = {"from": config["mail_from"],
 			"to": config["mail_to"],
 			"cc": config["mail_cc"],

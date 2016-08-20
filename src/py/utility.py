@@ -9,10 +9,6 @@ def parse_cmd_args(arguments, required_arg_list):
 			if arg.startswith(a):
 				arg_map[a[2:-1]] = arg.split("=", 1)[1]
 				break
-	if arg_map == {}:
-		arg_map = {	"parent_path":"/Users/Kun/Desktop/dell/",
-					"suffix" : "3VG2W1",
-					"digit" : 1 }
 	return arg_map
 
 def get_current_time():
