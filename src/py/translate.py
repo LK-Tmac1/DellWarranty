@@ -16,13 +16,8 @@ def reverse_NA_translation(NA_dict):
 	for k, v in NA_dict.items():
 		if v not in NA_dict_reverse:
 			NA_dict_reverse[v] = ""
-		NA_dict_reverse[v] = NA_dict_reverse[v] + ", " + k
+		NA_dict_reverse[v] = NA_dict_reverse[v] + ":\t" + k
 	return NA_dict_reverse
-
-def update_NA_translation(csv_input_path, translate_url_path, csv_output_path):
-	# Given a CSV file, update all the services translations based on the 
-	# translate url path provided, and output another csv file
-	return ""
 
 def translate_dell_warranty(yml_url_path, dell_asset_L):
 	tran_dict = read_file(yml_url_path, isYML=True, isURL=True)
