@@ -32,7 +32,7 @@ def read_file(file_path, isYML, isURL=False):
 
 
 def verify_job_parameter(config_path, password, suffix, digit):
-	config = load_yaml_file(config_path)
+	config = read_file(config_path, isYML=True)
 	if password != config['password']:
 		return 1
 	if len(suffix) + int(digit) != 7:
@@ -47,5 +47,5 @@ def save_object_to_path(object_L, output_path):
 		os.makedirs(parent_dir)
 	with open(output_path, 'w') as output:
 		for obj in object_L:
-			output.write(str(obj)+"\n")
+			output.write(str(obj) + "\n")
 	return True

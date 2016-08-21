@@ -6,6 +6,7 @@ from py.utility import verify_job_parameter
 import subprocess
 
 app = Flask(__name__)
+app.debug = True
 
 result_page_dict = {
 	0 : 'confirm.html',
@@ -13,7 +14,7 @@ result_page_dict = {
 	2 : 'invalid_input.html'
 }
 
-parent_path = "/Users/kunliu/Desktop/dell/"
+# parent_path = "/Users/kunliu/Desktop/dell/"
 
 @app.route('/home')
 def home():
@@ -25,11 +26,12 @@ def submit_job():
 	suffix = request.form['suffix']
 	password = request.form['password']
 	digit = request.form['prefix_d']
-	valid = verify_job_parameter(parent_path+"dell_config.yml", password, suffix, digit)
+	parent_path = request.form['parent_path']
+	valid = verify_job_parameter(parent_path + "dell_config.yml", password, suffix, digit)
 	if valid == 0:
-		cmd_L = ["python", "./py/main.py", "--parent_path="+parent_path, "--suffix="+suffix, "--digit="+digit]
+		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--suffix=" + suffix, "--digit=" + digit]
 		subprocess.Popen(cmd_L)
 	return render_template(result_page_dict[valid])
 
 if __name__ == "__main__":
-    app.run()
+	app.run()
