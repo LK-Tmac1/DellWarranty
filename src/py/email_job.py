@@ -15,7 +15,7 @@ def send_email(subject, text, config, attachment_L=None):
 	return result.status_code == 200
 
 
-def email_csv_attachment(suffix, config, csv_path, NA_dict):
+def email_job_output_translation(suffix, config, csv_path, NA_dict):
 	# If all services translation available, just send CSV as attachment
 	# Otherwise, write the service_en and svctag as text on the email
 	current_time = get_current_time()

@@ -16,7 +16,7 @@ def reverse_NA_translation(NA_dict):
 	for k, v in NA_dict.items():
 		if v not in NA_dict_reverse:
 			NA_dict_reverse[v] = ""
-		NA_dict_reverse[v] = NA_dict_reverse[v] + ":\t" + k
+		NA_dict_reverse[v] = NA_dict_reverse[v] + ", " + k
 	return NA_dict_reverse
 
 def translate_dell_warranty(yml_url_path, dell_asset_L):

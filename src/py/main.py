@@ -2,7 +2,7 @@ from svctag_process import valid_svctags_batch
 from api_json import get_entities_batch
 from utility import read_file, get_current_time, parse_cmd_args, save_object_to_path
 from translate import translate_dell_warranty
-from email_job import send_email, email_csv_attachment
+from email_job import send_email, email_job_output_translation
 import traceback, sys
 
 # python main.py --parent_path=/Users/kunliu/Desktop/dell/ --suffix=3VG2W1 --digit=1
@@ -15,7 +15,7 @@ if __name__ == "__main__":
 	# Prepare arguments for a job
 	arguments = parse_cmd_args(sys.argv, required_arg_list)
 	if arguments == {}:
-		arguments = {"parent_path":"/Users/Kun/Desktop/dell/", "suffix" : "5QYW1", "digit" : 2 }
+		arguments = {"parent_path":"/Users/Kun/Desktop/dell/", "suffix" : "55QYW1", "digit" : 1 }
 	suffix = arguments['suffix']
 	digit = arguments['digit']
 	parent_path = arguments['parent_path']
@@ -39,7 +39,7 @@ if __name__ == "__main__":
 			# Save output into the csv_path
 			save_object_to_path(object_L=dell_asset_L, output_path=csv_output_path)
 			# Email the csv output and also all NA translation
-			if email_csv_attachment(suffix=suffix, config=config, csv_path=csv_output_path, NA_dict=NA_dict):
+			if email_job_output_translation(suffix=suffix, config=config, csv_path=csv_output_path, NA_dict=NA_dict):
 				print "Sending email done..."
 	except:
 		send_email(subject=config['email_subject_error'], text=traceback.print_exc(), config=config)
