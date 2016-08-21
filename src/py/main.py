@@ -14,8 +14,8 @@ required_arg_list = ['--parent_path=', '--suffix=', '--digit=']
 if __name__ == "__main__":
 	# Prepare arguments for a job
 	arguments = parse_cmd_args(sys.argv, required_arg_list)
-	if arguments == {}:
-		arguments = {"parent_path":"/Users/Kun/Desktop/dell/", "suffix" : "55QYW1", "digit" : 1 }
+	#if arguments == {}:
+	#	arguments = {"parent_path":"/Users/Kun/Desktop/dell/", "suffix" : "55QYW1", "digit" : 1 }
 	suffix = arguments['suffix']
 	digit = arguments['digit']
 	parent_path = arguments['parent_path']
