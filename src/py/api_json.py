@@ -63,7 +63,7 @@ def json_to_entities(json_data, config):
 			if w_response is not None:
 				if type(w_response) == dict:
 					w_response = [w_response]
-				print da, "\n######"
+				#print da, "\n######"
 				for w in w_response:
 					start_date = json_value_transform(w["StartDate"])
 					end_date = json_value_transform(w["EndDate"])
@@ -76,7 +76,7 @@ def json_to_entities(json_data, config):
 			svctag = json_value_transform(da["ServiceTag"])
 			ship_date = json_value_transform(da["ShipDate"])
 			dell_asset_object_L.append(DellAsset(machine_id=machine_id, svctag=svctag, ship_date=ship_date, warranty_L=warranty_L))
-			print dell_asset_object_L[-1], "\n>>>>>>>>>>>>>>>"
+			#print dell_asset_object_L[-1], "\n>>>>>>>>>>>>>>>"
 	return dell_asset_object_L
 
 def get_entities_batch(svctag_L, url, config):
