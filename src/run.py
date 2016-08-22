@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from flask import Flask, render_template
 from flask.globals import request
 from py.utility import verify_job_parameter
@@ -11,15 +9,13 @@ app.debug = True
 result_page_dict = {
 	0 : 'confirm.html',
 	1 : 'invalid_pwd.html',
-	2 : 'invalid_input.html'
+	2 : 'invalid_input.html',
+	3 : 'invalid_config.html'
 }
-
-# parent_path = "/Users/Kun/Desktop/dell/"
 
 @app.route('/home')
 def home():
 	return render_template('home.html')
-
 
 @app.route('/home', methods=['POST'])
 def submit_job():

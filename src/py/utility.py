@@ -28,6 +28,8 @@ def read_file(file_path, isYML, isURL=False):
 
 def verify_job_parameter(config_path, password, suffix, digit):
 	config = read_file(config_path, isYML=True)
+	if config == None:
+		return 3
 	if password != config['password']:
 		return 1
 	if len(suffix) + int(digit) != 7:

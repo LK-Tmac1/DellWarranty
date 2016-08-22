@@ -5,7 +5,7 @@ from translate import translate_dell_warranty
 from email_job import send_email, email_job_output_translation
 import traceback, sys
 
-# python main.py --parent_path=/Users/kunliu/Desktop/dell/ --suffix=3VG2W1 --digit=1
+# python main.py --parent_path=/Users/Kun/Desktop/dell/ --suffix=3VG2W1 --digit=1
 # python main.py --parent_path=/home/ec2-user/dell/ --suffix=3VG2W1 --digit=1
 
 required_arg_list = ['--parent_path=', '--suffix=', '--digit=']
