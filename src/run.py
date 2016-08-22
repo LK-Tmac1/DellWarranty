@@ -14,7 +14,7 @@ result_page_dict = {
 	2 : 'invalid_input.html'
 }
 
-# parent_path = "/Users/kunliu/Desktop/dell/"
+# parent_path = "/Users/Kun/Desktop/dell/"
 
 @app.route('/home')
 def home():
@@ -26,7 +26,7 @@ def submit_job():
 	suffix = request.form['suffix']
 	password = request.form['password']
 	digit = request.form['prefix_d']
-	parent_path = request.form['parent_path']
+	parent_path = "/Users/Kun/Desktop/dell/" if 'parent_path' not in request.form else request.form['parent_path']
 	valid = verify_job_parameter(parent_path + "dell_config.yml", password, suffix, digit)
 	if valid == 0:
 		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--suffix=" + suffix, "--digit=" + digit]

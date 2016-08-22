@@ -16,20 +16,15 @@ def get_current_time():
 
 def read_file(file_path, isYML, isURL=False):
 	# Read input file in .yml format, either the yml_path is a URL or or local path
-	if isYML:
-		if isURL:
-			resp = requests.get(file_path)
-			return yaml.load(resp.content)
-		else:
-			with open(file_path, "r") as value:
-				return yaml.load(value)
+	if isURL:
+		resp = requests.get(file_path)
+		if str(resp.status_code) == '200':
+			return yaml.load(resp.content) if isYML else resp.content
 	else:
 		if os.path.exists(file_path):
 			with open(file_path, "r") as value:
-				return value.read()
-		else:
-			return None
-
+				return yaml.load(value) if isYML else value.read()
+	return None
 
 def verify_job_parameter(config_path, password, suffix, digit):
 	config = read_file(config_path, isYML=True)
@@ -37,8 +32,7 @@ def verify_job_parameter(config_path, password, suffix, digit):
 		return 1
 	if len(suffix) + int(digit) != 7:
 		return 2
-	else:
-		return 0
+	return 0
 
 def save_object_to_path(object_L, output_path):
 	parent_dir = output_path[0:output_path.rfind("/")]
