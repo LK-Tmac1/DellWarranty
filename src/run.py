@@ -4,7 +4,7 @@ from py.utility import verify_job_parameter
 import subprocess
 
 app = Flask(__name__)
-app.debug = True
+app.debug = False
 
 result_page_dict = {
 	0 : 'confirm.html',
@@ -30,4 +30,4 @@ def submit_job():
 	return render_template(result_page_dict[valid])
 
 if __name__ == "__main__":
-	app.run()
+	app.run('0.0.0.0')
