@@ -46,10 +46,10 @@ def filter_invalid_svctags(svctags_L, dell_support_url):
 			valid_svc_L.append(svc)
 	return valid_svc_L
 
-def valid_svctags_batch(dell_support_url, suffix, valid_svctag_path, d, update_svc=False):
+def valid_svctags_batch(dell_support_url, suffix, valid_svctag_path, d):
 	# If the valid_svctag_path is already there, no need to regenerate valid svctags
 	valid_svc_L = []
-	if not os.path.exists(valid_svctag_path) or update_svc:
+	if not os.path.exists(valid_svctag_path):
 		svctags_random_L = svctags_random(d, suffix)
 		valid_svc_L = filter_invalid_svctags(svctags_random_L, dell_support_url)
 		save_object_to_path(object_L=valid_svc_L, output_path=valid_svctag_path)
