@@ -6,15 +6,17 @@ from email_job import send_email
 l1 = "GetAssetWarrantyResponse"
 l2 = "GetAssetWarrantyResult"
 
-error_exceed_quote = "User application has exceeded the allotted usage quota for the day"
+error_exceed_quote = "Service Profile Throttle Limit Reached"
 error_incorrect_tags = "The number of tags that returned no data exceeded the maximum percentage of incorrect tags"
 error_internal_auth = "The request has failed due to an internal authorization configuration issue"
 error_api_key = "User Identification failed in Key Management Service"
+error_unknown = "Unknown error happened"
 
-error_code = { 	1:error_exceed_quote,
-				2:error_incorrect_tags,
-				3:error_internal_auth,
-				4:error_api_key }
+error_code = { 	-1 : error_unknown,
+				1 : error_exceed_quote,
+				2 : error_incorrect_tags,
+				3 : error_internal_auth,
+				4 : error_api_key }
 
 def get_value_by_key(json_data, key_L):
 	# Given a json dict data, and a list of keys, find the value of the last key
@@ -71,7 +73,7 @@ def json_to_entities(json_data, config):
 			svctag = json_value_transform(da, "ServiceTag")
 			ship_date = json_value_transform(da, "ShipDate")
 			dell_asset_object_L.append(DellAsset(machine_id=machine_id, svctag=svctag, ship_date=ship_date, warranty_L=warranty_L))
-			# print dell_asset_object_L[-1], "\n>>>>>>>>>>>>>>>"
+			print dell_asset_object_L[-1], "\n>>>>>>>>>>>>>>>"
 	return dell_asset_object_L
 
 def get_response_batch(req_url, step, config):
@@ -84,7 +86,8 @@ def get_response_batch(req_url, step, config):
 		return get_response_batch(req_url, step - 1, config)
 	else:
 		subject = config['email_subject_error']
-		text = error_code[code] + req_url
+		text = error_code[code] + "\n\n" + req_url
+		print "Error message:\n", text
 		send_email(subject=subject, text=text, config=config)
 		return None
 
