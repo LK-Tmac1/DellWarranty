@@ -1,22 +1,8 @@
 import requests
 from entity import Warranty, DellAsset
 from email_job import send_email
+from constant import api_json_l1, api_json_l2, api_error_code
 
-
-l1 = "GetAssetWarrantyResponse"
-l2 = "GetAssetWarrantyResult"
-
-error_exceed_quote = "Service Profile Throttle Limit Reached"
-error_incorrect_tags = "The number of tags that returned no data exceeded the maximum percentage of incorrect tags"
-error_internal_auth = "The request has failed due to an internal authorization configuration issue"
-error_api_key = "User Identification failed in Key Management Service"
-error_unknown = "Unknown error happened"
-
-error_code = { 	-1 : error_unknown,
-				1 : error_exceed_quote,
-				2 : error_incorrect_tags,
-				3 : error_internal_auth,
-				4 : error_api_key }
 
 def get_value_by_key(json_data, key_L):
 	# Given a json dict data, and a list of keys, find the value of the last key
@@ -31,16 +17,16 @@ def verify_response_code(respon):
 	# Check if response is valid or not
 	if str(respon.status_code) != '200':
 		content = str(respon.content)
-		for k, v in error_code.items():
+		for k, v in api_error_code.items():
 			if content.find(v) > 0:
 				return k
 		return -1
 	else:
 		json_response = respon.json()
 		if type(json_response) is dict:
-			# In rare case, the Faults is not None but there could still be DeaaAsset JSON data
-			if get_value_by_key(json_response, [l1, l2, "Faults"]) is None or \
-				get_value_by_key(json_response, [l1, l2, "Response", "DellAsset"]) is not None:
+			# In rare case, the Faults is not None but there could still be DellAsset JSON data
+			if get_value_by_key(json_response, [api_json_l1, api_json_l2, "Faults"]) is None or \
+				get_value_by_key(json_response, [api_json_l1, api_json_l2, "Response", "DellAsset"]) is not None:
 				return 0
 	
 def json_value_transform(data, key):
@@ -49,7 +35,7 @@ def json_value_transform(data, key):
 def json_to_entities(json_data, config):
 	# Given a JSON format data, return a list of DellAsset objects
 	# print json_data, "\n~~~~~~~~~~~~~~~~~"
-	dell_asset_L = get_value_by_key(json_data, [l1, l2, "Response", "DellAsset"])
+	dell_asset_L = get_value_by_key(json_data, [api_json_l1, api_json_l2, "Response", "DellAsset"])
 	if dell_asset_L is None:
 		return []
 	if type(dell_asset_L) == dict:
@@ -86,7 +72,7 @@ def get_response_batch(req_url, step, config):
 		return get_response_batch(req_url, step - 1, config)
 	else:
 		subject = config['email_subject_error']
-		text = error_code[code] + "\n\n" + req_url
+		text = api_error_code[code] + "\n\n" + req_url
 		print "Error message:\n", text
 		send_email(subject=subject, text=text, config=config)
 		return None

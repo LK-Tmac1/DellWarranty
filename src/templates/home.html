@@ -15,23 +15,21 @@
 		<form id="job_form" class="appnitro"  method="post">
 		<ul>
 			<li><h2>Dell机器保修查询</h2></li>
-			<li><h4>输入服务标签后缀</h4></li>
-			<li><input type="text" name="suffix" class="search-field"/></li>
+			<li><h4>输入服务标签</h4></li>
+			<li>
+			<input type="text" name="svc1" class="search-field" style="width:20px;text-transform:uppercase" maxlength="1"/>
+			<input type="text" name="svc2" class="search-field" style="width:20px;text-transform:uppercase" maxlength="1"/>
+			<input type="text" name="svc3" class="search-field" style="width:20px;text-transform:uppercase" maxlength="1"/>
+			<input type="text" name="svc4" class="search-field" style="width:20px;text-transform:uppercase" maxlength="1"/>
+			<input type="text" name="svc5" class="search-field" style="width:20px;text-transform:uppercase" maxlength="1"/>
+			<input type="text" name="svc6" class="search-field" style="width:20px;text-transform:uppercase" maxlength="1"/>
+			<input type="text" name="svc7" class="search-field" style="width:20px;text-transform:uppercase" maxlength="1"/>
+			</li>
 			<li><h4>输入密码</h4></li>
 			<li><input type="password" name="password" class="search-field"/></li>
 			<li><h5>测试用文件路径（请勿改动）</h5></li>
 			<li><input type="text" name="parent_path" class="search-field" value="/home/ec2-user/dell/"/></li>
-			<li><h4>选择字母前缀个数</h4>
-					<div>
-						<select class="element select" name="prefix_d"> 
-							<option value="1" >1</option>
-							<option value="2" >2</option>
-							<option value="3" selected >3</option>
-							<option value="4" >4</option>
-						</select>
-					</div>
-			</li>
-			<li class="buttons"><input id="saveForm" class="button_text" type="submit" value="提交任务" class="submit" style="width:8em;height:auto"/></li>
+			<li class="buttons"><input id="saveForm" class="button_text" type="submit" value="开始自动查询保修" class="submit" style="width:8em;height:auto"/></li>
 		</ul>
 		</form>	
 	</div>

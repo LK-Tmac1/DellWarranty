@@ -26,14 +26,15 @@ def read_file(file_path, isYML, isURL=False):
 				return yaml.load(value) if isYML else value.read()
 	return None
 
-def verify_job_parameter(config_path, password, suffix, digit):
+def verify_job_parameter(config_path, password, svc_L):
 	config = read_file(config_path, isYML=True)
 	if config == None:
 		return 3
 	if password != config['password']:
 		return 1
-	if len(suffix) + int(digit) != 7:
-		return 2
+	for svc in svc_L:
+		if svc.upper() not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789':
+			return 2
 	return 0
 
 def save_object_to_path(object_L, output_path):
