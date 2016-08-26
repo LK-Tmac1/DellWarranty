@@ -26,3 +26,8 @@ api_error_code = {
 api_json_l1 = "GetAssetWarrantyResponse"
 api_json_l2 = "GetAssetWarrantyResult"
 
+file_config_name = "dell_config.yml"
+file_valid_svc_name = "valid_svctags.txt"
+
+svc_delimitor = ":"
+api_offset = 50

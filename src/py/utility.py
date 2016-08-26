@@ -46,3 +46,13 @@ def save_object_to_path(object_L, output_path):
 		for obj in object_L:
 			output.write(str(obj) + "\n")
 	return True
+
+def list_text_name_in_dir(input_path):
+	if not os.path.exists(input_path):
+		return None
+	names = []
+	for n in set(os.listdir(input_path)):
+		if n.endswith('.txt'):
+			names.append(n[0:len(n)-len('.txt')])
+	return names
+	

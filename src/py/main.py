@@ -4,24 +4,20 @@ from utility import read_file, get_current_time, parse_cmd_args, save_object_to_
 from translate import translate_dell_warranty
 from email_job import send_email, email_job_output_translation
 import traceback, sys
+from constant import file_config_name
 
-# python main.py --parent_path=/Users/Kun/Desktop/dell/ --suffix=3VG2W1 --digit=1
-# python main.py --parent_path=/home/ec2-user/dell/ --suffix=3VG2W1 --digit=1
-
-required_arg_list = ['--parent_path=', '--suffix=', '--digit=']
-
+required_arg_list = ['--parent_path=', '--svctag=']
 
 if __name__ == "__main__":
 	# Prepare arguments for a job
 	arguments = parse_cmd_args(sys.argv, required_arg_list)
-	#if arguments == {}:
-	#	arguments = {"parent_path":"/Users/Kun/Desktop/dell/", "suffix" : "55QYW1", "digit" : 1 }
-	suffix = arguments['suffix']
-	digit = arguments['digit']
+	print arguments
+	#"""
+	svctags = arguments['svctag']
 	parent_path = arguments['parent_path']
-	config = read_file(parent_path + "dell_config.yml", isYML=True)
-	valid_svctag_path = "%svalid_svctags/%s_%s.txt" % (parent_path, suffix, digit)
-	csv_output_path = "%soutput/%s_%s.csv" % (parent_path, suffix, digit)
+	config = read_file(parent_path + file_config_name, isYML=True)
+	valid_svctag_path = parent_path + "valid_svctags.txt"
+	csv_output_path = parent_path + "output/"
 	url = config['dell_api_url'] % config["dell_api_key"]
 	transl_url = config["translation_url"]
 	current_time = get_current_time()
@@ -44,4 +40,4 @@ if __name__ == "__main__":
 	except:
 		send_email(subject=config['email_subject_error'], text=traceback.print_exc(), config=config)
 	print "HERE>>>>>>>>>>>>>>>> main"
-
+	#"""
