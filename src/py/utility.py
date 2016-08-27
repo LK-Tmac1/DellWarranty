@@ -1,5 +1,15 @@
+# -*- coding: utf-8 -*-
+
 import yaml, requests, datetime, os
-from constant import letters
+from constant import letters, history_DA_file_format
+from dateutil.parser import parse
+
+def parse_str_date(str_date):
+	try:
+		date_object = parse(str_date)
+		return "%s年%s月%s日" % (date_object.year, date_object.month, date_object.day)
+	except:
+		return str_date
 
 def check_letter_valid(letter):
 		return letter != "" and letter.upper() in letters
@@ -51,13 +61,13 @@ def save_object_to_path(object_L, output_path):
 				output.write(str(obj) + "\n")
 	return True
 
-def list_file_name_in_dir(input_path, file_suffix='.txt'):
+def list_file_name_in_dir(input_path):
 	if not os.path.exists(input_path):
 		return None
 	names = []
 	for n in set(os.listdir(input_path)):
-		if n.endswith(file_suffix):
-			names.append(n[0:len(n) - len(file_suffix)])
+		if n.endswith(history_DA_file_format):
+			names.append(n[0:len(n) - len(history_DA_file_format)])
 	return names
 	
 def load_file_as_set(valid_svctag_path):
@@ -108,14 +118,5 @@ class Logger(object):
 		return self.get_message_by_type("ERROR")
 	def get_warn_only(self):
 		return self.get_message_by_type("WARN")
-
-log = Logger()
-log.info("A")
-log.warn("B")
-log.error("C")
-log.error("D")
-print log
-print "+======="
-print log.get_error_only()
-print "+======="
-print log.get_warn_only()
+	def get_info_only(self):
+		return self.get_message_by_type("INFO")

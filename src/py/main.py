@@ -3,6 +3,7 @@ from api_entity import api_entities_batch
 from utility import read_file, get_current_time, parse_cmd_args, save_object_to_path, Logger
 from translate import translate_dell_warranty
 from email_job import send_email, email_job_output_translation
+from entity.DellAsset import load_dell_asset
 from constant import svc_delimitor, file_config_name
 import traceback, sys
 
@@ -23,14 +24,13 @@ if __name__ == "__main__":
 	transl_url = config["translation_url"]
 	dell_support_url = config['dell_support_url']
 	current_time = get_current_time()
-	config['email_subject_error'] = config['email_subject_error'] % (current_time, svctag)
-	config['email_subject_warning'] = config['email_subject_warning'] % (current_time, svctag)
-	log_output_path = "%slog/%s_svctag=%s.txt" % (parent_path, current_time, svctag)
+	log_output_path = "%slog/%s__%s.txt" % (parent_path, current_time, svctag)
 	logger = Logger()
 	try:
 		target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
 		# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 		api_entities_L = api_entities_batch(target_svc_L, api_url, logger)
+		existing_entities_L = load_dell_asset(dell_asset_path, existing_svc_S)
 		# Translate all Warranties of each DellAsset, and find those warranties without available translation
 		if len(api_entities_L) > 0: 
 			dell_asset_L, NA_dict = translate_dell_warranty(yml_url_path=transl_url, dell_asset_L=api_entities_L)
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 	logger.append("\nFINISH>>>>>>>>>>>>>>>> main")
 	save_object_to_path(object_L=logger, output_path=log_output_path)
 	if logger.has_error:
-		send_email(subject=config['email_subject_error'], text=logger.get_error_only(), config=config)
+		send_email(subject=config['email_subject_error'] % (current_time, svctag), text=logger.get_error_only(), config=config)
 	if logger.has_warn:
-		send_email(subject=config['email_subject_warn'], text=logger.get_warn_only(), config=config)
+		send_email(subject=config['email_subject_warning'] % (current_time, svctag), text=logger.get_warn_only(), config=config)
 		

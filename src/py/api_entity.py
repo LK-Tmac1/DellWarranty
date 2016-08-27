@@ -56,15 +56,16 @@ def get_response_batch(req_url, logger):
 
 def json_to_entities(json_data, logger):
 	# Given a JSON format data, return a list of DellAsset objects
-	# print json_data, "\n~~~~~~~~~~~~~~~~~"
 	dell_asset_L = get_value_by_key(json_data, [l1, l2, "Response", "DellAsset"])
 	if dell_asset_L is None:
-		logger.warn("No Dell Asset exists")
+		logger.warn("No Dell Asset exists:\n" + json_data)
 		return []
 	if type(dell_asset_L) == dict:
 		dell_asset_L = [dell_asset_L]
 	dell_asset_object_L = []
+	has_None_DA = False
 	for da in dell_asset_L:
+		has_None_W = False
 		if da is not None:
 			w_response = get_value_by_key(da, ["Warranties", "Warranty"])
 			warranty_L = []
@@ -77,11 +78,18 @@ def json_to_entities(json_data, logger):
 					service_en = json_value_transform(w, "ServiceLevelDescription")
 					is_provider = json_value_transform(w, "ServiceProvider") if "@nil" not in w["ServiceProvider"] else "DELL"
 					warranty_L.append(Warranty(start_date=start_date, end_date=end_date, service_en=service_en, is_provider=is_provider))
+			else:
+				has_None_W = True
 			machine_id = json_value_transform(da, "MachineDescription")
 			svctag = json_value_transform(da, "ServiceTag")
 			ship_date = json_value_transform(da, "ShipDate")
 			dell_asset_object_L.append(DellAsset(machine_id=machine_id, svctag=svctag, ship_date=ship_date, warranty_L=warranty_L))
-			#logger.info(dell_asset_object_L[-1])
+		else:
+			has_None_DA = True
+		if has_None_W:
+			logger.warn("Warranty response is None\n" + da)
+	if has_None_DA:	
+		logger.warn("Dell Asset has None value:\n" + json_data)
 	return dell_asset_object_L
 
 def api_entities_batch(target_svc_L, api_url, logger):
