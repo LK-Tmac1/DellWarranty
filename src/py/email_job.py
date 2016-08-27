@@ -15,16 +15,16 @@ def send_email(subject, text, config, attachment_L=None):
 	return result.status_code == 200
 
 
-def email_job_output_translation(suffix, config, csv_path, NA_dict):
+def email_job_output_translation(svctag, config, csv_path, NA_dict):
 	# If all services translation available, just send CSV as attachment
 	# Otherwise, write the service_en and svctag as text on the email
 	current_time = get_current_time()
-	subject = "CSV output generated on %s, %s" % (suffix, current_time)
+	subject = "CSV output generated on %s, %s" % (svctag, current_time)
 	subject_prefix = "[Job done] "
-	text = "No additional translation needed for this %s" % (suffix)
+	text = "No additional translation needed for this job"
 	if NA_dict is not None:
 		subject_prefix = "[Need Translation] "
-		text = "Translation request on %s, %s\n\n\n" % (suffix, current_time)
+		text = "Translation request on %s\n\n\n" % (current_time)
 		NA_dict = reverse_NA_translation(NA_dict)
 		for k, v in NA_dict.items():
 			temp = str(k) + ": " + str(v)

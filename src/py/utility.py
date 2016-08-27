@@ -1,5 +1,8 @@
 import yaml, requests, datetime, os
+from constant import letters
 
+def check_letter_valid(letter):
+		return letter != "" and letter.upper() in letters
 
 def parse_cmd_args(arguments, required_arg_list):
 	arg_map = {}
@@ -33,7 +36,7 @@ def verify_job_parameter(config_path, password, svc_L):
 	if password != config['password']:
 		return 1
 	for svc in svc_L:
-		if svc.upper() not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789':
+		if svc.strip() != "" and svc.upper() not in letters:
 			return 2
 	return 0
 
@@ -48,17 +51,71 @@ def save_object_to_path(object_L, output_path):
 				output.write(str(obj) + "\n")
 	return True
 
-def list_file_name_in_dir(input_path, file_suffix):
+def list_file_name_in_dir(input_path, file_suffix='.txt'):
 	if not os.path.exists(input_path):
 		return None
 	names = []
 	for n in set(os.listdir(input_path)):
 		if n.endswith(file_suffix):
-			names.append(n[0:len(n)-len(file_suffix)])
+			names.append(n[0:len(n) - len(file_suffix)])
 	return names
 	
 def load_file_as_set(valid_svctag_path):
 	_file = read_file(valid_svctag_path, isYML=False)
-	_set = set(svc_file.split("\n"))
+	_set = set(_file.split("\n"))
 	_set.remove('')
 	return _set
+
+class Logger(object):
+	def __init__(self):
+		self.info_header = "[INFO] "
+		self.warn_header = "[WARN] "
+		self.error_header = "[ERROR] "
+		self.message_Q = {0 : self.info_header + "Start logging"}
+		self.message_count = 1
+		self.has_error = False
+		self.has_warn = False
+		self.info_index_L = []
+		self.warn_index_L = []
+		self.error_index_L = []
+		self.message_type_D = {"ERROR" : self.error_index_L,
+							   "WARN" : self.warn_index_L,
+							   "INFO" : self.info_index_L}
+	def add_message(self, message, message_index_L, header):
+		self.message_Q[self.message_count] = header + message
+		message_index_L.append(self.message_count)
+		self.message_count += 1
+	def info(self, info):
+		self.add_message(header=self.info_header, message=info, message_index_L=self.info_index_L)
+	def warn(self, warn):
+		self.add_message(header=self.warn_header, message=warn, message_index_L=self.warn_index_L)
+		self.has_warn = True
+	def error(self, error):
+		self.add_message(header=self.error_header, message=error, message_index_L=self.error_index_L)
+		self.has_error = True
+	def __repr__(self):
+		temp_L = []
+		for i in xrange(0, self.message_count):
+			temp_L.append(self.message_Q[i])
+		return "\n".join(temp_L)
+	def get_message_by_type(self, message_type):
+		temp_message_L = []
+		message_index_L = self.message_type_D[message_type]
+		for i in message_index_L:
+			temp_message_L.append(self.message_Q[i])
+		return "\n".join(temp_message_L)
+	def get_error_only(self):
+		return self.get_message_by_type("ERROR")
+	def get_warn_only(self):
+		return self.get_message_by_type("WARN")
+
+log = Logger()
+log.info("A")
+log.warn("B")
+log.error("C")
+log.error("D")
+print log
+print "+======="
+print log.get_error_only()
+print "+======="
+print log.get_warn_only()
