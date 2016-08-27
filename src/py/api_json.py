@@ -32,7 +32,7 @@ def verify_response_code(respon):
 def json_value_transform(data, key):
 	return str(data[key]).replace(',', ' ') if data is not None and type(data) is dict and key in data else ""
 
-def json_to_entities(json_data, config):
+def json_to_entities(json_data):
 	# Given a JSON format data, return a list of DellAsset objects
 	# print json_data, "\n~~~~~~~~~~~~~~~~~"
 	dell_asset_L = get_value_by_key(json_data, [api_json_l1, api_json_l2, "Response", "DellAsset"])
@@ -77,7 +77,7 @@ def get_response_batch(req_url, step, config):
 		send_email(subject=subject, text=text, config=config)
 		return None
 
-def get_entities_batch(svctag_L, url, config):
+def get_entities_batch(svc_L, url, config, logging, dell_asset_path, valid_svctag_path):
 	global_entities_L = []
 	for svctag in svctag_L:
 		req_url = url + svctag

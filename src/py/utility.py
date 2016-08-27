@@ -44,15 +44,21 @@ def save_object_to_path(object_L, output_path):
 		os.makedirs(parent_dir)
 	with open(output_path, 'w') as output:
 		for obj in object_L:
-			output.write(str(obj) + "\n")
+			if str(obj) != '':
+				output.write(str(obj) + "\n")
 	return True
 
-def list_text_name_in_dir(input_path):
+def list_file_name_in_dir(input_path, file_suffix):
 	if not os.path.exists(input_path):
 		return None
 	names = []
 	for n in set(os.listdir(input_path)):
-		if n.endswith('.txt'):
-			names.append(n[0:len(n)-len('.txt')])
+		if n.endswith(file_suffix):
+			names.append(n[0:len(n)-len(file_suffix)])
 	return names
 	
+def load_file_as_set(valid_svctag_path):
+	_file = read_file(valid_svctag_path, isYML=False)
+	_set = set(svc_file.split("\n"))
+	_set.remove('')
+	return _set
