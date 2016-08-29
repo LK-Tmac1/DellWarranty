@@ -5,6 +5,8 @@ from constant import letters, history_DA_file_format
 from dateutil.parser import parse
 
 def parse_str_date(str_date):
+	if str(str_date).strip() == "" or str_date is None:
+		return ""
 	try:
 		date_object = parse(str_date)
 		return "%s年%s月%s日" % (date_object.year, date_object.month, date_object.day)

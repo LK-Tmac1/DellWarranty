@@ -7,7 +7,7 @@ from py.constant import svc_delimitor, file_config_name, svc_placeholder
 import subprocess
 
 app = Flask(__name__)
-
+error_message = {1 : '密码输入不正确', 2 : '服务标签输入不正确', 3 : '测试用文件路径不存在，请勿改动'}
 
 @app.route('/home')
 def home():
@@ -27,7 +27,6 @@ def submit_job():
 		subprocess.Popen(cmd_L)
 		return render_template("confirm.html")
 	else:
-		error_message = {1 : '密码输入不正确', 2 : '服务标签输入不正确', 3 : '测试用文件路径不存在，请勿改动'}
 		return render_template("error-input.html", error_message=unicode(error_message[valid_code], 'utf-8'))
 
 if __name__ == "__main__":
