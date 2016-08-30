@@ -75,7 +75,8 @@ def list_file_name_in_dir(input_path):
 def load_file_as_set(valid_svctag_path):
 	_file = read_file(valid_svctag_path, isYML=False)
 	_set = set(_file.split("\n"))
-	_set.remove('')
+	if '' in _set:
+		_set.remove('')
 	return _set
 
 class Logger(object):
@@ -94,6 +95,7 @@ class Logger(object):
 							   "WARN" : self.warn_index_L,
 							   "INFO" : self.info_index_L}
 	def add_message(self, message, message_index_L, header):
+		message = "" if message is None else str(message)
 		self.message_Q[self.message_count] = header + message
 		message_index_L.append(self.message_count)
 		self.message_count += 1

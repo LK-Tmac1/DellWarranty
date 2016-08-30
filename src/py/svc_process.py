@@ -75,7 +75,7 @@ def target_svctags_batch(svc_L, dell_support_url, history_dell_asset_path, histo
 	logger.info("Begin svctags processing batch")
 	history_valid_svc_S = load_file_as_set(history_valid_svctag_path)
 	logger.info("Load history valid svctag file")
-	history_dellasset_S = set(list_file_name_in_dir(history_dell_asset_path, file_suffix='.txt'))
+	history_dellasset_S = set(list_file_name_in_dir(history_dell_asset_path))
 	logger.info("Read history dell asset path")
 	all_svc_S = set(svctags_generator(svc_L))
 	logger.info("Generate all possible svctags")

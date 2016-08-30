@@ -1,4 +1,4 @@
-from utility import read_file
+from utility import read_file, save_object_to_path
 
 
 def filter_NA_translation(tran_dict):
@@ -19,16 +19,27 @@ def reverse_NA_translation(NA_dict):
 		NA_dict_reverse[v] = NA_dict_reverse[v] + ", " + k
 	return NA_dict_reverse
 
-def translate_dell_warranty(yml_url_path, dell_asset_L):
+def translate_dell_warranty(yml_url_path, dell_asset_L, logger):
 	tran_dict = read_file(yml_url_path, isYML=True, isURL=True)
 	tran_dict = filter_NA_translation(tran_dict)
+	logger.info("Read translation from " + yml_url_path)
 	NA_dict = {}
 	for dell_asset in dell_asset_L:
-		for warranty in dell_asset.get_warranty():
-			if warranty is not None and warranty.service_en is not None:
-				if warranty.service_en in tran_dict:
-					warranty.set_service_ch(tran_dict[warranty.service_en])
+		for w in dell_asset.get_warranty():
+			if w is not None and w.service_en is not None and w.service_ch == "":
+				if w.service_en in tran_dict:
+					w.set_service_ch(tran_dict[w.service_en])
+					dell_asset.is_translation_updated = True
 				else:
-					NA_dict[warranty.service_en] = dell_asset.svctag
+					NA_dict[w.service_en] = dell_asset.svctag
+			else:
+				logger.warn("Warranty service name not valid for %s and %s" %(dell_asset.svctag, w))
 	return dell_asset_L, NA_dict
 
+def update_dell_warranty_translation(transl_url, dell_asset_L, dell_asset_path, logger):
+	dell_asset_L, NA_dict = translate_dell_warranty(transl_url, dell_asset_L, logger)
+	for dell_asset in dell_asset_L:
+		if dell_asset.is_translation_updated:
+			save_object_to_path([dell_asset], dell_asset_path + dell_asset.svctag)
+			logger.info("Update service translation of " + dell_asset.svctag)
+	return dell_asset_L, NA_dict
