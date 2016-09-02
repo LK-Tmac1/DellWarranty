@@ -26,7 +26,7 @@ if __name__ == "__main__":
 		svc_L = svctag.split(svc_delimitor)
 		history_valid_svctag_path = parent_path + "valid_svctags.txt"
 		dell_asset_path = parent_path + "dell_asset/"
-		csv_output_path = parent_path + "output/"
+		output_csv_path = parent_path + "output/%s_%s.csv" % (current_time, svctag)
 		api_url = config['dell_api_url'] % config["dell_api_key"]
 		transl_url = config["translation_url"]
 		dell_support_url = config['dell_support_url']
@@ -41,9 +41,9 @@ if __name__ == "__main__":
 			output_dell_asset_L.extend(updated_dell_asset_L)
 			NA_dict.update(NA_dict2)
 			# Save output into the csv_path
-			save_object_to_path(object_L=output_dell_asset_L, output_path=csv_output_path)
+			save_object_to_path(object_L=output_dell_asset_L, output_path=output_csv_path)
 			# Email the csv output and also all NA translation
-			if email_job_output_translation(svctag=svctag, config=config, csv_path=csv_output_path, NA_dict=NA_dict):
+			if email_job_output_translation(svctag=svctag, config=config, csv_path=output_csv_path, NA_dict=NA_dict):
 				logger.info("Sending email done")
 			else:
 				logger.error("Sending output email failed")

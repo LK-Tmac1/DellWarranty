@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from constant import history_DA_file_format
+from constant import history_DA_file_format, service_ch_placeholder
 from utility import read_file, parse_str_date
 
 class Warranty(object):
@@ -16,7 +16,7 @@ class Warranty(object):
 		else:
 			L = warranty_str.split(',')
 			self.service_en = L[0] if len(L) > 0 else ""
-			self.service_ch = L[1] if len(L) > 1 else ""
+			self.set_service_ch(L[1] if len(L) > 1 else "")
 			self.start_date = L[2] if len(L) > 2 else ""
 			self.end_date = L[3] if len(L) > 3 else ""
 			self.is_provider = L[4] if len(L) > 4 else ""
@@ -27,12 +27,11 @@ class Warranty(object):
 		end_D = parse_str_date(self.end_date)
 		return "%s,%s,%s,%s,%s" % (self.service_en, self.service_ch, start_D, end_D, self.is_provider)
 	def set_service_ch(self, service_ch):
-		self.service_ch = service_ch
-		if self.service_ch is not None:
-			self.service_ch = self.service_ch.encode('utf-8')
+		if service_ch is not None and service_ch != "None" and service_ch != "":
+			self.service_ch = service_ch.encode('utf-8')
 			self.is_translation_updated = True
 		else:
-			self.service_ch = ""
+			self.service_ch = service_ch_placeholder
 	def is_translation_updated(self):
 		return self.is_translation_updated
 
