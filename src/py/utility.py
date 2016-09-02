@@ -58,6 +58,8 @@ def save_object_to_path(object_L, output_path):
 	if not os.path.exists(parent_dir):
 		os.makedirs(parent_dir)
 	with open(output_path, 'w') as output:
+		if object_L is not list:
+			object_L = [object_L]
 		for obj in object_L:
 			if str(obj) != '':
 				output.write(str(obj) + "\n")

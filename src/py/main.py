@@ -50,11 +50,8 @@ if __name__ == "__main__":
 		except:
 			logger.error("Exception when runing the job:")
 			logger.error(traceback.print_exc())
-			send_email(subject=config['email_subject_error'], text=traceback.print_exc(), config=config)
 		logger.info("\nFINISH>>>>>>>>>>>>>>>> main")
 		save_object_to_path(object_L=logger, output_path=log_output_path)
-		if logger.has_error:
-			send_email(subject=config['email_subject_error'] % (current_time, svctag), text=logger.get_error_only(), config=config)
-		if logger.has_warn:
-			send_email(subject=config['email_subject_warning'] % (current_time, svctag), text=logger.get_warn_only(), config=config)
-			
+		subject = 'email_subject_error' if logger.has_error else ('email_subject_warning' if logger.has_warn else 'email_subject_success')
+		subject = "%s_%s_%s" % (config[subject], current_time, svctag)
+		send_email(subject=subject, text=logger, config=config)	

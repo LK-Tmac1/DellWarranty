@@ -21,19 +21,15 @@ class Warranty(object):
 			self.end_date = L[3] if len(L) > 3 else ""
 			self.is_provider = L[4] if len(L) > 4 else ""
 			# Used for de-serailzation of warranty from .csv files
-		self.is_translation_updated = False
 	def __repr__(self):
 		start_D = parse_str_date(self.start_date)
 		end_D = parse_str_date(self.end_date)
 		return "%s,%s,%s,%s,%s" % (self.service_en, self.service_ch, start_D, end_D, self.is_provider)
 	def set_service_ch(self, service_ch):
-		if service_ch is not None and service_ch != "None" and service_ch != "":
-			self.service_ch = service_ch.encode('utf-8')
-			self.is_translation_updated = True
+		if service_ch is not None and service_ch != "" and service_ch != "None":
+			self.service_ch = service_ch  # .encode('utf-8')
 		else:
 			self.service_ch = service_ch_placeholder
-	def is_translation_updated(self):
-		return self.is_translation_updated
 
 
 class DellAsset(object):
@@ -95,3 +91,9 @@ class DellAsset(object):
 
 # w1 = Warranty("2013-12-22T17:59:59", "2013-12-22T17:59:59","ABC", "DELL")
 # da_L = DellAsset.parse_dell_asset_file_batch("/Users/Kun/Desktop/dell/dell_asset/", set(["55QYW11", "55QYW12"]))
+
+w1 = Warranty(warranty_str="Parts Only Warranty,仅限部件保修(POW),2012年12月22日,2015年12月23日,DELL")
+w2 = Warranty(warranty_str="Parts Only Warranty,None,2012年12月22日,2015年12月23日,DELL")
+print "%s" % w1.service_ch
+
+
