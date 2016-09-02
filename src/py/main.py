@@ -8,15 +8,14 @@ from constant import svc_delimitor, file_config_name
 import traceback, sys
 
 required_arg_list = ['--parent_path=', '--svctag=']
-test = True
 
 if __name__ == "__main__":
 	logger = Logger()
 	logger.info("Prepare arguments for a job")
 	current_time = get_current_time()
 	arguments = parse_cmd_args(sys.argv, required_arg_list)
-	parent_path = arguments['parent_path'] if not test else "/Users/Kun/Desktop/dell/"
-	svctag = arguments['svctag'] if not test else "5_5_Q_Y_W_1_?"
+	parent_path = arguments['parent_path']
+	svctag = arguments['svctag']
 	log_output_path = "%slog/%s_%s.txt" % (parent_path, current_time, svctag)
 	config = read_file(parent_path + file_config_name, isYML=True, isURL=False)
 	if config is None:
@@ -31,10 +30,7 @@ if __name__ == "__main__":
 		transl_url = config["translation_url"]
 		dell_support_url = config['dell_support_url']
 		try:
-			target_svc_L = ['55QYW1S', '55QYW12', '55QYW11']
-			existing_svc_S = set(["55QYW11", "55QYW12"])
-			if not test:
-				target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
+			target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
 			# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 			api_dell_asset_L = api_entities_batch(target_svc_L, api_url, logger)
 			existing_dell_asset_L = DellAsset.parse_dell_asset_file_batch(dell_asset_path, existing_svc_S, logger)
