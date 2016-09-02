@@ -97,7 +97,7 @@ def api_entities_batch(target_svc_L, api_url, logger):
 	logger.info("======Begin calling API...")
 	for svc in target_svc_L:
 		req_url = api_url + svc
-		logger.info(req_url)
+		logger.info(svc)
 		json_data = get_response_batch(req_url, logger)
 		if json_data is not None and type(json_data) is dict:
 			api_entities_L.extend(json_to_entities(json_data, logger))

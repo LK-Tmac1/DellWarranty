@@ -1,5 +1,5 @@
 from utility import read_file, save_object_to_path
-from constant import service_ch_placeholder
+from constant import service_ch_placeholder, history_DA_file_format
 
 def filter_NA_translation(tran_dict):
 	# Filter those services without available Chinese translation from the dict
@@ -41,6 +41,6 @@ def update_dell_warranty_translation(transl_url, dell_asset_L, dell_asset_path, 
 	dell_asset_L, NA_dict = translate_dell_warranty(transl_url, dell_asset_L, logger)
 	for dell_asset in dell_asset_L:
 		if dell_asset.is_translation_updated:
-			save_object_to_path([dell_asset], dell_asset_path + dell_asset.svctag)
+			save_object_to_path([dell_asset], dell_asset_path + dell_asset.svctag + history_DA_file_format)
 			logger.info("Update service translation of " + dell_asset.svctag)
 	return dell_asset_L, NA_dict

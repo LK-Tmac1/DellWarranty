@@ -2,6 +2,11 @@
 
 from constant import history_DA_file_format, service_ch_placeholder
 from utility import read_file, parse_str_date
+import sys  
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+  
 
 class Warranty(object):
 	header = "保修服务(英),保修服务(中),开始日期,结束日期,提供商"
@@ -27,7 +32,7 @@ class Warranty(object):
 		return "%s,%s,%s,%s,%s" % (self.service_en, self.service_ch, start_D, end_D, self.is_provider)
 	def set_service_ch(self, service_ch):
 		if service_ch is not None and service_ch != "" and service_ch != "None":
-			self.service_ch = service_ch  # .encode('utf-8')
+			self.service_ch = service_ch.encode('utf-8')
 		else:
 			self.service_ch = service_ch_placeholder
 
@@ -88,12 +93,3 @@ class DellAsset(object):
 			else:
 				logger.error("Parsing dell asset of %s failed" % path)
 		return da_L
-
-# w1 = Warranty("2013-12-22T17:59:59", "2013-12-22T17:59:59","ABC", "DELL")
-# da_L = DellAsset.parse_dell_asset_file_batch("/Users/Kun/Desktop/dell/dell_asset/", set(["55QYW11", "55QYW12"]))
-
-w1 = Warranty(warranty_str="Parts Only Warranty,仅限部件保修(POW),2012年12月22日,2015年12月23日,DELL")
-w2 = Warranty(warranty_str="Parts Only Warranty,None,2012年12月22日,2015年12月23日,DELL")
-print "%s" % w1.service_ch
-
-

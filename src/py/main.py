@@ -17,7 +17,7 @@ if __name__ == "__main__":
 	arguments = parse_cmd_args(sys.argv, required_arg_list)
 	parent_path = arguments['parent_path'] if not test else "/Users/Kun/Desktop/dell/"
 	svctag = arguments['svctag'] if not test else "5_5_Q_Y_W_1_?"
-	log_output_path = "%slog/%s__%s.txt" % (parent_path, current_time, svctag)
+	log_output_path = "%slog/%s_%s.txt" % (parent_path, current_time, svctag)
 	config = read_file(parent_path + file_config_name, isYML=True, isURL=False)
 	if config is None:
 		logger.error("Config %s parsed as None; job quits" % (parent_path + file_config_name))
@@ -31,7 +31,10 @@ if __name__ == "__main__":
 		transl_url = config["translation_url"]
 		dell_support_url = config['dell_support_url']
 		try:
-			target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
+			target_svc_L = ['55QYW1S', '55QYW12', '55QYW11']
+			existing_svc_S = set(["55QYW11", "55QYW12"])
+			if not test:
+				target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
 			# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 			api_dell_asset_L = api_entities_batch(target_svc_L, api_url, logger)
 			existing_dell_asset_L = DellAsset.parse_dell_asset_file_batch(dell_asset_path, existing_svc_S, logger)
@@ -50,7 +53,7 @@ if __name__ == "__main__":
 		except:
 			logger.error("Exception when runing the job:")
 			logger.error(traceback.print_exc())
-		logger.info("\nFINISH>>>>>>>>>>>>>>>> main")
+		logger.info("FINISH>>>>>>>>>>>>>>>> main")
 		save_object_to_path(object_L=logger, output_path=log_output_path)
 		subject = 'email_subject_error' if logger.has_error else ('email_subject_warning' if logger.has_warn else 'email_subject_success')
 		subject = "%s_%s_%s" % (config[subject], current_time, svctag)
