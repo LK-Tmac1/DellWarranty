@@ -53,4 +53,4 @@ if __name__ == "__main__":
 		save_object_to_path(object_L=logger, output_path=log_output_path)
 		subject = 'email_subject_error' if logger.has_error else ('email_subject_warning' if logger.has_warn else 'email_subject_success')
 		subject = "%s_%s_%s" % (config[subject], current_time, svctag)
-		send_email(subject=subject, text=logger, config=config)	
+		send_email(subject=subject, text=logger, config=config, cc_mode=False)	

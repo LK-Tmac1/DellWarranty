@@ -3,12 +3,14 @@ from utility import get_current_time
 from translate import reverse_NA_translation
 
 
-def send_email(subject, text, config, attachment_L=None):
+def send_email(subject, text, config, attachment_L=None, cc_mode=True):
 	data = {"from": config["mail_from"],
 			"to": config["mail_to"],
 			"cc": config["mail_cc"],
 			"subject": subject,
 			"text": text}
+	if not cc_mode:
+		data.pop('cc')
 	if data["to"] == data["cc"]:
 		data.pop("cc")
 	result = requests.post(config["mail_post_url"], auth=("api", config["mail_api_key"]), data=data, files=attachment_L)
