@@ -7,7 +7,9 @@ from py.constant import svc_delimitor, file_config_name, svc_placeholder
 import subprocess
 
 app = Flask(__name__)
-error_message = {1 : '密码输入不正确', 2 : '服务标签输入不正确', 3 : '测试用文件路径不存在，请勿改动'}
+error_message = {1 : '密码输入不正确', 
+				2 : '服务标签输入不正确', 
+				3 : '测试用文件路径不存在，请勿改动'}
 
 @app.route('/home')
 def home():

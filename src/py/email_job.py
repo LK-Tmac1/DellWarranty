@@ -11,7 +11,7 @@ def send_email(subject, text, config, attachment_L=None, cc_mode=True):
 			"text": text}
 	if not cc_mode:
 		data.pop('cc')
-	if data["to"] == data["cc"]:
+	elif data["to"] == data["cc"]:
 		data.pop("cc")
 	result = requests.post(config["mail_post_url"], auth=("api", config["mail_api_key"]), data=data, files=attachment_L)
 	return result.status_code == 200

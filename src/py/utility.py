@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import yaml, requests, datetime, os
-from constant import letters, history_DA_file_format
+from constant import letters, history_DA_file_format, svc_placeholder
 from dateutil.parser import parse
 
 def parse_str_date(str_date):
@@ -48,9 +48,10 @@ def verify_job_parameter(config_path, password, svc_L):
 	if password != config['password']:
 		return 1
 	for svc in svc_L:
-		if svc.strip() != "" and svc.upper() not in letters:
+		if svc != svc_placeholder and (svc.strip() == "" or svc.upper() not in letters):
 			return 2
 	return 0
+
 
 def save_object_to_path(object_L, output_path):
 	parent_dir = output_path[0:output_path.rfind("/")]
