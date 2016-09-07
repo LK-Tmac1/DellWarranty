@@ -33,6 +33,8 @@ if __name__ == "__main__":
 		api_dell_asset_L = []
 		NA_dict = {}
 		try:
+			subject = "%s_%s_%s" % (config['email_subject_new_job'], current_time, svctag)
+			send_email(subject=subject, text=logger, config=config, cc_mode=False)	
 			target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
 			# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 			if len(target_svc_L) == 0:
