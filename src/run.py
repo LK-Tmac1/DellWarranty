@@ -24,7 +24,6 @@ def submit_job():
 	valid_code = verify_job_parameter(parent_path + file_config_name, svc_L)
 	if valid_code == 0:
 		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svc_delimitor.join(svc_L)]
-		print cmd_L
 		subprocess.Popen(cmd_L)
 		return render_template("confirm.html")
 	else:

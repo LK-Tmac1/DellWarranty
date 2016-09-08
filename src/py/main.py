@@ -13,7 +13,6 @@ sys.setdefaultencoding('utf8')
 required_arg_list = ['--parent_path=', '--svctag=']
 
 if __name__ == "__main__":
-	print ">>>>>>>>Job starts"	
 	logger = Logger()
 	logger.info("Prepare arguments for a job")
 	current_time = get_current_time()
@@ -83,4 +82,5 @@ if __name__ == "__main__":
 		subject = 'email_subject_error' if logger.has_error else 'email_subject_success'
 		subject = "%s_%s_%s" % (config[subject], current_time, svctag)
 		send_email(subject=subject, text=logger, config=config, cc_mode=False)
-		print ">>>>>>>>Job done"	
+		#delete_file(output_csv_path)
+		
