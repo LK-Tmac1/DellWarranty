@@ -41,11 +41,9 @@ def read_file(file_path, isYML, isURL=False):
 				return yaml.load(value) if isYML else value.read()
 	return None
 
-def verify_job_parameter(config_path, password, svc_L):
+def verify_job_parameter(config_path, svc_L):
 	config = read_file(config_path, isYML=True)
 	if config == None:
-		return 3
-	if password != config['password']:
 		return 1
 	for svc in svc_L:
 		if svc != svc_placeholder and (svc.strip() == "" or svc.upper() not in letters):

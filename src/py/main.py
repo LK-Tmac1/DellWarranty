@@ -7,9 +7,13 @@ from entity import DellAsset
 from constant import svc_delimitor, file_config_name
 import sys
 
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 required_arg_list = ['--parent_path=', '--svctag=']
 
 if __name__ == "__main__":
+	print ">>>>>>>>Job starts"	
 	logger = Logger()
 	logger.info("Prepare arguments for a job")
 	current_time = get_current_time()
@@ -34,7 +38,7 @@ if __name__ == "__main__":
 		NA_dict = {}
 		try:
 			subject = "%s_%s_%s" % (config['email_subject_new_job'], current_time, svctag)
-			send_email(subject=subject, text=logger, config=config, cc_mode=False)	
+			send_email(subject=subject, text=" ", config=config, cc_mode=False)	
 			target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
 			# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 			if len(target_svc_L) == 0:
@@ -51,7 +55,7 @@ if __name__ == "__main__":
 				updated_dell_asset_L, NA_dict2 = update_dell_warranty_translation(transl_url, existing_dell_asset_L, dell_asset_path, logger)
 				output_dell_asset_L.extend(updated_dell_asset_L)
 				NA_dict.update(NA_dict2)
-				if bool(NA_dict):
+				if not bool(NA_dict):
 					logger.info("No additional translation needed")
 				else:
 					logger.warn("Additional translation needed")
@@ -59,8 +63,10 @@ if __name__ == "__main__":
 				logger.info("No existing Dell Asset for service tag " + svctag)
 			if len(output_dell_asset_L) > 0:
 				logger.info("~~~~~~~%s output results in total" % len(output_dell_asset_L))
-				# Save output into the csv_path
+				# Save output into the csv_path and also existing dell asset
 				save_object_to_path(object_L=output_dell_asset_L, output_path=output_csv_path)
+				logger.info("~~~~~~~Save output as existing dell asset")
+				DellAsset.save_dell_asset_to_file(output_dell_asset_L, dell_asset_path, logger)
 				# Email the csv output and also all NA translation
 				if email_job_output_translation(svctag=svctag, config=config, csv_path=output_csv_path, NA_dict=NA_dict):
 					logger.info("Sending email done")
@@ -68,6 +74,7 @@ if __name__ == "__main__":
 					logger.error("Sending output email failed")
 			else:
 				logger.info("-------Output for this job is empty")
+				send_email(subject=config['email_subject_empty'], text=svctag, config=config)
 		except Exception, e:
 			logger.error("Exception encountered when running the job:")
 			logger.error(str(e))
@@ -75,4 +82,5 @@ if __name__ == "__main__":
 		save_object_to_path(object_L=logger, output_path=log_output_path)
 		subject = 'email_subject_error' if logger.has_error else ('email_subject_warning' if logger.has_warn else 'email_subject_success')
 		subject = "%s_%s_%s" % (config[subject], current_time, svctag)
-		send_email(subject=subject, text=logger, config=config, cc_mode=False)	
+		send_email(subject=subject, text=logger, config=config, cc_mode=False)
+		print ">>>>>>>>Job done"	

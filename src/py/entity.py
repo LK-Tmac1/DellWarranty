@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from constant import history_DA_file_format, service_ch_placeholder
-from utility import read_file, parse_str_date
+from utility import read_file, parse_str_date, save_object_to_path
 import sys  
 
 reload(sys)
 sys.setdefaultencoding('utf8')
-  
 
 class Warranty(object):
 	header = "保修服务(英),保修服务(中),开始日期,结束日期,提供商"
@@ -68,6 +67,12 @@ class DellAsset(object):
 		self.warranty_L = warranty_L
 	def get_warranty(self):
 		return self.warranty_L
+	@staticmethod
+	def save_dell_asset_to_file(dell_asset_L, parent_path, logger):
+		for da in dell_asset_L:
+			output_path = "%s%s%s" % (parent_path, da.svctag, history_DA_file_format)
+			save_object_to_path([str(da)], output_path)
+			logger.info("######Save %s as existing dell asset" % da.svctag)
 	@staticmethod
 	def parse_dell_asset_file(dell_asset_path):
 		lines = read_file(dell_asset_path, isYML=False, isURL=False).split('\n')
