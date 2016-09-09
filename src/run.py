@@ -4,11 +4,14 @@ from flask import Flask, render_template
 from flask.globals import request
 from py.utility import verify_job_parameter, check_letter_valid
 from py.constant import svc_delimitor, file_config_name, svc_placeholder
-import subprocess
+import subprocess, os
 
 app = Flask(__name__)
+
 error_message = {1 :'测试用文件路径不存在，请勿改动',
 				2 : '服务标签输入不正确' }
+
+parent_path = os.path.expanduser('~/dell/')
 
 @app.route('/home')
 def home():
@@ -20,7 +23,6 @@ def submit_job():
 	for i in xrange(1, 8):
 		svc = str(request.form['svc' + str(i)]).upper()
 		svc_L.append(svc if check_letter_valid(svc) else svc_placeholder)
-	parent_path = str(request.form['parent_path'])
 	valid_code = verify_job_parameter(parent_path + file_config_name, svc_L)
 	if valid_code == 0:
 		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svc_delimitor.join(svc_L)]

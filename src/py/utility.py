@@ -4,6 +4,10 @@ import yaml, requests, datetime, os
 from constant import letters, history_DA_file_format, svc_placeholder
 from dateutil.parser import parse
 
+def delete_file(file_path):
+	if os.path.exists(file_path):
+		os.remove(file_path)
+
 def parse_str_date(str_date):
 	if str(str_date).strip() == "" or str_date is None:
 		return ""

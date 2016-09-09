@@ -1,6 +1,6 @@
 from svc_process import target_svctags_batch
 from api_entity import api_entities_batch
-from utility import read_file, get_current_time, parse_cmd_args, save_object_to_path, Logger
+from utility import read_file, get_current_time, parse_cmd_args, save_object_to_path, Logger, delete_file
 from translate import translate_dell_warranty, update_dell_warranty_translation
 from email_job import send_email, email_job_output_translation
 from entity import DellAsset
@@ -28,7 +28,7 @@ if __name__ == "__main__":
 		svc_L = svctag.split(svc_delimitor)
 		history_valid_svctag_path = parent_path + "valid_svctags.txt"
 		dell_asset_path = parent_path + "dell_asset/"
-		output_csv_path = parent_path + "output/%s_%s.csv" % (current_time, svctag)
+		output_csv_path = parent_path + "%s_%s.csv" % (current_time, svctag)
 		api_url = config['dell_api_url'] % config["dell_api_key"]
 		transl_url = config["translation_url"]
 		dell_support_url = config['dell_support_url']
@@ -79,8 +79,10 @@ if __name__ == "__main__":
 			logger.error(str(e))
 		logger.info("FINISH>>>>>>>>>>>>>>>> main")
 		save_object_to_path(object_L=logger, output_path=log_output_path)
-		subject = 'email_subject_error' if logger.has_error else 'email_subject_success'
-		subject = "%s_%s_%s" % (config[subject], current_time, svctag)
+		if logger.has_error:
+			subject = "%s_%s_%s" % (config['email_subject_error_ch'], current_time, svctag)
+			send_email(subject=subject, text=config['email_text_job_error_ch'], config=config, cc_mode=True)
+		else:
+			subject = "%s_%s_%s" % (config['email_subject_success'], current_time, svctag)
 		send_email(subject=subject, text=logger, config=config, cc_mode=False)
-		#delete_file(output_csv_path)
-		
+		delete_file(output_csv_path)
