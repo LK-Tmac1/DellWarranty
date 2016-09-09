@@ -20,7 +20,7 @@ def send_email(subject, text, config, attachment_L=None, cc_mode=True):
 	return result.status_code == 200
 
 
-def email_job_output_translation(svctag, config, csv_path, NA_dict, start_time):
+def email_job_output_translation(svctag, config, csv_path, NA_dict, additional_text=""):
 	# If all services translation available, just send CSV as attachment
 	# Otherwise, write the service_en and svctag as text on the email
 	end_time = get_current_time()
@@ -29,11 +29,11 @@ def email_job_output_translation(svctag, config, csv_path, NA_dict, start_time):
 	text = "全部已翻译."
 	if bool(NA_dict):
 		subject = "[需要翻译] %s" % subject
-		text = "需要翻译的机器保修服务标签:\n\n"
+		text = "需要翻译的机器保修服务标签:\n"
 		NA_dict = reverse_NA_translation(NA_dict)
 		for k, v in NA_dict.items():
 			temp = str(k) + ": " + str(v)
 			text += yaml.safe_dump(temp, allow_unicode=True, default_flow_style=False)
 	files = [("attachment", open(csv_path))] if csv_path is not None else None
-	text = "%s \n总用时 %s" % (text, total_run_time)
+	text = "%s\n%s" % (text, additional_text)
 	return send_email(subject=subject, text=text, attachment_L=files, config=config)
