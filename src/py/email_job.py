@@ -25,7 +25,6 @@ def email_job_output_translation(svctag, config, csv_path, NA_dict, additional_t
 	# Otherwise, write the service_en and svctag as text on the email
 	end_time = get_current_time()
 	subject = "%s %s %s" % ('查询结果成功', end_time, svctag)
-	total_run_time = diff_two_time(start_time, end_time)
 	text = "全部已翻译."
 	if bool(NA_dict):
 		subject = "[需要翻译] %s" % subject
