@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import yaml, requests, datetime, os
-from constant import letters, history_DA_file_format, svc_placeholder
+import yaml, requests, datetime, os, time
+from constant import letters, history_DA_file_format, svc_placeholder, time_str_format
 from dateutil.parser import parse
 
+def is_path_existed(path):
+	return os.path.exists(path)
+
 def delete_file(file_path):
-	if os.path.exists(file_path):
+	if is_path_existed(file_path):
 		os.remove(file_path)
 
 def parse_str_date(str_date):
@@ -31,7 +34,18 @@ def parse_cmd_args(arguments, required_arg_list):
 	return arg_map
 
 def get_current_time():
-	return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+	return datetime.datetime.now().strftime(time_str_format)
+
+def diff_two_time(time1, time2):
+	t1 = datetime.datetime.strptime(time1, time_str_format)
+	t2 = datetime.datetime.strptime(time2, time_str_format)
+	if t1 > t2:
+		temp = t1
+		t2 = t1
+		t1 = temp
+	diff = t2 - t1
+	return time.strftime("%H小时%M分钟%S秒", time.gmtime(diff.seconds))
+	
 
 def read_file(file_path, isYML, isURL=False):
 	# Read input file in .yml format, either the yml_path is a URL or or local path
@@ -40,7 +54,7 @@ def read_file(file_path, isYML, isURL=False):
 		if str(resp.status_code) == '200':
 			return yaml.load(resp.content) if isYML else resp.content
 	else:
-		if os.path.exists(file_path):
+		if is_path_existed(file_path):
 			with open(file_path, "r") as value:
 				return yaml.load(value) if isYML else value.read()
 	return None
@@ -58,7 +72,7 @@ def verify_job_parameter(config_path, svc_L):
 def save_object_to_path(object_L, output_path):
 	parent_dir = output_path[0:output_path.rfind("/")]
 	# If output parent dir does not exist, create it
-	if not os.path.exists(parent_dir):
+	if not is_path_existed(parent_dir):
 		os.makedirs(parent_dir)
 	with open(output_path, 'w') as output:
 		if type(object_L) is not list:
@@ -72,7 +86,7 @@ def save_object_to_path(object_L, output_path):
 	return True
 
 def list_file_name_in_dir(input_path):
-	if not os.path.exists(input_path):
+	if not is_path_existed(input_path):
 		return None
 	names = []
 	for n in set(os.listdir(input_path)):

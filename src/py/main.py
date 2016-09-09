@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+
 from svc_process import target_svctags_batch
 from api_entity import api_entities_batch
-from utility import read_file, get_current_time, parse_cmd_args, save_object_to_path, Logger, delete_file
+from utility import read_file, get_current_time, parse_cmd_args, save_object_to_path, Logger, delete_file, diff_two_time
 from translate import translate_dell_warranty, update_dell_warranty_translation
 from email_job import send_email, email_job_output_translation
 from entity import DellAsset
@@ -11,15 +13,16 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 required_arg_list = ['--parent_path=', '--svctag=']
+subject_temp = "%s 时间%s 标签%s"
 
 if __name__ == "__main__":
 	logger = Logger()
 	logger.info("Prepare arguments for a job")
-	current_time = get_current_time()
+	start_time = get_current_time()
 	arguments = parse_cmd_args(sys.argv, required_arg_list)
 	parent_path = arguments['parent_path']
 	svctag = arguments['svctag']
-	log_output_path = "%slog/%s_%s.txt" % (parent_path, current_time, svctag)
+	log_output_path = "%slog/%s_%s.txt" % (parent_path, start_time, svctag)
 	config = read_file(parent_path + file_config_name, isYML=True, isURL=False)
 	if config is None:
 		logger.error("Config %s parsed as None; job quits" % (parent_path + file_config_name))
@@ -28,7 +31,7 @@ if __name__ == "__main__":
 		svc_L = svctag.split(svc_delimitor)
 		history_valid_svctag_path = parent_path + "valid_svctags.txt"
 		dell_asset_path = parent_path + "dell_asset/"
-		output_csv_path = parent_path + "%s_%s.csv" % (current_time, svctag)
+		output_csv_path = parent_path + "%s_%s.csv" % (start_time, svctag)
 		api_url = config['dell_api_url'] % config["dell_api_key"]
 		transl_url = config["translation_url"]
 		dell_support_url = config['dell_support_url']
@@ -36,7 +39,7 @@ if __name__ == "__main__":
 		api_dell_asset_L = []
 		NA_dict = {}
 		try:
-			subject = "%s_%s_%s" % (config['email_subject_new_job_ch'], current_time, svctag)
+			subject = subject_temp % ('新的查询开始', start_time, svctag)
 			send_email(subject=subject, text=" ", config=config, cc_mode=True)	
 			target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
 			# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
@@ -54,12 +57,12 @@ if __name__ == "__main__":
 				updated_dell_asset_L, NA_dict2 = update_dell_warranty_translation(transl_url, existing_dell_asset_L, dell_asset_path, logger)
 				output_dell_asset_L.extend(updated_dell_asset_L)
 				NA_dict.update(NA_dict2)
-				if not bool(NA_dict):
-					logger.info("No additional translation needed")
-				else:
-					logger.warn("Additional translation needed")
 			else:
 				logger.info("No existing Dell Asset for service tag " + svctag)
+			if not bool(NA_dict):
+				logger.info("No additional translation needed")
+			else:
+				logger.warn("Additional translation needed")
 			if len(output_dell_asset_L) > 0:
 				logger.info("~~~~~~~%s output results in total" % len(output_dell_asset_L))
 				# Save output into the csv_path and also existing dell asset
@@ -67,22 +70,23 @@ if __name__ == "__main__":
 				logger.info("~~~~~~~Save output as existing dell asset")
 				DellAsset.save_dell_asset_to_file(output_dell_asset_L, dell_asset_path, logger)
 				# Email the csv output and also all NA translation
-				if email_job_output_translation(svctag=svctag, config=config, csv_path=output_csv_path, NA_dict=NA_dict):
-					logger.info("Sending email done")
+				if email_job_output_translation(svctag=svctag, config=config, csv_path=output_csv_path, NA_dict=NA_dict, start_time=start_time):
+					logger.info("Sending output email done")
 				else:
 					logger.error("Sending output email failed")
 			else:
 				logger.info("-------Output for this job is empty")
-				send_email(subject=config['email_subject_empty'], text=svctag, config=config)
+				send_email(subject='查询的标签 %s 没找到任何结果' % svctag, text=" ", config=config)
 		except Exception, e:
 			logger.error(str(e))
 			logger.error(traceback.format_exc())
 		logger.info("FINISH>>>>>>>>>>>>>>>> main")
 		save_object_to_path(object_L=logger, output_path=log_output_path)
 		if logger.has_error:
-			subject = "%s_%s_%s" % (config['email_subject_error_ch'], current_time, svctag)
-			send_email(subject=subject, text=config['email_text_job_error_ch'], config=config, cc_mode=True)
+			subject = subject_temp % ('查询结果失败', start_time, svctag)
+			send_email(subject=subject, text='程序运行出现错误，请等待解决.', config=config, cc_mode=True)
 		else:
-			subject = "%s_%s_%s" % (config['email_subject_success'], current_time, svctag)
-		send_email(subject=subject, text=logger, config=config, cc_mode=False)
+			subject = subject_temp % ('查询任务日志', start_time, svctag)
 		delete_file(output_csv_path)
+		logger.info('总用时 %s' % diff_two_time(start_time, get_current_time()))
+		send_email(subject=subject, text=logger, config=config, cc_mode=False)

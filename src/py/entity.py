@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from constant import history_DA_file_format, service_ch_placeholder
-from utility import read_file, parse_str_date, save_object_to_path
+from utility import read_file, parse_str_date, save_object_to_path, is_path_existed
 import sys  
 
 reload(sys)
@@ -68,14 +68,16 @@ class DellAsset(object):
 	def get_warranty(self):
 		return self.warranty_L
 	@staticmethod
-	def save_dell_asset_to_file(dell_asset_L, parent_path, logger, only_updated=True):
+	def save_dell_asset_to_file(dell_asset_L, parent_path, logger):
 		for da in dell_asset_L:
 			output_path = "%s%s%s" % (parent_path, da.svctag, history_DA_file_format)
-			if only_updated:
+			if is_path_existed:
+				# If output exists, check if necessary to overwrite the dell asset
 				if da.is_translation_updated:
 					save_object_to_path([str(da)], output_path)
 					logger.info("######Update %s as existing dell asset" % da.svctag)
 			else:
+				# If there is no such output path, can only save it
 				save_object_to_path([str(da)], output_path)
 				logger.info("######Save %s as existing dell asset" % da.svctag)
 	@staticmethod

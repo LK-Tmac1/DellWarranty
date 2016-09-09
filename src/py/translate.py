@@ -34,7 +34,7 @@ def translate_dell_warranty(yml_url_path, dell_asset_L, logger):
 					else:
 						NA_dict[w.service_en] = dell_asset.svctag
 			else:
-				logger.warn("Warranty service name not valid for %s and %s" % (dell_asset.svctag, w))
+				logger.warn("Warranty service name not valid for %s and \n%s" % (dell_asset.svctag, w))
 	return dell_asset_L, NA_dict
 
 def update_dell_warranty_translation(transl_url, dell_asset_L, dell_asset_path, logger):
