@@ -68,11 +68,16 @@ class DellAsset(object):
 	def get_warranty(self):
 		return self.warranty_L
 	@staticmethod
-	def save_dell_asset_to_file(dell_asset_L, parent_path, logger):
+	def save_dell_asset_to_file(dell_asset_L, parent_path, logger, only_updated=True):
 		for da in dell_asset_L:
 			output_path = "%s%s%s" % (parent_path, da.svctag, history_DA_file_format)
-			save_object_to_path([str(da)], output_path)
-			logger.info("######Save %s as existing dell asset" % da.svctag)
+			if only_updated:
+				if da.is_translation_updated:
+					save_object_to_path([str(da)], output_path)
+					logger.info("######Update %s as existing dell asset" % da.svctag)
+			else:
+				save_object_to_path([str(da)], output_path)
+				logger.info("######Save %s as existing dell asset" % da.svctag)
 	@staticmethod
 	def parse_dell_asset_file(dell_asset_path):
 		lines = read_file(dell_asset_path, isYML=False, isURL=False).split('\n')

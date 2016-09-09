@@ -5,7 +5,7 @@ from translate import translate_dell_warranty, update_dell_warranty_translation
 from email_job import send_email, email_job_output_translation
 from entity import DellAsset
 from constant import svc_delimitor, file_config_name
-import sys
+import sys, traceback
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -36,8 +36,8 @@ if __name__ == "__main__":
 		api_dell_asset_L = []
 		NA_dict = {}
 		try:
-			subject = "%s_%s_%s" % (config['email_subject_new_job'], current_time, svctag)
-			send_email(subject=subject, text=" ", config=config, cc_mode=False)	
+			subject = "%s_%s_%s" % (config['email_subject_new_job_ch'], current_time, svctag)
+			send_email(subject=subject, text=" ", config=config, cc_mode=True)	
 			target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
 			# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 			if len(target_svc_L) == 0:
@@ -75,8 +75,8 @@ if __name__ == "__main__":
 				logger.info("-------Output for this job is empty")
 				send_email(subject=config['email_subject_empty'], text=svctag, config=config)
 		except Exception, e:
-			logger.error("Exception encountered when running the job:")
 			logger.error(str(e))
+			logger.error(traceback.format_exc())
 		logger.info("FINISH>>>>>>>>>>>>>>>> main")
 		save_object_to_path(object_L=logger, output_path=log_output_path)
 		if logger.has_error:
