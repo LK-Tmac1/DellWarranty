@@ -70,7 +70,7 @@ if __name__ == "__main__":
 				logger.info("~~~~~~~Save output as existing dell asset")
 				DellAsset.save_dell_asset_to_file(output_dell_asset_L, dell_asset_path, logger)
 				# Email the csv output and also all NA translation
-				additional_text = "总用时 %s\n总共 %s个结果" % (total_run_time, len(output_dell_asset_L))
+				additional_text = "总用时 %s\n总共 %s个结果" % (diff_two_time(start_time, get_current_time()), len(output_dell_asset_L))
 				if email_job_output_translation(svctag=svctag, config=config, csv_path=output_csv_path, NA_dict=NA_dict, additional_text=additional_text):
 					logger.info("Sending output email done")
 				else:
