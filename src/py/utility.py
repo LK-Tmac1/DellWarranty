@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import yaml, requests, datetime, os, time
-from constant import letters, history_DA_file_format, svc_placeholder, time_str_format
+from constant import letters, history_DA_file_format, time_str_format
 from dateutil.parser import parse
 
 def is_path_existed(path):
@@ -59,16 +59,6 @@ def read_file(file_path, isYML, isURL=False):
 				return yaml.load(value) if isYML else value.read()
 	return None
 
-def verify_job_parameter(config_path, svc_L):
-	config = read_file(config_path, isYML=True)
-	if config == None:
-		return 1
-	for svc in svc_L:
-		if svc != svc_placeholder and (svc.strip() == "" or svc.upper() not in letters):
-			return 2
-	return 0
-
-
 def save_object_to_path(object_L, output_path):
 	parent_dir = output_path[0:output_path.rfind("/")]
 	# If output parent dir does not exist, create it
@@ -85,13 +75,13 @@ def save_object_to_path(object_L, output_path):
 				output.write(content)
 	return True
 
-def list_file_name_in_dir(input_path):
+def list_file_name_in_dir(input_path, file_format=history_DA_file_format):
 	if not is_path_existed(input_path):
 		return None
 	names = []
 	for n in set(os.listdir(input_path)):
-		if n.endswith(history_DA_file_format):
-			names.append(n[0:len(n) - len(history_DA_file_format)])
+		if n.endswith(file_format):
+			names.append(n[0:len(n) - len(file_format)])
 	return names
 	
 def load_file_as_set(valid_svctag_path):

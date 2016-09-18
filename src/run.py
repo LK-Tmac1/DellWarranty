@@ -1,17 +1,11 @@
-# -*- coding: utf-8 -*-
-
 from flask import Flask, render_template
 from flask.globals import request
-from py.utility import verify_job_parameter, check_letter_valid
-from py.constant import svc_delimitor, file_config_name, svc_placeholder
-import subprocess, os
+from py.utility import check_letter_valid
+from py.constant import svc_delimitor, svc_placeholder, parent_path
+from py.search import search_existing_dell_asset
+import subprocess
 
 app = Flask(__name__)
-
-error_message = {1 :'测试用文件路径不存在，请勿改动',
-				2 : '服务标签输入不正确' }
-
-parent_path = os.path.expanduser('~/dell/')
 
 @app.route('/home')
 def home():
@@ -23,13 +17,16 @@ def submit_job():
 	for i in xrange(1, 8):
 		svc = str(request.form['svc' + str(i)]).upper()
 		svc_L.append(svc if check_letter_valid(svc) else svc_placeholder)
-	valid_code = verify_job_parameter(parent_path + file_config_name, svc_L)
-	if valid_code == 0:
-		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svc_delimitor.join(svc_L)]
-		subprocess.Popen(cmd_L)
-		return render_template("confirm.html")
-	else:
-		return render_template("error-input.html", error_message=unicode(error_message[valid_code], 'utf-8'))
-
+		svctag = svc_delimitor.join(svc_L)
+	cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag]
+	subprocess.Popen(cmd_L)
+	return render_template("confirm.html", redirect_URL="/search?svctags=" + svctag)
+	
+@app.route('/search')
+def search():
+	svctags = str(request.args.get('svctags'))
+	dell_asset_L = search_existing_dell_asset(svctags)
+	return render_template("search.html", svctags="".join(svctags.split(svc_delimitor)), dell_asset_L=dell_asset_L)
+	
 if __name__ == "__main__":
 	app.run('0.0.0.0', port=5000, debug=True)

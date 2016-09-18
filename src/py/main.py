@@ -6,7 +6,7 @@ from utility import read_file, get_current_time, parse_cmd_args, save_object_to_
 from translate import translate_dell_warranty, update_dell_warranty_translation
 from email_job import send_email, email_job_output_translation
 from entity import DellAsset
-from constant import svc_delimitor, file_config_name
+from constant import svc_delimitor, file_config_name, existing_dell_asset_dir
 import sys, traceback
 
 reload(sys)
@@ -30,7 +30,7 @@ if __name__ == "__main__":
 	else:
 		svc_L = svctag.split(svc_delimitor)
 		history_valid_svctag_path = parent_path + "valid_svctags.txt"
-		dell_asset_path = parent_path + "dell_asset/"
+		dell_asset_path = existing_dell_asset_dir
 		output_csv_path = parent_path + "%s_%s.csv" % (start_time, svctag)
 		api_url = config['dell_api_url'] % config["dell_api_key"]
 		transl_url = config["translation_url"]

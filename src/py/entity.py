@@ -94,14 +94,15 @@ class DellAsset(object):
 		else:	
 			return None
 	@staticmethod
-	def parse_dell_asset_file_batch(dell_asset_path, target_svc_S, logger):
+	def parse_dell_asset_file_batch(dell_asset_path, target_svc_S, logger=None):
 		da_L = []
 		for svc in target_svc_S:
 			path = "%s%s%s" % (dell_asset_path, svc, history_DA_file_format)
-			logger.info("Read and parse dell asset of " + svc)
+			if logger is not None:
+				logger.info("Read and parse dell asset of " + svc)
 			da = DellAsset.parse_dell_asset_file(path)
 			if da is not None:
 				da_L.append(da)
-			else:
+			elif logger is not None:
 				logger.error("Parsing dell asset of %s failed" % path)
 		return da_L
