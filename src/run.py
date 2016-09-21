@@ -27,11 +27,12 @@ def search():
 	args = request.args
 	svctag = str(args.get('svctag')) if 'svctag' in args else ""
 	new_job = str(args.get('new_job')) if 'new_job' in args else ""
+	email = str(args.get('email')) if 'email' in args else ""
 	dell_asset_L = search_existing_dell_asset(svctag)
 	svctag = "".join(svctag.split(svc_delimitor))
 	if svctag == "":
 		return render_template("error.html")
-	return render_template("search.html", svctag=svctag, dell_asset_L=dell_asset_L, new_job=new_job)
+	return render_template("search.html", svctag=svctag, dell_asset_L=dell_asset_L, new_job=new_job, email=email)
 	
 if __name__ == "__main__":
 	app.run('0.0.0.0', port=5000, debug=True)
