@@ -20,14 +20,14 @@ def submit_job():
 		svctag = svc_delimitor.join(svc_L)
 	cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag]
 	subprocess.Popen(cmd_L)
-	return redirect("/search?svctag=%s&new_job=True" % svctag)
+	return redirect("/search?svctag=%s&new_job=true" % svctag)
 	
 @app.route('/search')
 def search():
 	args = request.args
-	svctag = str(args.get('svctag')) if 'svctag' in args else ""
-	new_job = str(args.get('new_job')) if 'new_job' in args else ""
-	email = str(args.get('email')) if 'email' in args else ""
+	svctag = str(args.get('svctag')).upper() if 'svctag' in args else ""
+	new_job = str(args.get('new_job')).lower() if 'new_job' in args else ""
+	email = str(args.get('email')).lower() if 'email' in args else ""
 	dell_asset_L = search_existing_dell_asset(svctag)
 	svctag = "".join(svctag.split(svc_delimitor))
 	if svctag == "":

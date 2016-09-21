@@ -22,7 +22,7 @@ def reverse_NA_translation(NA_dict):
 def translate_dell_warranty(yml_url_path, dell_asset_L, logger):
 	tran_dict = read_file(yml_url_path, isYML=True, isURL=True)
 	tran_dict = filter_NA_translation(tran_dict)
-	logger.info("Read translation from " + yml_url_path)
+	logger.info("Read translation")
 	NA_dict = {}
 	for dell_asset in dell_asset_L:
 		for w in dell_asset.get_warranty():
