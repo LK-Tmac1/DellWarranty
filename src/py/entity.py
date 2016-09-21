@@ -25,10 +25,12 @@ class Warranty(object):
 			self.end_date = L[3] if len(L) > 3 else ""
 			self.is_provider = L[4] if len(L) > 4 else ""
 			# Used for de-serailzation of warranty from .csv files
+	def get_start_date(self):
+		return parse_str_date(self.start_date)
+	def get_end_date(self):
+		return parse_str_date(self.end_date)
 	def __repr__(self):
-		start_D = parse_str_date(self.start_date)
-		end_D = parse_str_date(self.end_date)
-		return "%s,%s,%s,%s,%s" % (self.service_en, self.service_ch, start_D, end_D, self.is_provider)
+		return "%s,%s,%s,%s,%s" % (self.service_en, self.service_ch, self.get_start_date(), self.get_end_date(), self.is_provider)
 	def set_service_ch(self, service_ch):
 		if service_ch is not None and service_ch != "" and service_ch != "None":
 			self.service_ch = service_ch.encode('utf-8')
@@ -53,9 +55,11 @@ class DellAsset(object):
 			self.warranty_L = []
 			# Used for de-serailzation of dell asset from .csv files
 		self.is_translation_updated = False
+	def get_ship_date(self):
+		return parse_str_date(self.ship_date)
 	def __repr__(self):
 		dell_asset = "%s,%s\n" % (DellAsset.header, Warranty.header)
-		dell_asset += "%s,%s,%s" % (self.machine_id, self.svctag, parse_str_date(self.ship_date))
+		dell_asset += "%s,%s,%s" % (self.machine_id, self.svctag, self.get_ship_date())
 		if len(self.warranty_L) > 0:
 			dell_asset += "," + str(self.warranty_L[0]) + "\n"
 			for w in xrange(1, len(self.warranty_L)):

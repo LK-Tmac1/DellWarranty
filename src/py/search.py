@@ -4,6 +4,8 @@ from utility import check_letter_valid, list_file_name_in_dir
 from entity import DellAsset
 
 def search_existing_dell_asset(svctags):
+    if svctags is None:
+        return []
     svc_pattern = ""
     for svc in svctags.split(svc_delimitor):
         if not check_letter_valid(svc):

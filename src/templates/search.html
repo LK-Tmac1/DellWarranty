@@ -13,8 +13,52 @@
 	
 		<form id="form_1150242" class="appnitro"  method="post" action="">
 		<ul>
-			<li><h4>如果查询还在进行中，请等待邮件来确认最终结果。</h4>
-			<h4>以下是针对服务标签 <font color="red">{{ svctags }}</font> 已经查询到的保修信息：</h4></li>
+			{%  if new_job %}
+				<li><h4>新任务已提交，请等待邮件。</h4>
+			{% else %}
+				<li><h4>如果查询还在进行中，请等待邮件来确认最终结果。</h4>
+			{% endif %}
+
+			{%  if dell_asset_L|length > 0 %}
+				<h4>以下是针对服务标签 <font color="red">{{ svctag }}</font> 已经找到的保修信息：</h4></li>
+				<table>
+					<tr>
+					<th>机器型号</th>
+					<th>服务标签</th>
+					<th>发货日期</th>
+					<th>保修(英)</th>
+					<th>保修(中)</th>
+					<th>开始日期</th>
+					<th>结束日期</th>
+					<th>提供商</th>
+					</tr>
+					{% for da in dell_asset_L %}
+  						<tr>
+	  						<td>{{ da.machine_id }}</td>
+	  						<td>{{ da.svctag }}</td>
+	  						<td>{{ da.get_ship_date() }}</td>
+	  					</tr>
+	  					{% for i in xrange(0, len(da.warranty_L)) %}
+	  						{% if i == 0 %}
+	  							<td>warranty_L[i].service_en</td>
+		  						<td>warranty_L[i].service_ch</td>
+		  						<td>warranty_L[i].get_start_date()</td>
+		  						<td>warranty_L[i].get_end_date()</td>
+	  						{% else %}
+		  						<td></td>
+		  						<td></td>
+		  						<td></td>
+		  						<td>warranty_L[i].service_en</td>
+		  						<td>warranty_L[i].service_ch</td>
+		  						<td>warranty_L[i].get_start_date()</td>
+		  						<td>warranty_L[i].get_end_date()</td>
+	  						{% endif %}
+  						{% endfor %}
+					{% endfor %}
+				</table>
+			{% else %}
+				</li>
+			{% endif %}
 		</ul>
 		</form>	
 	</div>
