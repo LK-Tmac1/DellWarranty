@@ -89,7 +89,6 @@ if __name__ == "__main__":
 			logger.error(str(e))
 			logger.error(traceback.format_exc())
 		logger.info("FINISH>>>>>>>>>>>>>>>> main")
-		save_object_to_path(object_L=logger, output_path=log_output_path)
 		if logger.has_error:
 			subject = subject_temp % ('查询结果失败', start_time, svctag)
 			if job_mode == job_mode_dell_asset:
@@ -98,6 +97,7 @@ if __name__ == "__main__":
 			subject = subject_temp % ('查询任务日志', start_time, svctag)
 		logger.info('总用时 %s' % diff_two_time(start_time, get_current_time()))
 		if job_mode == job_mode_dell_asset:
+			save_object_to_path(object_L=logger, output_path=log_output_path)
 			delete_file(output_csv_path)
 			send_email(subject=subject, text=logger, config=config, cc_mode=False)
 		elif job_mode == job_mode_update_svctag:
