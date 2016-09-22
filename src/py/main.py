@@ -6,7 +6,7 @@ from utility import read_file, get_current_time, parse_cmd_args, save_object_to_
 from translate import translate_dell_warranty, update_dell_warranty_translation
 from email_job import send_email, email_job_output_translation
 from entity import DellAsset
-from constant import svc_delimitor, file_config_name, existing_dell_asset_dir
+from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url
 import sys, traceback
 
 reload(sys)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 				DellAsset.save_dell_asset_to_file(output_dell_asset_L, dell_asset_path, logger)
 				# Email the csv output and also all NA translation
 				additional_text = "总用时 %s\n总共 %s个结果" % (diff_two_time(start_time, get_current_time()), len(output_dell_asset_L))
-				additional_text += "\n请打开链接: %s/search?svctag=%s" % (config['host_url'], svctag)
+				additional_text += "\n请打开链接: %s%s%s" % (config['host_url'], search_url, svctag)
 				if email_job_output_translation(svctag=svctag, config=config, csv_path=output_csv_path, NA_dict=NA_dict, additional_text=additional_text):
 					logger.info("Sending output email done")
 				else:

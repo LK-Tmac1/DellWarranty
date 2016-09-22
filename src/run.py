@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect
 from flask.globals import request
 from py.utility import check_letter_valid
-from py.constant import svc_delimitor, svc_placeholder, parent_path
+from py.constant import svc_delimitor, svc_placeholder, parent_path, search_url
 from py.search import search_existing_dell_asset
 import subprocess
 
@@ -20,7 +20,7 @@ def submit_job():
 		svctag = svc_delimitor.join(svc_L)
 	cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag]
 	subprocess.Popen(cmd_L)
-	return redirect("/search?svctag=%s&new_job=true" % svctag)
+	return redirect(search_url+"%s&new_job=true" % svctag)
 	
 @app.route('/search')
 def search():
