@@ -1,0 +1,3 @@
+[INFO] Start logging
+[INFO] Prepare arguments for a job
+[ERROR] Config ~/dell/dell_config.yml parsed as None; job quits

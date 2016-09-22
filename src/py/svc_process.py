@@ -1,5 +1,5 @@
 import itertools, requests
-from utility import check_letter_valid, save_object_to_path, list_file_name_in_dir, load_file_as_set
+from utility import check_letter_valid, save_object_to_path, list_file_name_in_dir, load_file_as_set, Logger
 from constant import api_offset, letters, svc_placeholder
 
 
@@ -63,27 +63,43 @@ def svctags_flatten(valid_svc_L, offset=api_offset):
 			result_L.append(temp_svc)
 	return result_L
 
-def filter_invalid_svctags(svc_S, dell_support_url):
+def svctag_logger(logger, message, svc_job):
+	logger.info(message)
+	if svc_job:
+		print message
+
+def filter_invalid_svctags(svc_S, dell_support_url, logger, svc_job=False):
 	valid_svc_S = set([])
+	total = len(svc_S)
+	count = 0
 	for svc in svc_S:
+		count += 1
 		resp_suffix = requests.get(dell_support_url + svc).url
 		if str(resp_suffix).endswith(svc):
 			valid_svc_S.add(svc)
+			svctag_logger(logger, "======%s is valid" % svc, svc_job)
+			if count == 100:
+				total -= count
+				svctag_logger(logger, "Remains %s svctag" % total, svc_job)
+				count = 0
 	return valid_svc_S
 
-def target_svctags_batch(svc_L, dell_support_url, history_dell_asset_path, history_valid_svctag_path, logger):
-	logger.info("Begin svctags processing batch")
+
+def target_svctags_batch(svc_L, dell_support_url, history_dell_asset_path, history_valid_svctag_path, logger, svc_job=False):
+	svctag_logger(logger, "Begin svctags processing batch", svc_job)
 	history_valid_svc_S = load_file_as_set(history_valid_svctag_path)
-	logger.info("Load history valid svctag file")
+	svctag_logger(logger, "Load %s history valid svctag" % (len(history_valid_svc_S)), svc_job)
 	history_dellasset_S = set(list_file_name_in_dir(history_dell_asset_path))
-	logger.info("Read history dell asset path")
+	svctag_logger(logger, "Read %s history dell asset" % (len(history_dellasset_S)),svc_job)
 	all_svc_S = set(svctags_generator(svc_L))
-	logger.info("Generate all possible svctags")
+	svctag_logger(logger, "Generate %s possible svctags" % (len(all_svc_S)), svc_job)
 	unknown_S, valid_S, existing_S = classify_svctags(all_svc_S, history_valid_svc_S, history_dellasset_S)
-	logger.info("Classify all possible svctags into unknown, valid, and existing svctags")
-	target_svc_S = filter_invalid_svctags(unknown_S, dell_support_url).union(valid_S)
-	logger.info("Filter out invalid, and combine with those valid as target svctags")
+	svctag_logger(logger, "Classify into %s unknown, %s valid, and %s existing svctags" % (len(unknown_S), len(valid_S), len(existing_S)), svc_job)
+	target_svc_S = filter_invalid_svctags(unknown_S, dell_support_url, logger, svc_job).union(valid_S)
+	invalid_count = len(all_svc_S)- len(target_svc_S)
+	svctag_logger(logger, "Filter out %s invalid, and combine with those valid as target svctags" % invalid_count, svc_job)
 	update_valid_svc_L = list(target_svc_S.union(history_valid_svc_S).union(history_dellasset_S))
 	save_object_to_path(object_L=update_valid_svc_L, output_path=history_valid_svctag_path)
-	logger.info("Update the history valid svctags")
+	svctag_logger(logger, "Update %s new valid svctags" % (len(all_svc_S) - invalid_count), svc_job)
 	return svctags_flatten(valid_svc_L=list(target_svc_S)), existing_S
+

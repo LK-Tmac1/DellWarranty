@@ -136,3 +136,8 @@ class Logger(object):
 		return self.get_message_by_type("WARN")
 	def get_info_only(self):
 		return self.get_message_by_type("INFO")
+	def get_last_message(self):
+		if self.message_count in self.message_Q:
+			return self.message_Q[self.message_count]
+		else:
+			return "Nothing to return on this logger: index=%s" % self.message_count

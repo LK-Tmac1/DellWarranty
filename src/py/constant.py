@@ -14,3 +14,5 @@ history_DA_file_format = '.txt'
 service_ch_placeholder = "?"
 time_str_format = '%Y-%m-%d %H:%M:%S'
 search_url = "/search?svctag="
+job_mode_dell_asset = "dellasset"
+job_mode_update_svctag = "svctag"

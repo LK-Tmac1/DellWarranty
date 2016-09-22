@@ -1,0 +1,10 @@
+[INFO] Start logging
+[INFO] Prepare arguments for a job
+[INFO] Begin svctags processing batch
+[INFO] Load 93 history valid svctag
+[INFO] Read 3 history dell asset
+[INFO] Generate 36 possible svctags
+[INFO] Classify into 36 unknown, 0 valid, and 0 existing svctags
+[INFO] Filter out 36 invalid, and combine with those valid as target svctags
+[INFO] Update 0 new valid svctags
+[INFO] FINISH>>>>>>>>>>>>>>>> main

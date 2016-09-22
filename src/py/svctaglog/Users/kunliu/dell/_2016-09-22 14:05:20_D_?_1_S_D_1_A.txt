@@ -1,0 +1,17 @@
+[INFO] Start logging
+[INFO] Prepare arguments for a job
+[INFO] Begin svctags processing batch
+[INFO] Load 93 history valid svctag
+[INFO] Read 3 history dell asset
+[INFO] Generate 36 possible svctags
+[INFO] Classify into 36 unknown, 0 valid, and 0 existing svctags
+[INFO] Filter out 36 invalid, and combine with those valid as target svctags
+[ERROR] object of type 'int' has no len()
+[ERROR] Traceback (most recent call last):
+  File "main.py", line 86, in <module>
+    target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger, svc_job=True)
+  File "/Users/kunliu/git/DellWarranty/src/py/svc_process.py", line 103, in target_svctags_batch
+    svctag_logger(logger, "Update %s new valid svctags" % (len(all_svc_S) - len(invalid_count)), svc_job)
+TypeError: object of type 'int' has no len()
+
+[INFO] FINISH>>>>>>>>>>>>>>>> main
