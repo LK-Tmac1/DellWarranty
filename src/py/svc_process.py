@@ -1,4 +1,4 @@
-import itertools, requests
+import itertools, requests, time
 from utility import check_letter_valid, save_object_to_path, list_file_name_in_dir, load_file_as_set, Logger
 from constant import api_offset, letters, svc_placeholder
 
@@ -78,10 +78,11 @@ def filter_invalid_svctags(svc_S, dell_support_url, logger, svc_job=False):
 		if str(resp_suffix).endswith(svc):
 			valid_svc_S.add(svc)
 			svctag_logger(logger, "======%s is valid" % svc, svc_job)
-			if count == 100:
-				total -= count
-				svctag_logger(logger, "Remains %s svctag" % total, svc_job)
-				count = 0
+		if count == 100:
+			total -= count
+			svctag_logger(logger, "Remains %s svctag" % total, svc_job)
+			count = 0
+			time.sleep(1) # Pause for 1 second
 	return valid_svc_S
 
 
