@@ -37,7 +37,7 @@
 			{% endif %}
 
 			{%  if dell_asset_L|length > 0 %}
-				<h4>以下是针对服务标签 <font color="red">{{ svctag }}</font> 已经找到的保修信息：</h4></li>
+				<h4>以下是针对服务标签 <font color="red">{{ svctag }}</font> 已经找到的 <font color="red">{{ dell_asset_L|length }}</font> 条保修记录：</h4></li>
 				<table>
 					<tr>
 					<th>机器型号</th>
@@ -71,7 +71,7 @@
 					{% endfor %}
 				</table>
 			{% else %}
-				<h4>服务标签 <font color="red">{{ svctag }}</font> 暂无任何结果。</h4></li>
+				<h4>服务标签 <font color="red">{{ svctag }}</font> 暂无任何历史记录。</h4></li>
 			{% endif %}
 		</ul>
 		</form>	

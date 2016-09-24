@@ -18,9 +18,14 @@ def submit_job():
 		svc = str(request.form['svc' + str(i)]).upper()
 		svc_L.append(svc if check_letter_valid(svc) else svc_placeholder)
 		svctag = svc_delimitor.join(svc_L)
-	cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag, "--job_mode=" + job_mode_dell_asset]
-	subprocess.Popen(cmd_L)
-	return redirect(search_url+"%s&new_job=true" % svctag)
+	redirect_url = search_url + svctag + "&new_job="
+	if 'new_job' in request.form:
+		# cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag, "--job_mode=" + job_mode_dell_asset]
+		# subprocess.Popen(cmd_L)
+		redirect_url += "true"
+	elif 'history' in request.form:
+		redirect_url += "false"
+	return redirect(redirect_url)
 	
 @app.route('/search')
 def search():
