@@ -78,12 +78,12 @@ def json_to_entities(json_data, logger):
 					service_en = json_value_transform(w, "ServiceLevelDescription")
 					is_provider = json_value_transform(w, "ServiceProvider") if "@nil" not in w["ServiceProvider"] else "DELL"
 					warranty_L.append(Warranty(start_date=start_date, end_date=end_date, service_en=service_en, is_provider=is_provider))
+				machine_id = json_value_transform(da, "MachineDescription")
+				svctag = json_value_transform(da, "ServiceTag")
+				ship_date = json_value_transform(da, "ShipDate")
+				dell_asset_object_L.append(DellAsset(machine_id=machine_id, svctag=svctag, ship_date=ship_date, warranty_L=warranty_L))
 			else:
 				has_None_W = True
-			machine_id = json_value_transform(da, "MachineDescription")
-			svctag = json_value_transform(da, "ServiceTag")
-			ship_date = json_value_transform(da, "ShipDate")
-			dell_asset_object_L.append(DellAsset(machine_id=machine_id, svctag=svctag, ship_date=ship_date, warranty_L=warranty_L))
 		else:
 			has_None_DA = True
 		if has_None_W:
@@ -97,7 +97,7 @@ def api_entities_batch(target_svc_L, api_url, logger):
 	logger.info("======Begin calling API...")
 	for svc in target_svc_L:
 		req_url = api_url + svc
-		logger.info(svc)
+		logger.info("svctags="svc)
 		json_data = get_response_batch(req_url, logger)
 		if json_data is not None and type(json_data) is dict:
 			api_entities_L.extend(json_to_entities(json_data, logger))
