@@ -23,7 +23,7 @@ if __name__ == "__main__":
 	parent_path = arguments['parent_path']
 	svctag = arguments['svctag']
 	job_mode = arguments['job_mode']
-	log_output_path = "%slog/%s_%s_%s.txt" % (job_mode, parent_path, start_time, svctag)
+	log_output_path = "%s/log/%s_%s_%s.txt" % (parent_path, job_mode, start_time, svctag)
 	config = read_file(parent_path + file_config_name, isYML=True, isURL=False)
 	if config is None:
 		logger.error("Config %s parsed as None; job quits" % (parent_path + file_config_name))
