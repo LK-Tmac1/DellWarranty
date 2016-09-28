@@ -15,16 +15,20 @@ def home():
 def submit_job():
 	svc_L = []
 	search_all = True
+	valid_count = 0
 	for i in xrange(1, 8):
 		svc = str(request.form['svc' + str(i)]).upper()
 		if check_letter_valid(svc):
 			search_all = False
 			svc_L.append(svc)
+			valid_count += 1
 		else:
 			svc_L.append(svc_placeholder)
 		svctag = svc_delimitor.join(svc_L)
 	redirect_url = search_url + svctag
 	if 'new_job' in request.form:
+		if valid_count <= 3 :
+			return render_template("error.html")
 		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag, "--job_mode=" + job_mode_dell_asset]
 		subprocess.Popen(cmd_L)
 		redirect_url += "&new_job=true"
