@@ -4,7 +4,7 @@ import os
 
 work_directory = '~/dell/'
 parent_path = os.path.expanduser(work_directory)
-existing_dell_asset_dir = parent_path+"dell_asset/"
+existing_dell_asset_dir = parent_path+"existing_dell_asset/"
 svc_delimitor = "_"
 svc_placeholder = "?"
 api_offset = 50
