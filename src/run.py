@@ -23,13 +23,12 @@ def submit_job():
 		else:
 			svc_L.append(svc_placeholder)
 		svctag = svc_delimitor.join(svc_L)
-	redirect_url = search_url + svctag + "&new_job="
+	redirect_url = search_url + svctag
 	if 'new_job' in request.form:
 		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag, "--job_mode=" + job_mode_dell_asset]
 		subprocess.Popen(cmd_L)
-		redirect_url += "true"
+		redirect_url += "&new_job=true"
 	elif 'search_history' in request.form:
-		redirect_url += "false"
 		if search_all:
 			redirect_url = "/search"
 	return redirect(redirect_url)
