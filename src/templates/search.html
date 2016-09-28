@@ -4,6 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Dell保修查询主页</title>
 <link rel="stylesheet" type="text/css" href="../static/view.css" media="all">
+
 <style>
             table {
                 border-collapse: collapse;
@@ -45,10 +46,10 @@
 				{% else %}
 				<h4>以下是针对服务标签 <font color="red">{{ svctag }}</font> 的历史查询保修记录，共<font color="red">{{ dell_asset_L|length }}</font> 条保修记录：</h4></li>
 				{% endif %} 
-				<table>
+				<table class="tablesorter" id="da_table">
 					<tr>
-					<th>机器型号</th>
 					<th>服务标签</th>
+					<th>机器型号</th>
 					<th>发货日期</th>
 					<th>保修(英)</th>
 					<th>保修(中)</th>
@@ -58,8 +59,8 @@
 					</tr>
 					{% for da in dell_asset_L %}
   						<tr style="background-color: #f2f2f2">
+  							<td>{{ da.svctag }}</td>
 	  						<td>{{ da.machine_id }}</td>
-	  						<td>{{ da.svctag }}</td>
 	  						<td>{{ da.get_ship_date() }}</td>
 	  					{% for w in da.warranty_L %}
 	  						{% if not loop.first %}

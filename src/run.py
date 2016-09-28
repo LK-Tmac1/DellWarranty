@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect
 from flask.globals import request
 from py.utility import check_letter_valid
 from py.constant import svc_delimitor, svc_placeholder, parent_path, search_url, job_mode_dell_asset
-from py.search import search_existing_dell_asset
+from py.search import search_existing_dell_asset, sort_dell_asset_svctag
 import subprocess
 
 app = Flask(__name__)
@@ -49,6 +49,9 @@ def search():
 				search_all = "false"
 	new_job = str(args.get('new_job')).lower() if 'new_job' in args else ""
 	dell_asset_L = search_existing_dell_asset(svctag)
+	dell_asset_L = sort_dell_asset_svctag(dell_asset_L)
+	if dell_asset_L is None:
+		dell_asset_L = []
 	svctag = "".join(svctag.split(svc_delimitor))
 	return render_template("search.html", svctag=svctag, dell_asset_L=dell_asset_L, new_job=new_job, search_all=search_all)
 	

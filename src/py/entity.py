@@ -36,7 +36,7 @@ class Warranty(object):
 			self.service_ch = service_ch.encode('utf-8')
 		else:
 			self.service_ch = service_ch_placeholder
-
+			
 
 class DellAsset(object):
 	header = "机器型号,服务标签,发货日期"
@@ -71,6 +71,8 @@ class DellAsset(object):
 		self.warranty_L = warranty_L
 	def get_warranty(self):
 		return self.warranty_L
+	def __lt__(self, other):
+		return self.svctag < other.svctag
 	@staticmethod
 	def save_dell_asset_to_file(dell_asset_L, parent_path, logger):
 		for da in dell_asset_L:

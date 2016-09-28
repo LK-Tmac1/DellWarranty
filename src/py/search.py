@@ -19,3 +19,9 @@ def search_existing_dell_asset(svctags):
         return DellAsset.parse_dell_asset_file_batch(existing_dell_asset_dir, target_dell_asset_S, logger=None)
     else:
         return []
+
+def sort_dell_asset_svctag(dell_asset_L):
+    if dell_asset_L is not None:
+        dell_asset_L.sort()
+        return dell_asset_L
+    return []
