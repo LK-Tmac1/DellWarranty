@@ -28,16 +28,23 @@
 <body>
 	
 	<img id="top" src="../static/top.png" alt="">
+
 	<div id="form_container">
-	
+
 		<form id="form_1150242" class="appnitro"  method="post" action="">
 		<ul>
+		<li><h4><a href="/home">点击这里返查询回主页。</a></h4></li>
 			{%  if new_job == "true" %}
 				<li><h4>新任务已提交，请等待邮件。</h4>
 			{% endif %}
 
 			{%  if dell_asset_L|length > 0 %}
-				<h4>以下是针对服务标签 <font color="red">{{ svctag }}</font> 已经找到的 <font color="red">{{ dell_asset_L|length }}</font> 条保修记录：</h4></li>
+				
+				{% if search_all == "true" %}
+				<h4>以下是<font color="red">所有</font>的历史查询保修记录，共<font color="red">{{ dell_asset_L|length }}</font> 条保修记录：</h4></li>
+				{% else %}
+				<h4>以下是针对服务标签 <font color="red">{{ svctag }}</font> 的历史查询保修记录，共<font color="red">{{ dell_asset_L|length }}</font> 条保修记录：</h4></li>
+				{% endif %} 
 				<table>
 					<tr>
 					<th>机器型号</th>

@@ -73,6 +73,8 @@ def json_to_entities(json_data, logger):
 				if type(w_response) == dict:
 					w_response = [w_response]
 				for w in w_response:
+					if "@nil" in w["ServiceLevelDescription"] and w["ServiceLevelDescription"]['@nil'].lower() == "true":
+						continue
 					start_date = json_value_transform(w, "StartDate")
 					end_date = json_value_transform(w, "EndDate")
 					service_en = json_value_transform(w, "ServiceLevelDescription")

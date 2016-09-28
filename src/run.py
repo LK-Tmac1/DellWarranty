@@ -14,29 +14,40 @@ def home():
 @app.route('/home', methods=['POST'])
 def submit_job():
 	svc_L = []
+	search_all = True
 	for i in xrange(1, 8):
 		svc = str(request.form['svc' + str(i)]).upper()
-		svc_L.append(svc if check_letter_valid(svc) else svc_placeholder)
+		if check_letter_valid(svc):
+			search_all = False
+			svc_L.append(svc)
+		else:
+			svc_L.append(svc_placeholder)
 		svctag = svc_delimitor.join(svc_L)
 	redirect_url = search_url + svctag + "&new_job="
 	if 'new_job' in request.form:
 		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag, "--job_mode=" + job_mode_dell_asset]
 		subprocess.Popen(cmd_L)
 		redirect_url += "true"
-	elif 'history' in request.form:
+	elif 'search_history' in request.form:
 		redirect_url += "false"
+		if search_all:
+			redirect_url = "/search"
 	return redirect(redirect_url)
 	
 @app.route('/search')
 def search():
 	args = request.args
-	svctag = str(args.get('svctag')).upper() if 'svctag' in args else ""
+	svctag = "?_?_?_?_?_?_?"
+	search_all = "true"
+	if 'svctag' in args:
+		svctag = str(args.get('svctag')).upper()
+		for svc in svctag:
+			if check_letter_valid(svc):
+				search_all = "false"
 	new_job = str(args.get('new_job')).lower() if 'new_job' in args else ""
 	dell_asset_L = search_existing_dell_asset(svctag)
 	svctag = "".join(svctag.split(svc_delimitor))
-	if svctag == "":
-		return render_template("error.html")
-	return render_template("search.html", svctag=svctag, dell_asset_L=dell_asset_L, new_job=new_job)
+	return render_template("search.html", svctag=svctag, dell_asset_L=dell_asset_L, new_job=new_job, search_all=search_all)
 	
 if __name__ == "__main__":
 	app.run('0.0.0.0', port=5000, debug=True)
