@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Parameters that used by more than one module
 
 import os
@@ -16,3 +18,4 @@ time_str_format = '%Y-%m-%d %H:%M:%S'
 search_url = "/search?svctag="
 job_mode_dell_asset = "dellasset"
 job_mode_update_svctag = "svctag"
+email_job_finish_subject_prefix = "[查询结束] "

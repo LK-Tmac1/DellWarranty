@@ -6,7 +6,7 @@ from utility import read_file, get_current_time, parse_cmd_args, save_object_to_
 from translate import translate_dell_warranty, update_dell_warranty_translation
 from email_job import send_email, email_job_output_translation
 from entity import DellAsset
-from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, job_mode_update_svctag
+from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, job_mode_update_svctag, email_job_finish_subject_prefix
 import sys, traceback
 
 reload(sys)
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 						logger.error("Sending output email failed")
 				else:
 					logger.info("-------Output for this job is empty")
-					send_email(subject='查询的标签 %s 没找到任何结果' % svctag, text=" ", config=config)
+					send_email(subject=email_job_finish_subject_prefix + '查询的标签 %s 没找到任何结果' % svctag, text=" ", config=config)
 			elif job_mode == job_mode_update_svctag:
 				subject = subject_temp % ('新的标签更新开始', start_time, svctag)
 				target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger, svc_job=True)
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 			logger.error(traceback.format_exc())
 		logger.info("FINISH>>>>>>>>>>>>>>>> main")
 		if logger.has_error:
-			subject = subject_temp % ('查询结果失败', start_time, svctag)
+			subject = email_job_finish_subject_prefix + subject_temp % ('查询结果失败', start_time, svctag)
 			if job_mode == job_mode_dell_asset:
 				send_email(subject=subject, text='程序运行出现错误，请等待解决.', config=config, cc_mode=True)
 		else:

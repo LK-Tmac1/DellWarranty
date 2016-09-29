@@ -3,6 +3,7 @@
 import requests, yaml, sys
 from utility import get_current_time, diff_two_time
 from translate import reverse_NA_translation
+from constant import email_job_finish_subject_prefix
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -24,7 +25,7 @@ def email_job_output_translation(svctag, config, csv_path, NA_dict, additional_t
 	# If all services translation available, just send CSV as attachment
 	# Otherwise, write the service_en and svctag as text on the email
 	end_time = get_current_time()
-	subject = "%s %s %s" % ('查询结果成功', end_time, svctag)
+	subject = email_job_finish_subject_prefix + "%s %s %s" % ('查询结果成功', end_time, svctag)
 	text = "全部已翻译."
 	if bool(NA_dict):
 		subject = "[需要翻译] %s" % subject
