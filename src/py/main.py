@@ -42,7 +42,7 @@ if __name__ == "__main__":
 		try:
 			if job_mode == job_mode_dell_asset:
 				subject = subject_temp % ('新的查询开始', start_time, svctag)
-				send_email(subject=subject, text=" ", config=config, cc_mode=True)	
+				send_email(subject=subject, text=" ", config=config, cc_mode=False)	
 				target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
 				# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 				if len(target_svc_L) == 0:
