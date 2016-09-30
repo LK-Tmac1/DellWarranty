@@ -6,7 +6,7 @@ from utility import read_file, get_current_time, parse_cmd_args, save_object_to_
 from translate import translate_dell_warranty, update_dell_warranty_translation, verify_NA_translation
 from email_job import send_email, email_job_output_translation
 from entity import DellAsset
-from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, job_mode_update_svctag, email_job_finish_subject_prefix
+from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, job_mode_update_svctag
 import sys, traceback
 
 reload(sys)
@@ -82,18 +82,14 @@ if __name__ == "__main__":
 			logger.error(traceback.format_exc())
 		logger.info("FINISH>>>>>>>>>>>>>>>> main")
 		additional_text = "总用时 %s\n总共 %s个结果" % (diff_two_time(start_time, get_current_time()), len(output_dell_asset_L))
+		logger.info(additional_text)
 		additional_text += "请打开链接: %s%s%s\n" % (config['host_url'], search_url, svctag)
 		if logger.has_error:
-			subject = email_job_finish_subject_prefix + subject_temp % ('查询结果失败', start_time, svctag)
-			if job_mode == job_mode_dell_asset:
-				send_email(subject=subject, text='程序运行出现错误，请等待解决.', config=config)
-		else:
-			subject = subject_temp % ('查询任务日志', start_time, svctag)
-		logger.info('总用时 %s' % diff_two_time(start_time, get_current_time()))
+			additional_text += "查询程序出现错误，请等待解决。"
 		if job_mode == job_mode_dell_asset:
 			save_object_to_path(object_L=logger, output_path=log_output_path)
-			delete_file(output_csv_path)
-			send_email(subject=subject, text=logger, config=config, cc_mode=logger.has_error)
+			subject = subject_temp % ("[查询任务结束] ", get_current_time(), svctag)
+			send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error, attachment_path_L=[log_output_path])
 		elif job_mode == job_mode_update_svctag:
 			pass
 
