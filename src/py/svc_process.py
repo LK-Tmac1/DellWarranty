@@ -75,9 +75,9 @@ def filter_invalid_svctags(svc_S, dell_support_url, logger, svc_job=False):
 	while i < len(svc_L):
 		try:
 			resp_suffix = requests.get(dell_support_url + svc_L[i]).url
-			if str(resp_suffix).endswith(svc):
-				valid_svc_S.add(svc)
-				logger.info("======%s is valid" % svc)
+			if str(resp_suffix).endswith(svc_L[i]):
+				valid_svc_S.add(svc_L[i])
+				logger.info("======%s is valid" % svc_L[i])
 			i += 1
 		except requests.exceptions.ConnectionError:
 			if last_error_index == i:
@@ -106,11 +106,11 @@ def target_svctags_batch(svc_L, dell_support_url, history_dell_asset_path, histo
 	logger.info("Generate %s possible svctags" % len(all_svc_S))
 	unknown_S, valid_S, existing_S = classify_svctags(all_svc_S, history_valid_svc_S, history_dellasset_S)
 	logger.info("Classify into %s unknown, %s valid, and %s existing svctags" % (len(unknown_S), len(valid_S), len(existing_S)))
-	target_svc_S = filter_invalid_svctags(unknown_S, dell_support_url, logger.union(valid_S)
-	invalid_count = len(all_svc_S)- len(target_svc_S)
+	target_svc_S = filter_invalid_svctags(unknown_S, dell_support_url, logger).union(valid_S)
+	invalid_count = len(all_svc_S) - len(target_svc_S)
 	logger.info("Filter out %s invalid, and combine with those valid as target svctags" % invalid_count)
 	update_valid_svc_L = list(target_svc_S.union(history_valid_svc_S).union(history_dellasset_S))
 	save_object_to_path(object_L=update_valid_svc_L, output_path=history_valid_svctag_path)
-	logger.info("Update %s new valid svctags" % (len(all_svc_S) - invalid_count)))
+	logger.info("Update %s new valid svctags" % (len(all_svc_S) - invalid_count))
 	return svctags_flatten(valid_svc_L=list(target_svc_S)), existing_S
 

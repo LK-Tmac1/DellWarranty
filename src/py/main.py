@@ -81,13 +81,13 @@ if __name__ == "__main__":
 			logger.error(traceback.format_exc())
 		logger.info("FINISH>>>>>>>>>>>>>>>> main")
 		additional_text = "总用时 %s\n总共 %s个结果" % (diff_two_time(start_time, get_current_time()), len(output_dell_asset_L))
-		additional_text += "请打开链接: %s%s%s\n" % (config['host_url'], search_url, svctag)
+		additional_text += "\n请打开链接: %s%s%s&new_job=false" % (config['host_url'], search_url, svctag)
 		logger.info(additional_text)
+		subject = subject_temp % ("[查询任务结束] ", get_current_time(), svctag)
 		if logger.has_error:
-			additional_text += "查询程序出现错误，请等待解决。"
+			additional_text += "\n查询程序出现错误，请等待解决。"
 		if job_mode == job_mode_dell_asset:
 			save_object_to_path(object_L=logger, output_path=log_output_path)
-			subject = subject_temp % ("[查询任务结束] ", get_current_time(), svctag)
 			send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error, attachment_path_L=[log_output_path])
 		elif job_mode == job_mode_update_svctag:
 			pass
