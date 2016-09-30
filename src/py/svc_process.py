@@ -1,7 +1,6 @@
 import itertools, requests, time
-from utility import check_letter_valid, save_object_to_path, list_file_name_in_dir, load_file_as_set, Logger
+from utility import check_letter_valid, save_object_to_path, list_file_name_in_dir, load_file_as_set
 from constant import api_offset, letters, svc_placeholder
-
 
 def svctags_generator(svc_L):
 	def count_empty_letter(svc_L):

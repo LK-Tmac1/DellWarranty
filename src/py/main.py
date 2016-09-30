@@ -2,9 +2,9 @@
 
 from svc_process import target_svctags_batch
 from api_entity import api_entities_batch
-from utility import read_file, get_current_time, parse_cmd_args, save_object_to_path, Logger, delete_file, diff_two_time
+from utility import read_file, get_current_time, parse_cmd_args, save_object_to_path, Logger, diff_two_time
 from translate import translate_dell_warranty, update_dell_warranty_translation, verify_NA_translation
-from email_job import send_email, email_job_output_translation
+from email_job import send_email
 from entity import DellAsset
 from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, job_mode_update_svctag
 import sys, traceback
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 					if len(api_dell_asset_L) > 0:
 						output_dell_asset_L, NA_dict = translate_dell_warranty(transl_url, api_dell_asset_L, logger)
 					else:
-						logger.warn("=======No data for Dell Asset from API call")
+						logger.warn("======No data for Dell Asset from API call")
 				if len(existing_svc_S) > 0:
 					existing_dell_asset_L = DellAsset.parse_dell_asset_file_batch(dell_asset_path, existing_svc_S, logger)
 					# Translate all Warranties of each DellAsset, and find those warranties without available translation
@@ -60,9 +60,8 @@ if __name__ == "__main__":
 					output_dell_asset_L.extend(updated_dell_asset_L)
 					NA_dict.update(NA_dict2)
 				else:
-					logger.info("No existing Dell Asset for service tag " + svctag)
-				need_translation = verify_NA_translation(NA_dict, logger)
-				if need_translation:
+					logger.warn("======No existing Dell Asset for service tag " + svctag)
+				if verify_NA_translation(NA_dict, logger):
 					logger.warn("Additional translation needed")					
 				else:
 					logger.info("No additional translation needed")
@@ -72,7 +71,7 @@ if __name__ == "__main__":
 					save_object_to_path(object_L=output_dell_asset_L, output_path=output_csv_path)
 					logger.info("~~~~~~~Save output as existing dell assets")
 				else:
-					logger.info("-------Output for this job is empty")
+					logger.warn("-------Output for this job is empty")
 			elif job_mode == job_mode_update_svctag:
 				subject = subject_temp % ('新的标签更新开始', start_time, svctag)
 				target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger, svc_job=True)
@@ -82,8 +81,8 @@ if __name__ == "__main__":
 			logger.error(traceback.format_exc())
 		logger.info("FINISH>>>>>>>>>>>>>>>> main")
 		additional_text = "总用时 %s\n总共 %s个结果" % (diff_two_time(start_time, get_current_time()), len(output_dell_asset_L))
-		logger.info(additional_text)
 		additional_text += "请打开链接: %s%s%s\n" % (config['host_url'], search_url, svctag)
+		logger.info(additional_text)
 		if logger.has_error:
 			additional_text += "查询程序出现错误，请等待解决。"
 		if job_mode == job_mode_dell_asset:

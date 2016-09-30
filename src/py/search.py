@@ -1,5 +1,5 @@
 import re
-from constant import svc_delimitor, existing_dell_asset_dir, service_ch_placeholder
+from constant import svc_delimitor, existing_dell_asset_dir
 from utility import check_letter_valid, list_file_name_in_dir
 from entity import DellAsset
 
@@ -25,3 +25,8 @@ def sort_dell_asset_svctag(dell_asset_L):
         dell_asset_L.sort()
         return dell_asset_L
     return []
+
+def search_history_unexpired(svc_S, search_history_path, date_offset):
+    result_S = set([])
+    return result_S
+    
