@@ -3,7 +3,7 @@
 from svc_process import target_svctags_batch
 from api_entity import api_entities_batch
 from utility import read_file, get_current_time, parse_cmd_args, save_object_to_path, Logger, delete_file, diff_two_time
-from translate import translate_dell_warranty, update_dell_warranty_translation
+from translate import translate_dell_warranty, update_dell_warranty_translation, verify_NA_translation
 from email_job import send_email, email_job_output_translation
 from entity import DellAsset
 from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, job_mode_update_svctag, email_job_finish_subject_prefix
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 		try:
 			if job_mode == job_mode_dell_asset:
 				subject = subject_temp % ('新的查询开始', start_time, svctag)
-				send_email(subject=subject, text=" ", config=config, cc_mode=False)	
+				send_email(subject=subject, text="请等待邮件结果", config=config)	
 				target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger)
 				# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 				if len(target_svc_L) == 0:
@@ -61,45 +61,39 @@ if __name__ == "__main__":
 					NA_dict.update(NA_dict2)
 				else:
 					logger.info("No existing Dell Asset for service tag " + svctag)
-				if not bool(NA_dict):
-					logger.info("No additional translation needed")
+				need_translation = verify_NA_translation(NA_dict, logger)
+				if need_translation:
+					logger.warn("Additional translation needed")					
 				else:
-					logger.warn("Additional translation needed")
+					logger.info("No additional translation needed")
 				if len(output_dell_asset_L) > 0:
 					logger.info("~~~~~~~%s output results in total" % len(output_dell_asset_L))
 					# Save output into the csv_path and also existing dell asset
 					save_object_to_path(object_L=output_dell_asset_L, output_path=output_csv_path)
-					logger.info("~~~~~~~Save output as existing dell asset")
-					DellAsset.save_dell_asset_to_file(output_dell_asset_L, dell_asset_path, logger)
-					# Email the csv output and also all NA translation
-					additional_text = "总用时 %s\n总共 %s个结果" % (diff_two_time(start_time, get_current_time()), len(output_dell_asset_L))
-					additional_text += "\n请打开链接: %s%s%s" % (config['host_url'], search_url, svctag)
-					if email_job_output_translation(svctag=svctag, config=config, csv_path=output_csv_path, NA_dict=NA_dict, additional_text=additional_text):
-						logger.info("Sending output email done")
-					else:
-						logger.error("Sending output email failed")
+					logger.info("~~~~~~~Save output as existing dell assets")
 				else:
 					logger.info("-------Output for this job is empty")
-					send_email(subject=email_job_finish_subject_prefix + '查询的标签 %s 没找到任何结果' % svctag, text=" ", config=config)
 			elif job_mode == job_mode_update_svctag:
 				subject = subject_temp % ('新的标签更新开始', start_time, svctag)
 				target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger, svc_job=True)
-				send_email(subject=subject, text=logger, config=config, cc_mode=False)	
+				send_email(subject=subject, text=logger, config=config)
 		except Exception, e:
 			logger.error(str(e))
 			logger.error(traceback.format_exc())
 		logger.info("FINISH>>>>>>>>>>>>>>>> main")
+		additional_text = "总用时 %s\n总共 %s个结果" % (diff_two_time(start_time, get_current_time()), len(output_dell_asset_L))
+		additional_text += "请打开链接: %s%s%s\n" % (config['host_url'], search_url, svctag)
 		if logger.has_error:
 			subject = email_job_finish_subject_prefix + subject_temp % ('查询结果失败', start_time, svctag)
 			if job_mode == job_mode_dell_asset:
-				send_email(subject=subject, text='程序运行出现错误，请等待解决.', config=config, cc_mode=True)
+				send_email(subject=subject, text='程序运行出现错误，请等待解决.', config=config)
 		else:
 			subject = subject_temp % ('查询任务日志', start_time, svctag)
 		logger.info('总用时 %s' % diff_two_time(start_time, get_current_time()))
 		if job_mode == job_mode_dell_asset:
 			save_object_to_path(object_L=logger, output_path=log_output_path)
 			delete_file(output_csv_path)
-			send_email(subject=subject, text=logger, config=config, cc_mode=False)
+			send_email(subject=subject, text=logger, config=config, cc_mode=logger.has_error)
 		elif job_mode == job_mode_update_svctag:
-			print "~~~~~Final log:\n", logger
+			pass
 

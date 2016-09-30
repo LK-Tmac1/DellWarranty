@@ -93,7 +93,7 @@ def load_file_as_set(valid_svctag_path):
 
 class Logger(object):
 	def __init__(self):
-		self.info_header = "[INFO] "
+		self.info_header = ""
 		self.warn_header = "[WARN] "
 		self.error_header = "[ERROR] "
 		self.message_Q = {0 : self.info_header + "Start logging"}
