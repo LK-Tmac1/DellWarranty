@@ -89,7 +89,7 @@ def json_to_entities(json_data, logger):
 		else:
 			has_None_DA = True
 		if has_None_W:
-			logger.warn("Warranty response is None:\n %s" % da)
+			logger.warn("Warranty response is None for %s:\n %s" % da.svctag, da)
 	if has_None_DA:	
 		logger.warn("Dell Asset has None value:\n %s" % json_data)
 	return dell_asset_object_L
