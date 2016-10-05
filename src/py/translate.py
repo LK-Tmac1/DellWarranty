@@ -2,10 +2,10 @@
 import sys, yaml
 from utility import read_file, save_object_to_path
 from constant import service_ch_placeholder, history_DA_file_format
-
+"""
 reload(sys)
 sys.setdefaultencoding('utf8')
-
+"""
 def filter_NA_translation(tran_dict):
 	# Filter those services without available Chinese translation from the dict
 	for k, v in tran_dict.items():
@@ -26,7 +26,6 @@ def reverse_NA_translation(NA_dict):
 
 def verify_NA_translation(NA_dict, logger):
 	if bool(NA_dict):
-		logger.warn("查询结果存在保修需要翻译：")
 		NA_dict = reverse_NA_translation(NA_dict)
 		for k, v in NA_dict.items():
 			temp = str(k) + ": " + str(v)

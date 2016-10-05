@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from constant import history_DA_file_format, service_ch_placeholder
-from utility import read_file, parse_str_date, save_object_to_path, is_path_existed
-import sys  
+from utility import read_file, parse_str_date, save_object_to_path, is_path_existed, list_file_name_in_dir
+import sys
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -37,7 +37,7 @@ class Warranty(object):
 		else:
 			self.service_ch = service_ch_placeholder
 			
-
+			
 class DellAsset(object):
 	header = "机器型号,服务标签,发货日期"
 	header_num = len(header.split(","))
@@ -88,8 +88,8 @@ class DellAsset(object):
 				logger.info("######Save %s as existing dell asset" % da.svctag)
 	@staticmethod
 	def parse_dell_asset_file(dell_asset_path):
-		lines = read_file(dell_asset_path, isYML=False, isURL=False).split('\n')
-		if len(lines) > 1:
+		lines = read_file(dell_asset_path, isYML=False, isURL=False, lines=True)
+		if lines is not None and len(lines) > 1:
 			da = DellAsset(dellasset_str=','.join(lines[1].split(',')[0:DellAsset.header_num]))
 			warranty_L = []
 			for i in xrange(1, len(lines)):
@@ -100,15 +100,49 @@ class DellAsset(object):
 		else:	
 			return None
 	@staticmethod
-	def parse_dell_asset_file_batch(dell_asset_path, target_svc_S, logger=None):
+	def parse_dell_asset_file_batch(dell_asset_path, target_svc_S, file_format=history_DA_file_format, logger=None):
 		da_L = []
 		for svc in target_svc_S:
-			path = "%s%s%s" % (dell_asset_path, svc, history_DA_file_format)
+			path = "%s%s%s" % (dell_asset_path, svc, file_format)
 			if logger is not None:
 				logger.info("Read and parse dell asset of " + svc)
 			da = DellAsset.parse_dell_asset_file(path)
 			if da is not None:
 				da_L.append(da)
 			elif logger is not None:
-				logger.error("Parsing dell asset of %s failed" % path)
+				logger.error("Parsing dell asset of %s failed" % path)		
 		return da_L
+	@staticmethod
+	def parse_dell_asset_multiple(dell_asset_multiple_path):
+		da_L = []
+		lines = read_file(dell_asset_multiple_path, isYML=False, isURL=False, lines=True)
+		if lines is not None:
+			i = 0
+			while i < len(lines):
+				while  i < len(lines) and (lines[i] == "" or lines[i].find(DellAsset.header) == 0):
+					i += 1
+				if  i < len(lines):
+					da = DellAsset(dellasset_str=','.join(lines[i].split(',')[0:DellAsset.header_num]))
+					warranty_L = []
+					while i < len(lines) and lines[i] != "" and lines[i].find(DellAsset.header) < 0:
+						new_w = Warranty(warranty_str=','.join(lines[i].split(',')[DellAsset.header_num:]))
+						warranty_L.append(new_w)
+						i += 1
+					da.set_warranty_L(warranty_L)
+					da_L.append(da)
+					print "New dell asset", da.svctag
+		return da_L
+	@staticmethod
+	def parse_dell_asset_multiple_batch(dell_asset_multiple_path, output_path):
+		output_dell_asset_L = DellAsset.parse_dell_asset_multiple(dell_asset_multiple_path)
+		for da in output_dell_asset_L:
+			if da is not None and da.svctag != "":
+				temp_path = output_path + da.svctag + history_DA_file_format
+				save_object_to_path(value=da, output_path=temp_path)
+		print len(output_dell_asset_L), "results generated"
+
+
+def adhoc():
+	path = "/Users/Kun/dell/temp/"
+	dell_asset_multiple_path = path + "?_?_H_X_K_1_2.csv"
+	DellAsset.parse_dell_asset_multiple_batch(dell_asset_multiple_path, path)

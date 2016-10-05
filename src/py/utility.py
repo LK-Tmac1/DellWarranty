@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import yaml, requests, datetime, os, time
-from constant import letters, history_DA_file_format, time_str_format
+from constant import letters, history_DA_file_format, datetime_str_format, date_str_format, hour_str_format, date_str_format_search
 from dateutil.parser import parse
 
 def is_path_existed(path):
@@ -16,7 +16,7 @@ def parse_str_date(str_date):
 		return ""
 	try:
 		date_object = parse(str_date)
-		return "%s年%s月%s日" % (date_object.year, date_object.month, date_object.day)
+		return date_str_format % (date_object.year, date_object.month, date_object.day)
 	except:
 		return str_date
 
@@ -33,46 +33,62 @@ def parse_cmd_args(arguments, required_arg_list):
 				break
 	return arg_map
 
-def get_current_time():
-	return datetime.datetime.now().strftime(time_str_format)
+def get_current_datetime(is_format=True, is_date=False, str_format=datetime_str_format):
+	now = datetime.datetime.now()
+	if is_format:
+		if is_date:
+			now = now.strftime(date_str_format_search)
+		else:
+			now = now.strftime(str_format)
+	return now
 
-def diff_two_time(time1, time2):
-	t1 = datetime.datetime.strptime(time1, time_str_format)
-	t2 = datetime.datetime.strptime(time2, time_str_format)
+def diff_two_datetime(time1, time2, date_time=True, days=False):
+	t1 = datetime.datetime.strptime(time1, datetime_str_format)
+	t2 = datetime.datetime.strptime(time2, datetime_str_format)
 	if t1 > t2:
 		temp = t1
 		t2 = t1
 		t1 = temp
 	diff = t2 - t1
-	return time.strftime("%H小时%M分钟%S秒", time.gmtime(diff.seconds))
-	
+	if date_time:
+		a = time.strftime(hour_str_format, time.gmtime(diff.seconds))
+		return a
+	elif days:
+		return diff.days
 
-def read_file(file_path, isYML, isURL=False):
+def read_file(file_path, isYML, isURL=False, lines=False):
 	# Read input file in .yml format, either the yml_path is a URL or or local path
+	result = None
 	if isURL:
 		resp = requests.get(file_path)
 		if str(resp.status_code) == '200':
-			return yaml.load(resp.content) if isYML else resp.content
+			result = yaml.load(resp.content) if isYML else resp.content
 	else:
 		if is_path_existed(file_path):
 			with open(file_path, "r") as value:
-				return yaml.load(value) if isYML else value.read()
-	return None
+				result = yaml.load(value) if isYML else value.read()
+	if lines and result is not None:
+		result = result.split("\n")
+	return result
 
-def save_object_to_path(object_L, output_path):
+def save_object_to_path(value, output_path, isYML=False):
 	parent_dir = output_path[0:output_path.rfind("/")]
 	# If output parent dir does not exist, create it
 	if not is_path_existed(parent_dir):
 		os.makedirs(parent_dir)
 	with open(output_path, 'w') as output:
-		if type(object_L) is not list:
-			object_L = [object_L]
-		for obj in object_L:
-			content = str(obj)
-			if content[-1] != '\n':
-				content += '\n'
-			if content != '':
-				output.write(content)
+		if not isYML:
+			object_L = value
+			if type(object_L) is not list:
+				object_L = [object_L]
+			for obj in object_L:
+				content = str(obj)
+				if content[-1] != '\n':
+					content += '\n'
+				if content != '':
+					output.write(content)
+		else:
+			yaml.safe_dump(value, output)
 	return True
 
 def list_file_name_in_dir(input_path, file_format=history_DA_file_format):
@@ -89,7 +105,7 @@ def load_file_as_set(valid_svctag_path):
 	_set = set(_file.split("\n"))
 	if '' in _set:
 		_set.remove('')
-	return _set
+	return _set	
 
 class Logger(object):
 	def __init__(self):
@@ -136,8 +152,4 @@ class Logger(object):
 		return self.get_message_by_type("WARN")
 	def get_info_only(self):
 		return self.get_message_by_type("INFO")
-	def get_last_message(self):
-		if self.message_count in self.message_Q:
-			return self.message_Q[self.message_count]
-		else:
-			return "Nothing to return on this logger: index=%s" % self.message_count
+			

@@ -14,7 +14,12 @@ file_config_name = "dell_config.yml"
 letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 history_DA_file_format = '.txt'
 service_ch_placeholder = "?"
-time_str_format = '%Y-%m-%d %H:%M:%S'
+
+datetime_str_format = '%Y-%m-%d %H:%M:%S'
+date_str_format = "%s年%s月%s日"
+date_str_format_search = "%Y-%m-%d"
+hour_str_format = "%H小时%M分钟%S秒"
+
 search_url = "/search?svctag="
 job_mode_dell_asset = "dellasset"
 job_mode_update_svctag = "svctag"
