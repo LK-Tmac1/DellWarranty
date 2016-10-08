@@ -2,11 +2,13 @@
 
 from svc_process import target_svctags_batch
 from api_entity import api_entities_batch
-from utility import read_file, get_current_datetime, parse_cmd_args, save_object_to_path, Logger, diff_two_datetime
+from utility import read_file, get_current_datetime, parse_cmd_args, save_object_to_path, Logger, diff_two_datetime, \
+	delete_file, convert_linux_windows
 from translate import translate_dell_warranty, update_dell_warranty_translation, verify_NA_translation
 from email_job import send_email
 from entity import DellAsset
-from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, job_mode_update_svctag, history_DA_file_format
+from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, \
+	job_mode_update_svctag, history_DA_file_format
 import sys, traceback
 
 required_arg_list = ['--parent_path=', '--svctag=', '--job_mode=']
@@ -30,6 +32,7 @@ if __name__ == "__main__":
 		history_valid_svctag_path = parent_path + "valid_svctags.txt"
 		dell_asset_path = existing_dell_asset_dir
 		search_history_path = parent_path + "search_history.yml"
+		dell_asset_output_path = parent_path + "output_%s.txt" % svctag
 		api_url = config['dell_api_url'] % config["dell_api_key"]
 		transl_url = config["translation_url"]
 		dell_support_url = config['dell_support_url']
@@ -63,7 +66,7 @@ if __name__ == "__main__":
 				if verify_NA_translation(NA_dict, logger):
 					logger.warn("查询结果存在保修需要翻译")
 					need_translation = True
-					additional_text += "查询结果存在保修需要翻译"
+					additional_text += "查询结果存在保修需要t翻译"
 				else:
 					logger.info("No additional translation needed")
 				if len(output_dell_asset_L) > 0:
@@ -74,6 +77,7 @@ if __name__ == "__main__":
 						if da is not None and da.svctag != "" and da.is_translation_updated:
 							temp_path = existing_dell_asset_dir + da.svctag + history_DA_file_format
 							save_object_to_path(value=da, output_path=temp_path)
+					save_object_to_path(value=output_dell_asset_L, output_path=dell_asset_output_path)
 				else:
 					logger.warn("-------Output for this job is empty")
 			elif job_mode == job_mode_update_svctag:
@@ -91,8 +95,10 @@ if __name__ == "__main__":
 		if logger.has_error:
 			additional_text += "\n查询程序出现错误，请等待解决。"
 		if job_mode == job_mode_dell_asset:
-			save_object_to_path(value=logger, output_path=log_output_path)
-			send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path])
+			save_object_to_path(value=logger, output_path=log_output_path, isWin=True)
+			send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path, dell_asset_output_path])
+				# convert_linux_windows(dell_asset_output_path)
+			delete_file(dell_asset_output_path)
 		elif job_mode == job_mode_update_svctag:
 			pass
-
+		

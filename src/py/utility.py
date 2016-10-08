@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import yaml, requests, datetime, os, time
-from constant import letters, history_DA_file_format, datetime_str_format, date_str_format, hour_str_format, date_str_format_search
+from constant import letters, history_DA_file_format, datetime_str_format, win_newline, \
+	date_str_format, hour_str_format, date_str_format_search
 from dateutil.parser import parse
 
 def is_path_existed(path):
@@ -71,7 +72,7 @@ def read_file(file_path, isYML, isURL=False, lines=False):
 		result = result.split("\n")
 	return result
 
-def save_object_to_path(value, output_path, isYML=False):
+def save_object_to_path(value, output_path, isYML=False, isWin=False):
 	parent_dir = output_path[0:output_path.rfind("/")]
 	# If output parent dir does not exist, create it
 	if not is_path_existed(parent_dir):
@@ -82,10 +83,12 @@ def save_object_to_path(value, output_path, isYML=False):
 			if type(object_L) is not list:
 				object_L = [object_L]
 			for obj in object_L:
-				content = str(obj)
-				if content[-1] != '\n':
-					content += '\n'
-				if content != '':
+				if obj is not None and obj != "":
+					content = str(obj)
+					if content[-1] != '\n':
+						content += '\n'
+					if isWin:
+						content.replace('\n', win_newline)
 					output.write(content)
 		else:
 			yaml.safe_dump(value, output)
@@ -106,6 +109,18 @@ def load_file_as_set(valid_svctag_path):
 	if '' in _set:
 		_set.remove('')
 	return _set	
+
+def convert_linux_windows(file_path):
+	if is_path_existed(file_path):
+		cmd_L = ["convmv", "-f", "UTF-8", "-t", "GBK", "--notest", file_path]
+		import subprocess
+		subprocess.Popen(cmd_L)
+		return True
+	return False
+import os
+path = os.path.expanduser("~/Desktop/55QYW11.txt")
+# print path
+# convert_linux_windows(path)
 
 class Logger(object):
 	def __init__(self):
