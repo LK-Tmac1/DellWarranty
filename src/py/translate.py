@@ -28,15 +28,14 @@ def verify_NA_translation(NA_dict, logger):
 	if bool(NA_dict):
 		NA_dict = reverse_NA_translation(NA_dict)
 		for k, v in NA_dict.items():
-			temp = str(k) + ": " + str(v)
-			logger.info(yaml.safe_dump(temp, allow_unicode=True, default_flow_style=False))
-			return True
+			logger.info(str(k) + ": " + str(v))
+		return True
 	return False
 
 def translate_dell_warranty(yml_url_path, dell_asset_L, logger):
 	tran_dict = read_file(yml_url_path, isYML=True, isURL=True)
 	tran_dict = filter_NA_translation(tran_dict)
-	logger.info("Read translation")
+	logger.info("Read translation from " + yml_url_path)
 	NA_dict = {}
 	for dell_asset in dell_asset_L:
 		for w in dell_asset.get_warranty():

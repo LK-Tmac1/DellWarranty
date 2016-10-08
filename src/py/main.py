@@ -11,17 +11,18 @@ from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, s
 	job_mode_update_svctag, history_DA_file_format
 import sys, traceback
 
-required_arg_list = ['--parent_path=', '--svctag=', '--job_mode=']
+required_arg_list = ['--parent_path=', '--svctag=', '--job_mode=', '--v=']
 subject_temp = "%s 时间%s 标签%s"
 
 if __name__ == "__main__":
-	logger = Logger()
-	logger.info("Prepare arguments for a job")
-	start_time = get_current_datetime()
 	arguments = parse_cmd_args(sys.argv, required_arg_list)
 	parent_path = arguments['parent_path']
 	svctag = arguments['svctag']
 	job_mode = arguments['job_mode']
+	verbose = True if 'v' in arguments else False
+	logger = Logger(verbose)
+	logger.info("Prepare arguments for a job")
+	start_time = get_current_datetime()
 	log_output_path = "%slog/%s_%s.txt" % (parent_path, job_mode, svctag)
 	config = read_file(parent_path + file_config_name, isYML=True, isURL=False)
 	if config is None:
@@ -66,7 +67,7 @@ if __name__ == "__main__":
 				if verify_NA_translation(NA_dict, logger):
 					logger.warn("查询结果存在保修需要翻译")
 					need_translation = True
-					additional_text += "查询结果存在保修需要t翻译"
+					additional_text += "查询结果存在保修需要翻译"
 				else:
 					logger.info("No additional translation needed")
 				if len(output_dell_asset_L) > 0:

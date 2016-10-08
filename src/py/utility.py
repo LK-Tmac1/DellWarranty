@@ -123,7 +123,8 @@ path = os.path.expanduser("~/Desktop/55QYW11.txt")
 # convert_linux_windows(path)
 
 class Logger(object):
-	def __init__(self):
+	def __init__(self, verbose):
+		self.verbose = verbose
 		self.info_header = ""
 		self.warn_header = "[WARN] "
 		self.error_header = "[ERROR] "
@@ -139,6 +140,8 @@ class Logger(object):
 							   "INFO" : self.info_index_L}
 	def add_message(self, message, message_index_L, header):
 		message = "" if message is None else str(message)
+		if self.verbose:
+			print message
 		self.message_Q[self.message_count] = header + message
 		message_index_L.append(self.message_count)
 		self.message_count += 1
