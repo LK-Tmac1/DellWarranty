@@ -88,12 +88,13 @@ def filter_invalid_svctags_URL(svc_S, dell_support_url, logger, svc_job=False):
 	last_error_index = 0
 	retry_count = 1
 	retry_limit = 5
+	logger.info("Valid svctags:")
 	while i < len(svc_L):
 		try:
 			resp_suffix = requests.get(dell_support_url + svc_L[i]).url
 			if str(resp_suffix).endswith(svc_L[i]):
 				valid_svc_S.add(svc_L[i])
-				logger.info("======%s is valid" % svc_L[i])
+				logger.info(svc_L[i])
 			i += 1
 		except requests.exceptions.ConnectionError:
 			if last_error_index == i:

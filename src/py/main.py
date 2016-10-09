@@ -3,7 +3,7 @@
 from svc_process import target_svctags_batch
 from api_entity import api_entities_batch
 from utility import read_file, get_current_datetime, parse_cmd_args, save_object_to_path, Logger, diff_two_datetime, \
-	delete_file, convert_linux_windows
+	delete_file
 from translate import translate_dell_warranty, update_dell_warranty_translation, verify_NA_translation
 from email_job import send_email
 from entity import DellAsset
@@ -27,7 +27,7 @@ if __name__ == "__main__":
 	config = read_file(parent_path + file_config_name, isYML=True, isURL=False)
 	if config is None:
 		logger.error("Config %s parsed as None; job quits" % (parent_path + file_config_name))
-		save_object_to_path(object_L=logger, output_path=log_output_path)
+		save_object_to_path(value=logger, output_path=log_output_path)
 	else:
 		svc_L = svctag.split(svc_delimitor)
 		history_valid_svctag_path = parent_path + "valid_svctags.txt"
@@ -96,9 +96,8 @@ if __name__ == "__main__":
 		if logger.has_error:
 			additional_text += "\n查询程序出现错误，请等待解决。"
 		if job_mode == job_mode_dell_asset:
-			save_object_to_path(value=logger, output_path=log_output_path, isWin=True)
+			save_object_to_path(value=logger, output_path=log_output_path)
 			send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path, dell_asset_output_path])
-				# convert_linux_windows(dell_asset_output_path)
 			delete_file(dell_asset_output_path)
 		elif job_mode == job_mode_update_svctag:
 			pass

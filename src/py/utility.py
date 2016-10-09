@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import yaml, requests, datetime, os, time
+import yaml, requests, datetime, os, time, io
 from constant import letters, history_DA_file_format, datetime_str_format, win_newline, \
 	date_str_format, hour_str_format, date_str_format_search
 from dateutil.parser import parse
@@ -72,12 +72,24 @@ def read_file(file_path, isYML, isURL=False, lines=False):
 		result = result.split("\n")
 	return result
 
-def save_object_to_path(value, output_path, isYML=False, isWin=False):
+def convert_linux_to_win(input_path, output_path):
+	with open(input_path, 'r') as value:
+		value = value.read()
+		value.replace("\n", "\r\n")
+		import io
+		with io.open(output_path, 'w', newline="\r\n") as output:
+			output.write(value)
+	return True
+input_path = "/Users/Kun/dell/output_1_H_Y_J_R_3_2.txt"
+output_path = "/Users/Kun/dell/output.txt"
+#convert_linux_to_win(input_path, output_path)
+
+def save_object_to_path(value, output_path, isYML=False):
 	parent_dir = output_path[0:output_path.rfind("/")]
 	# If output parent dir does not exist, create it
 	if not is_path_existed(parent_dir):
 		os.makedirs(parent_dir)
-	with open(output_path, 'w') as output:
+	with io.open(output_path, 'w') as output:
 		if not isYML:
 			object_L = value
 			if type(object_L) is not list:
@@ -87,8 +99,6 @@ def save_object_to_path(value, output_path, isYML=False, isWin=False):
 					content = str(obj)
 					if content[-1] != '\n':
 						content += '\n'
-					if isWin:
-						content.replace('\n', win_newline)
 					output.write(content)
 		else:
 			yaml.safe_dump(value, output)
@@ -109,18 +119,6 @@ def load_file_as_set(valid_svctag_path):
 	if '' in _set:
 		_set.remove('')
 	return _set	
-
-def convert_linux_windows(file_path):
-	if is_path_existed(file_path):
-		cmd_L = ["convmv", "-f", "UTF-8", "-t", "GBK", "--notest", file_path]
-		import subprocess
-		subprocess.Popen(cmd_L)
-		return True
-	return False
-import os
-path = os.path.expanduser("~/Desktop/55QYW11.txt")
-# print path
-# convert_linux_windows(path)
 
 class Logger(object):
 	def __init__(self, verbose):
