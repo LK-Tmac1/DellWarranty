@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import yaml, requests, datetime, os, time, io
+import yaml, requests, datetime, os, time
 from constant import letters, history_DA_file_format, datetime_str_format, win_newline, \
 	date_str_format, hour_str_format, date_str_format_search
 from dateutil.parser import parse
@@ -89,7 +89,7 @@ def save_object_to_path(value, output_path, isYML=False):
 	# If output parent dir does not exist, create it
 	if not is_path_existed(parent_dir):
 		os.makedirs(parent_dir)
-	with io.open(output_path, 'w') as output:
+	with open(output_path, 'w') as output:
 		if not isYML:
 			object_L = value
 			if type(object_L) is not list:
