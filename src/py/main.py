@@ -96,8 +96,11 @@ if __name__ == "__main__":
 		if logger.has_error:
 			additional_text += "\n查询程序出现错误，请等待解决。"
 		if job_mode == job_mode_dell_asset:
+			if send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path, dell_asset_output_path]):
+				logger.info("Send email done-------")
+			else:
+				logger.error("Send email failed")
 			save_object_to_path(value=logger, output_path=log_output_path)
-			send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path, dell_asset_output_path])
 			delete_file(dell_asset_output_path)
 		elif job_mode == job_mode_update_svctag:
 			pass
