@@ -8,7 +8,7 @@ from translate import translate_dell_warranty, update_dell_warranty_translation,
 from email_job import send_email
 from entity import DellAsset
 from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, \
-	job_mode_update_svctag, history_DA_file_format
+	job_mode_update_svctag, history_DA_file_format, config_translation_url
 import sys, traceback
 
 required_arg_list = ['--parent_path=', '--svctag=', '--job_mode=', '--v=']
@@ -34,8 +34,9 @@ if __name__ == "__main__":
 		dell_asset_path = existing_dell_asset_dir
 		search_history_path = parent_path + "search_history.yml"
 		dell_asset_output_path = parent_path + "output_%s.txt" % svctag
-		api_url = config['dell_api_url'] % config["dell_api_key"]
-		transl_url = config["translation_url"]
+		api_url = config['dell_api_url'] 
+		api_key_L = config["dell_api_key"].values()
+		transl_url = config[config_translation_url]
 		dell_support_url = config['dell_support_url']
 		output_dell_asset_L = []
 		api_dell_asset_L = []
@@ -51,7 +52,7 @@ if __name__ == "__main__":
 				if len(target_svc_L) == 0:
 					logger.warn("No target svctag needed for API call")
 				else:
-					api_dell_asset_L = api_entities_batch(target_svc_L, api_url, logger)
+					api_dell_asset_L = api_entities_batch(target_svc_L, api_url, api_key_L, logger)
 					if len(api_dell_asset_L) > 0:
 						output_dell_asset_L, NA_dict = translate_dell_warranty(transl_url, api_dell_asset_L, logger)
 					else:

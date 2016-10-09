@@ -4,9 +4,11 @@ from entity import Warranty, DellAsset
 l1 = "GetAssetWarrantyResponse"
 l2 = "GetAssetWarrantyResult"
 
+code_swift_api_key = 1
+
 api_error_code = { 	
 	- 1 : "Unknown error happened",
-	1 : "Service Profile Throttle Limit Reached",
+	code_swift_api_key : "Service Profile Throttle Limit Reached",
 	2 : "The number of tags that returned no data exceeded the maximum percentage of incorrect tags",
 	3 : "The request has failed due to an internal authorization configuration issue",
 	4 : "User Identification failed in Key Management Service" }
@@ -48,11 +50,14 @@ def get_response_batch(req_url, logger):
 		respon = requests.get(req_url)
 		code = verify_response_code(respon)
 		step - 1
-	if code == 0:
+	if code == 0:  # If results are valid
 		return respon.json()
 	else:
-		logger.error(api_error_code[code])
-		return None
+		if code == code_swift_api_key:
+			return code_swift_api_key
+		else:
+			logger.error(api_error_code[code])
+			return None
 
 def json_to_entities(json_data, logger):
 	# Given a JSON format data, return a list of DellAsset objects
@@ -94,13 +99,23 @@ def json_to_entities(json_data, logger):
 		logger.warn("Dell Asset has None value:\n %s" % json_data)
 	return dell_asset_object_L
 
-def api_entities_batch(target_svc_L, api_url, logger):
+def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 	api_entities_L = []
 	logger.info("======Begin calling API...")
-	for svc in target_svc_L:
-		req_url = api_url + svc
-		logger.info("svctags="+svc)
-		json_data = get_response_batch(req_url, logger)
-		if json_data is not None and type(json_data) is dict:
-			api_entities_L.extend(json_to_entities(json_data, logger))
+	k, i = 0, 0
+	while k < len(api_key_L):
+		logger.info("Using a new API key: %s..." % api_key_L[k][0:5])
+		while i < len(target_svc_L):
+			req_url = api_url + api_key_L[k] + target_svc_L[i]
+			logger.info("svctags=" + target_svc_L[i])
+			json_data = get_response_batch(req_url, logger)
+			if json_data is not None:
+				if type(json_data) is dict:
+					api_entities_L.extend(json_to_entities(json_data, logger))
+					i += 1
+				elif json_data == code_swift_api_key:
+					k += 1
+					break
+	if k == len(api_key_L):
+		logger.warn("API keys are used up for this batch")
 	return api_entities_L
