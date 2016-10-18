@@ -6,7 +6,7 @@ l2 = "GetAssetWarrantyResult"
 
 code_swift_api_key = 1
 
-api_error_code = { 	
+api_error_code = {
 	- 1 : "Unknown error happened",
 	code_swift_api_key : "Service Profile Throttle Limit Reached",
 	2 : "The number of tags that returned no data exceeded the maximum percentage of incorrect tags",

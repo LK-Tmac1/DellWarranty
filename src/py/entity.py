@@ -58,7 +58,8 @@ class Logger(object):
 
 class Warranty(object):
 	header = "保修服务(英),保修服务(中),开始日期,结束日期,提供商"
-	header_num = len(header.split(","))
+	header_L = header.split(",")
+	header_num = len(header_L)
 	def __init__(self, start_date="", end_date="", service_en="", is_provider="", service_ch=None, warranty_str=None):
 		if warranty_str is None:
 			self.start_date = start_date
@@ -78,6 +79,8 @@ class Warranty(object):
 		return parse_str_date(self.start_date)
 	def get_end_date(self):
 		return parse_str_date(self.end_date)
+	def get_w_header(self):
+		return [self.service_en, self.service_ch, self.get_start_date(), self.get_end_date(), self.is_provider]
 	def __repr__(self):
 		return "%s,%s,%s,%s,%s" % (self.service_en, self.service_ch, self.get_start_date(), self.get_end_date(), self.is_provider)
 	def set_service_ch(self, service_ch):
@@ -89,7 +92,8 @@ class Warranty(object):
 			
 class DellAsset(object):
 	header = "机器型号,服务标签,发货日期"
-	header_num = len(header.split(","))
+	header_L = header.split(",")
+	header_num = len(header_L)
 	def __init__(self, machine_id="", svctag="", ship_date="", warranty_L=None, dellasset_str=None):
 		if dellasset_str is None:
 			self.machine_id = machine_id
@@ -106,6 +110,8 @@ class DellAsset(object):
 		self.is_translation_updated = False
 	def get_ship_date(self):
 		return parse_str_date(self.ship_date)
+	def get_da_header(self):
+		return [self.machine_id, self.svctag, self.get_ship_date()]
 	def __repr__(self):
 		dell_asset = "%s,%s\n" % (DellAsset.header, Warranty.header)
 		dell_asset += "%s,%s,%s" % (self.machine_id, self.svctag, self.get_ship_date())

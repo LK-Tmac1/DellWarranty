@@ -9,6 +9,7 @@ from email_job import send_email
 from entity import DellAsset, Logger
 from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, \
 	job_mode_update_svctag, history_DA_file_format, config_translation_url
+from excel import save_dell_asset_excel
 import sys, traceback
 
 required_arg_list = ['--parent_path=', '--svctag=', '--job_mode=', '--v=']
@@ -33,8 +34,8 @@ if __name__ == "__main__":
 		history_valid_svctag_path = parent_path + "valid_svctags.txt"
 		dell_asset_path = existing_dell_asset_dir
 		search_history_path = parent_path + "search_history.yml"
-		dell_asset_output_path = parent_path + "output_%s.txt" % svctag
-		api_url = config['dell_api_url'] 
+		dell_asset_output_path = parent_path + "output_%s.xls" % svctag
+		api_url = config['dell_api_url']
 		api_key_L = config["dell_api_key"].values()
 		transl_url = config[config_translation_url]
 		dell_support_url = config['dell_support_url']
@@ -80,7 +81,10 @@ if __name__ == "__main__":
 						if da is not None and da.svctag != "" and da.is_translation_updated:
 							temp_path = existing_dell_asset_dir + da.svctag + history_DA_file_format
 							save_object_to_path(value=da, output_path=temp_path)
-					save_object_to_path(value=output_dell_asset_L, output_path=dell_asset_output_path)
+					if save_dell_asset_excel(output_dell_asset_L, dell_asset_output_path):
+						logger.info("保存结果到Excel文件 %s" % dell_asset_output_path)
+					else:
+						logger.error("保存Excel文件出错")
 				else:
 					logger.warn("-------Output for this job is empty")
 			elif job_mode == job_mode_update_svctag:
