@@ -8,7 +8,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 class Logger(object):
-	def __init__(self, verbose):
+	def __init__(self, verbose=False):
 		self.verbose = verbose
 		self.info_header = ""
 		self.warn_header = "[WARN] "

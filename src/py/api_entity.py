@@ -1,5 +1,5 @@
 import requests
-from entity import Warranty, DellAsset
+from entity import Warranty, DellAsset, Logger
 
 l1 = "GetAssetWarrantyResponse"
 l2 = "GetAssetWarrantyResult"
@@ -101,13 +101,16 @@ def json_to_entities(json_data, logger):
 
 def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 	api_entities_L = []
-	logger.info("======Begin calling API...")
+	if logger is not None:
+		logger.info("======Begin calling API...")
 	k, i = 0, 0
 	while k < len(api_key_L):
-		logger.info("Using a new API key: %s..." % api_key_L[k][0:5])
+		if logger is not None:
+			logger.info("Using a new API key: %s..." % api_key_L[k][0:5])
 		while i < len(target_svc_L):
 			req_url = api_url % (api_key_L[k], target_svc_L[i])
-			logger.info("svctags=" + target_svc_L[i])
+			if logger is not None:
+				logger.info("svctags=" + target_svc_L[i])
 			json_data = get_response_batch(req_url, logger)
 			if json_data is not None:
 				if type(json_data) is dict:
@@ -116,6 +119,16 @@ def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 				elif json_data == code_swift_api_key:
 					k += 1
 					break
-	if k == len(api_key_L):
-		logger.warn("API keys are used up for this batch")
+		if k == len(api_key_L):
+			if logger is not None:
+				logger.warn("API keys are used up for this batch")
+		if i == len(target_svc_L):
+			break
+			# return api_entities_L
 	return api_entities_L
+
+def test():
+	target_svc_L = ['ABCDE07']
+	api_url = "https://api.dell.com/support/v2/assetinfo/warranty/tags.json?apikey=%s&svctags=%s"
+	api_key_L = ["6c6d3cad0df30d0263d909aa7b1bbc75", "c56b2b130aa6422800000000b43b0f91"]
+	print api_entities_batch(target_svc_L, api_url, api_key_L, logger=Logger())
