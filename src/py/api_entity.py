@@ -106,7 +106,7 @@ def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 	while k < len(api_key_L):
 		logger.info("Using a new API key: %s..." % api_key_L[k][0:5])
 		while i < len(target_svc_L):
-			req_url = api_url + api_key_L[k] + target_svc_L[i]
+			req_url = api_url % (api_key_L[k], target_svc_L[i])
 			logger.info("svctags=" + target_svc_L[i])
 			json_data = get_response_batch(req_url, logger)
 			if json_data is not None:

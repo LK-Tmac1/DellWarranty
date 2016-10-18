@@ -5,7 +5,6 @@
 import os
 
 config_translation_url = "translation_url"
-win_newline = "\r\n"
 work_directory = '~/dell/'
 parent_path = os.path.expanduser(work_directory)
 existing_dell_asset_dir = parent_path + "existing_dell_asset/"

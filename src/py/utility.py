@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import yaml, requests, datetime, os, time
-from constant import letters, history_DA_file_format, datetime_str_format, win_newline, \
+from constant import letters, history_DA_file_format, datetime_str_format, \
 	date_str_format, hour_str_format, date_str_format_search
 from dateutil.parser import parse
 
@@ -82,7 +82,7 @@ def convert_linux_to_win(input_path, output_path):
 	return True
 input_path = "/Users/Kun/dell/output_1_H_Y_J_R_3_2.txt"
 output_path = "/Users/Kun/dell/output.txt"
-#convert_linux_to_win(input_path, output_path)
+# convert_linux_to_win(input_path, output_path)
 
 def save_object_to_path(value, output_path, isYML=False):
 	parent_dir = output_path[0:output_path.rfind("/")]
@@ -120,52 +120,3 @@ def load_file_as_set(valid_svctag_path):
 		_set.remove('')
 	return _set	
 
-class Logger(object):
-	def __init__(self, verbose):
-		self.verbose = verbose
-		self.info_header = ""
-		self.warn_header = "[WARN] "
-		self.error_header = "[ERROR] "
-		self.message_Q = {0 : self.info_header + "Start logging"}
-		self.message_count = 1
-		self.has_error = False
-		self.has_warn = False
-		self.info_index_L = []
-		self.warn_index_L = []
-		self.error_index_L = []
-		self.message_type_D = {"ERROR" : self.error_index_L,
-							   "WARN" : self.warn_index_L,
-							   "INFO" : self.info_index_L}
-	def add_message(self, message, message_index_L, header):
-		message = "" if message is None else str(message)
-		if self.verbose:
-			print message
-		self.message_Q[self.message_count] = header + message
-		message_index_L.append(self.message_count)
-		self.message_count += 1
-	def info(self, info):
-		self.add_message(header=self.info_header, message=info, message_index_L=self.info_index_L)
-	def warn(self, warn):
-		self.add_message(header=self.warn_header, message=warn, message_index_L=self.warn_index_L)
-		self.has_warn = True
-	def error(self, error):
-		self.add_message(header=self.error_header, message=error, message_index_L=self.error_index_L)
-		self.has_error = True
-	def __repr__(self):
-		temp_L = []
-		for i in xrange(0, self.message_count):
-			temp_L.append(self.message_Q[i])
-		return "\n".join(temp_L)
-	def get_message_by_type(self, message_type):
-		temp_message_L = []
-		message_index_L = self.message_type_D[message_type]
-		for i in message_index_L:
-			temp_message_L.append(self.message_Q[i])
-		return "\n".join(temp_message_L)
-	def get_error_only(self):
-		return self.get_message_by_type("ERROR")
-	def get_warn_only(self):
-		return self.get_message_by_type("WARN")
-	def get_info_only(self):
-		return self.get_message_by_type("INFO")
-			

@@ -2,11 +2,11 @@
 
 from svc_process import target_svctags_batch
 from api_entity import api_entities_batch
-from utility import read_file, get_current_datetime, parse_cmd_args, save_object_to_path, Logger, diff_two_datetime, \
+from utility import read_file, get_current_datetime, parse_cmd_args, save_object_to_path, diff_two_datetime, \
 	delete_file
 from translate import translate_dell_warranty, update_dell_warranty_translation, verify_NA_translation
 from email_job import send_email
-from entity import DellAsset
+from entity import DellAsset, Logger
 from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, \
 	job_mode_update_svctag, history_DA_file_format, config_translation_url
 import sys, traceback
@@ -46,7 +46,8 @@ if __name__ == "__main__":
 		try:
 			if job_mode == job_mode_dell_asset:
 				subject = subject_temp % ('新的查询开始', start_time, svctag)
-				send_email(subject=subject, text="请等待邮件结果", config=config)	
+				send_email(subject=subject, text="请等待邮件结果", config=config)
+				logger.info("Send email to %s" % config['mail_to'])	
 				target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger, search_history_path)
 				# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 				if len(target_svc_L) == 0:
@@ -98,7 +99,7 @@ if __name__ == "__main__":
 			additional_text += "\n查询程序出现错误，请等待解决。"
 		if job_mode == job_mode_dell_asset:
 			if send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path, dell_asset_output_path]):
-				logger.info("Send email done-------")
+				logger.info("Send email to %s -------" % config['mail_to'])
 			else:
 				logger.error("Send email failed")
 			save_object_to_path(value=logger, output_path=log_output_path)
