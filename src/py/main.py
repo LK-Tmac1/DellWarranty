@@ -22,8 +22,8 @@ if __name__ == "__main__":
 	job_mode = arguments['job_mode']
 	verbose = True if 'v' in arguments else False
 	logger = Logger(verbose)
-	logger.info("Prepare arguments for a job")
 	start_time = get_current_datetime()
+	logger.info("Prepare arguments for a job on %s " % start_time)
 	log_output_path = "%slog/%s_%s.txt" % (parent_path, job_mode, svctag)
 	config = read_file(parent_path + file_config_name, isYML=True, isURL=False)
 	if config is None:
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 		try:
 			if job_mode == job_mode_dell_asset:
 				subject = subject_temp % ('新的查询开始', start_time, svctag)
-				send_email(subject=subject, text="请等待邮件结果", config=config)
+				send_email(subject=subject, text="===请等待邮件结果", config=config)
 				logger.info("Send email to %s" % config['mail_to'])	
 				target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger, search_history_path)
 				# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
@@ -102,6 +102,7 @@ if __name__ == "__main__":
 		if logger.has_error:
 			additional_text += "\n查询程序出现错误，请等待解决。"
 		if job_mode == job_mode_dell_asset:
+			save_object_to_path(value=logger, output_path=log_output_path)
 			if send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path, dell_asset_output_path]):
 				logger.info("Send email to %s -------" % config['mail_to'])
 			else:
@@ -110,4 +111,3 @@ if __name__ == "__main__":
 			delete_file(dell_asset_output_path)
 		elif job_mode == job_mode_update_svctag:
 			pass
-		
