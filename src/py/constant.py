@@ -22,5 +22,3 @@ date_str_format_search = "%Y-%m-%d"
 hour_str_format = "%H小时%M分钟%S秒"
 
 search_url = "/search?svctag="
-job_mode_dell_asset = "dellasset"
-job_mode_update_svctag = "svctag"

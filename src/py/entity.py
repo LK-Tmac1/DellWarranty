@@ -187,7 +187,6 @@ class DellAsset(object):
 						i += 1
 					da.set_warranty_L(warranty_L)
 					da_L.append(da)
-					print "New dell asset", da.svctag
 		return da_L
 	@staticmethod
 	def parse_dell_asset_multiple_batch(dell_asset_multiple_path, output_path):
@@ -196,7 +195,7 @@ class DellAsset(object):
 			if da is not None and da.svctag != "":
 				temp_path = output_path + da.svctag + history_DA_file_format
 				save_object_to_path(value=da, output_path=temp_path)
-		print len(output_dell_asset_L), "results generated"
+		# print len(output_dell_asset_L), "results generated"
 
 
 def adhoc():

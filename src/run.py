@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect
 from flask.globals import request
 from py.utility import check_letter_valid
-from py.constant import svc_delimitor, svc_placeholder, parent_path, search_url, job_mode_dell_asset
+from py.constant import svc_delimitor, svc_placeholder, parent_path, search_url
 from py.search import search_existing_dell_asset, sort_dell_asset_svctag
 import subprocess
 
@@ -29,7 +29,7 @@ def submit_job():
 	if 'new_job' in request.form:
 		if valid_count <= 3 :
 			return render_template("error.html")
-		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag, "--job_mode=" + job_mode_dell_asset]
+		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag]
 		subprocess.Popen(cmd_L)
 		redirect_url += "&new_job=true"
 	elif 'search_history' in request.form:

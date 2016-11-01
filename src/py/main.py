@@ -7,8 +7,8 @@ from utility import read_file, get_current_datetime, parse_cmd_args, save_object
 from translate import translate_dell_warranty, update_dell_warranty_translation, verify_NA_translation
 from email_job import send_email
 from entity import DellAsset, Logger
-from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, job_mode_dell_asset, \
-	job_mode_update_svctag, history_DA_file_format, config_translation_url
+from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, \
+	history_DA_file_format, config_translation_url
 from excel import save_dell_asset_excel
 import sys, traceback
 
@@ -23,7 +23,7 @@ if __name__ == "__main__":
 	logger = Logger(verbose)
 	start_time = get_current_datetime()
 	logger.info("Prepare arguments for a job on %s " % start_time)
-	log_output_path = "%slog/%s_%s.txt" % (parent_path, job_mode, svctag)
+	log_output_path = "%slog/dellasset_%s.txt" % (parent_path, svctag)
 	config = read_file(parent_path + file_config_name, isYML=True, isURL=False)
 	if config is None:
 		logger.error("Config %s parsed as None; job quits" % (parent_path + file_config_name))
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 		history_valid_svctag_path = parent_path + "valid_svctags.txt"
 		dell_asset_path = existing_dell_asset_dir
 		search_history_path = parent_path + "search_history.yml"
-		dell_asset_output_path = parent_path + "output/output_%s.xls" % svctag
+		dell_asset_output_path = parent_path + "output_%s.xlsx" % svctag
 		api_url = config['dell_api_url']
 		api_key_L = config["dell_api_key"].values()
 		transl_url = config[config_translation_url]
@@ -95,12 +95,11 @@ if __name__ == "__main__":
 		subject = subject_temp % ("[查询任务结束] ", get_current_datetime(is_date=True), svctag)
 		if logger.has_error:
 			additional_text += "\n查询程序出现错误，请等待解决。"
-		if job_mode == job_mode_dell_asset:
-			save_object_to_path(value=logger, output_path=log_output_path)
-			if send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path, dell_asset_output_path]):
-				logger.info("Send email to %s -------" % config['mail_to'])
-			else:
-				logger.error("Send email failed")
-			save_object_to_path(value=logger, output_path=log_output_path)
+		save_object_to_path(value=logger, output_path=log_output_path)
+		if send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path, dell_asset_output_path]):
+			logger.info("Send email to %s -------" % config['mail_to'])
+		else:
+			logger.error("Send email failed")
+		save_object_to_path(value=logger, output_path=log_output_path)
 		if not logger.has_error:
 			delete_file(dell_asset_output_path)
