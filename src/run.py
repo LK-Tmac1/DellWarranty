@@ -25,7 +25,6 @@ def submit_job():
 		else:
 			svc_L.append(svc_placeholder)
 		svctag = svc_delimitor.join(svc_L)
-	redirect_url = search_url + svctag
 	if 'new_job' in request.form:
 		if valid_count <= 3 :
 			return render_template("error.html")
@@ -33,9 +32,8 @@ def submit_job():
 		subprocess.Popen(cmd_L)
 		return render_template("confirm.html")
 	elif 'search_history' in request.form:
-		if search_all:
-			redirect_url = "/search"
-	return redirect(redirect_url)
+		redirect_url = search_url if search_all else search_url + svctag
+		return redirect(redirect_url)
 	
 @app.route('/search')
 def search():

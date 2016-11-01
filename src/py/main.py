@@ -45,7 +45,7 @@ if __name__ == "__main__":
 		need_translation = False
 		try:
 			subject = subject_temp % ('新的查询开始', start_time, svctag)
-			send_email(subject=subject, text="===请等待邮件结果", config=config)
+			send_email(subject=subject, text="请等待邮件结果", config=config)
 			logger.info("Send email to %s" % config['mail_to'])	
 			target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger, search_history_path)
 			# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
