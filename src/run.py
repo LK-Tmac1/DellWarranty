@@ -31,7 +31,7 @@ def submit_job():
 			return render_template("error.html")
 		cmd_L = ["python", "./py/main.py", "--parent_path=" + parent_path, "--svctag=" + svctag]
 		subprocess.Popen(cmd_L)
-		redirect_url += "&new_job=true"
+		return render_template("confirm.html")
 	elif 'search_history' in request.form:
 		if search_all:
 			redirect_url = "/search"
