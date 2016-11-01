@@ -88,8 +88,7 @@ class Warranty(object):
 			self.service_ch = service_ch.encode('utf-8')
 		else:
 			self.service_ch = service_ch_placeholder
-			
-			
+
 class DellAsset(object):
 	header = "机器型号,服务标签,发货日期"
 	header_L = header.split(",")
@@ -156,6 +155,8 @@ class DellAsset(object):
 			return None
 	@staticmethod
 	def parse_dell_asset_file_batch(dell_asset_path, target_svc_S, file_format=history_DA_file_format, logger=None):
+		# Parse dell asset object with target svctag from files in the dell_asset_path
+		# Each file contains a single dell asset object
 		da_L = []
 		for svc in target_svc_S:
 			path = "%s%s%s" % (dell_asset_path, svc, file_format)
@@ -169,6 +170,7 @@ class DellAsset(object):
 		return da_L
 	@staticmethod
 	def parse_dell_asset_multiple(dell_asset_multiple_path):
+		# Parse multiple dell asset object in a single path
 		da_L = []
 		lines = read_file(dell_asset_multiple_path, isYML=False, isURL=False, lines=True)
 		if lines is not None:
@@ -201,3 +203,4 @@ def adhoc():
 	path = "/Users/Kun/dell/temp/"
 	dell_asset_multiple_path = path + "?_?_H_X_K_1_2.csv"
 	DellAsset.parse_dell_asset_multiple_batch(dell_asset_multiple_path, path)
+

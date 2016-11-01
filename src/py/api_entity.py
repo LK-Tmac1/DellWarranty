@@ -94,7 +94,7 @@ def json_to_entities(json_data, logger):
 		else:
 			has_None_DA = True
 		if has_None_W:
-			logger.warn("Warranty response is None for %s:\n" % da)
+			logger.warn("Warranty response is None for %s" % da.svctag)
 	if has_None_DA:	
 		logger.warn("Dell Asset has None value:\n %s" % json_data)
 	return dell_asset_object_L
@@ -109,8 +109,6 @@ def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 			logger.info("Using a new API key: %s..." % api_key_L[k][0:5])
 		while i < len(target_svc_L):
 			req_url = api_url % (api_key_L[k], target_svc_L[i])
-			if logger is not None:
-				logger.info("svctags=" + target_svc_L[i])
 			json_data = get_response_batch(req_url, logger)
 			if json_data is not None:
 				if type(json_data) is dict:
@@ -124,7 +122,6 @@ def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 				logger.warn("API keys are used up for this batch")
 		if i == len(target_svc_L):
 			break
-			# return api_entities_L
 	return api_entities_L
 
 def test():

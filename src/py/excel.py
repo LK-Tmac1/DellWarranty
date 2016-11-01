@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 import xlwt, sys
 from entity import Warranty, DellAsset
+from utility import is_path_existed
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 def save_dell_asset_excel(output_dell_asset_L, dell_asset_output_path):
+    max_row = 10000
     wbk = xlwt.Workbook(encoding="utf-8")
+    total = len(output_dell_asset_L)
     sheet = wbk.add_sheet('sheet1')
     row = 0
     col = 0
@@ -33,3 +36,7 @@ def save_dell_asset_excel(output_dell_asset_L, dell_asset_output_path):
             row += 1
     wbk.save(dell_asset_output_path)
     return True
+
+def txt_to_excel_batch(txt_file_path, target_svc_S, excel_output_path):
+    dell_asset_L=DellAsset.parse_dell_asset_file_batch(txt_file_path, target_svc_S)
+    return save_dell_asset_excel(dell_asset_L, excel_output_path)

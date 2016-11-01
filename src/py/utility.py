@@ -30,7 +30,10 @@ def parse_cmd_args(arguments, required_arg_list):
 		arg = arguments[iarg]
 		for a in required_arg_list:
 			if arg.startswith(a):
-				arg_map[a[2:-1]] = arg.split("=", 1)[1]
+				if "=" in arg:
+					arg_map[a[2:-1]] = arg.split("=", 1)[1]
+				else:
+					arg_map[a[2:]] = None
 				break
 	return arg_map
 
