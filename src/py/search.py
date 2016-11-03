@@ -58,11 +58,3 @@ def update_search_history(search_history_path, new_search_svctags_S):
 # search_history_path = "/Users/Kun/dell/search_history.yml"
 # new_search_svctags_S = set(["ABCD???", "ABC?111", "ACSDAWW"])
 # update_search_history(search_history_path, new_search_svctags_S)
-
-
-
-
-
-
-
-

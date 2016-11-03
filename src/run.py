@@ -32,7 +32,7 @@ def submit_job():
 		subprocess.Popen(cmd_L)
 		return render_template("confirm.html")
 	elif 'search_history' in request.form:
-		redirect_url = search_url if search_all else search_url + svctag
+		redirect_url = '/search' if search_all else search_url + svctag
 		return redirect(redirect_url)
 	
 @app.route('/search')
