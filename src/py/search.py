@@ -54,7 +54,3 @@ def update_search_history(search_history_path, new_search_svctags_S):
             new_search_dict[svc] = current_date
     existing_search_dict.update(new_search_dict)
     return save_object_to_path(existing_search_dict, search_history_path, isYML=True)
-
-# search_history_path = "/Users/Kun/dell/search_history.yml"
-# new_search_svctags_S = set(["ABCD???", "ABC?111", "ACSDAWW"])
-# update_search_history(search_history_path, new_search_svctags_S)

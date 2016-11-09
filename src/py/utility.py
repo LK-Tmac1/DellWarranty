@@ -83,9 +83,6 @@ def convert_linux_to_win(input_path, output_path):
 		with io.open(output_path, 'w', newline="\r\n") as output:
 			output.write(value)
 	return True
-input_path = "/Users/Kun/dell/output_1_H_Y_J_R_3_2.txt"
-output_path = "/Users/Kun/dell/output.txt"
-# convert_linux_to_win(input_path, output_path)
 
 def save_object_to_path(value, output_path, isYML=False):
 	parent_dir = output_path[0:output_path.rfind("/")]
@@ -107,19 +104,26 @@ def save_object_to_path(value, output_path, isYML=False):
 			yaml.safe_dump(value, output)
 	return True
 
-def list_file_name_in_dir(input_path, file_format=history_DA_file_format):
+def list_file_name_in_dir(input_path, file_format=history_DA_file_format, target_file_name_S=None):
 	if not is_path_existed(input_path):
 		return None
-	names = []
+	name_L = []
 	for n in set(os.listdir(input_path)):
 		if n.endswith(file_format):
-			names.append(n[0:len(n) - len(file_format)])
-	return names
+			name = n[0:len(n) - len(file_format)]
+			if target_file_name_S is not None:
+				if name not in target_file_name_S:
+					continue
+			name_L.append(name)
+	return name_L
 	
-def load_file_as_set(valid_svctag_path):
+def load_file_as_set(valid_svctag_path, target_value_S=None):
 	_file = read_file(valid_svctag_path, isYML=False)
 	_set = set(_file.split("\n"))
 	if '' in _set:
 		_set.remove('')
+	if target_value_S is not None:
+		_set = set.intersection(_set, target_value_S)
 	return _set	
 
+# print list_file_name_in_dir("/Users/kunliu/dell/existing_dell_asset", target_file_name_S=set(['ABCDE01','ABCDE03']))

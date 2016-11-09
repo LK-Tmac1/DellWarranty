@@ -44,7 +44,6 @@ def json_value_transform(data, key):
 
 def get_response_batch(req_url, logger):
 	# Assuming the svctags are all valid, if the response has an exception, keep on trying until step is 0
-	logger.info("===Calling API: " + req_url[:-20]+"...")
 	respon = requests.get(req_url)
 	code = verify_response_code(respon)
 	step = 3
@@ -107,7 +106,7 @@ def json_to_entities(json_data, logger):
 
 def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 	api_entities_L = []
-	logger.info("======Begin calling API...")
+	logger.info("======Begin calling API from URL %s ..." % api_url)
 	k, i = 0, 0
 	while k < len(api_key_L):
 		logger.info("Using a new API key: %s..." % api_key_L[k][0:5])

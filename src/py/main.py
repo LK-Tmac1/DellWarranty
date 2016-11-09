@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# python main.py --parent_path=/Users/kunliu/dell/ --svctag=A_B_C_D_E_F_? --v=1
+
 from svc_process import target_svctags_batch
 from api_entity import api_entities_batch
 from utility import read_file, get_current_datetime, parse_cmd_args, save_object_to_path, diff_two_datetime, \
@@ -7,10 +9,11 @@ from utility import read_file, get_current_datetime, parse_cmd_args, save_object
 from translate import translate_dell_warranty, update_dell_warranty_translation, verify_NA_translation
 from email_job import send_email
 from entity import DellAsset, Logger
-from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, search_url, \
+from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, \
 	history_DA_file_format, config_translation_url
 from excel import save_dell_asset_excel
-import sys, traceback
+import sys, traceback, socket
+
 
 required_arg_list = ['--parent_path=', '--svctag=', '--v=']
 subject_temp = "%s 时间%s 标签%s"
@@ -22,7 +25,7 @@ if __name__ == "__main__":
 	verbose = True if 'v' in arguments else False
 	logger = Logger(verbose)
 	start_time = get_current_datetime()
-	logger.info("Prepare arguments for a job on %s " % start_time)
+	logger.info("Prepare arguments for a job on %s in machine: %s " % (start_time, socket.gethostname()))
 	log_output_path = "%slog/dellasset_%s.txt" % (parent_path, svctag)
 	config = read_file(parent_path + file_config_name, isYML=True, isURL=False)
 	if config is None:
@@ -45,7 +48,8 @@ if __name__ == "__main__":
 		need_translation = False
 		try:
 			subject = subject_temp % ('新的查询开始', start_time, svctag)
-			send_email(subject=subject, text="请等待邮件结果", config=config)
+			if not verbose:
+				send_email(subject=subject, text="请等待邮件结果", config=config)
 			logger.info("Send email to %s" % config['mail_to'])	
 			target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger, search_history_path)
 			# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
@@ -56,7 +60,7 @@ if __name__ == "__main__":
 				if len(api_dell_asset_L) > 0:
 					output_dell_asset_L, NA_dict = translate_dell_warranty(transl_url, api_dell_asset_L, logger)
 				else:
-					logger.warn("======No data for Dell Asset from API call")
+					logger.warn("======No data for Dell Asset from previous API call")
 			if len(existing_svc_S) > 0:
 				existing_dell_asset_L = DellAsset.parse_dell_asset_file_batch(dell_asset_path, existing_svc_S, logger=logger)
 				# Translate all Warranties of each DellAsset, and find those warranties without available translation
@@ -90,14 +94,13 @@ if __name__ == "__main__":
 			logger.error(traceback.format_exc())
 		logger.info("FINISH>>>>>>>>>>>>>>>> main")
 		additional_text += "\n总用时 %s\n总共 %s个结果" % (diff_two_datetime(start_time, get_current_datetime()), len(output_dell_asset_L))
-		logger.info("\n请打开链接: %s%s%s&new_job=false" % (config['host_url'], search_url, svctag))
 		logger.info(additional_text)
 		subject = subject_temp % ("[查询任务结束] ", get_current_datetime(is_date=True), svctag)
 		if logger.has_error:
 			additional_text += "\n查询程序出现错误，请等待解决。"
 		save_object_to_path(value=logger, output_path=log_output_path)
 		if send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path, dell_asset_output_path]):
-			logger.info("Send email to %s -------" % config['mail_to'])
+			logger.info("Send email to %s" % config['mail_to'])
 		else:
 			logger.error("Send email failed")
 		save_object_to_path(value=logger, output_path=log_output_path)
