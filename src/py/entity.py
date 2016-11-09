@@ -26,7 +26,7 @@ class Logger(object):
 	def add_message(self, message, message_index_L, header):
 		message = "" if message is None else str(message)
 		if self.verbose:
-			print message
+			print header + message
 		self.message_Q[self.message_count] = header + message
 		message_index_L.append(self.message_count)
 		self.message_count += 1

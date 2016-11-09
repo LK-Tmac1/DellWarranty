@@ -7,7 +7,8 @@ l2 = "GetAssetWarrantyResult"
 code_swift_api_key = 1
 
 api_error_code = {
-	- 1 : "Unknown error happened",
+	-1 : "Unknown error happened",
+	0 : "Everything is good",
 	code_swift_api_key : "Service Profile Throttle Limit Reached",
 	2 : "The number of tags that returned no data exceeded the maximum percentage of incorrect tags",
 	3 : "The request has failed due to an internal authorization configuration issue",
@@ -43,13 +44,18 @@ def json_value_transform(data, key):
 
 def get_response_batch(req_url, logger):
 	# Assuming the svctags are all valid, if the response has an exception, keep on trying until step is 0
+	logger.info("===Calling API: " + req_url[:-20]+"...")
 	respon = requests.get(req_url)
 	code = verify_response_code(respon)
 	step = 3
-	while code != 0 and step > 0:
-		respon = requests.get(req_url)
-		code = verify_response_code(respon)
-		step - 1
+	if code != 0:
+		logger.warn("Response code is not 0")
+		logger.info("Initial response status: ===" + api_error_code[code])
+		while code != 0 and step > 0:
+			respon = requests.get(req_url)
+			code = verify_response_code(respon)
+			step -= 1
+		logger.info("Final response status: ===" + api_error_code[code])
 	if code == 0:  # If results are valid
 		return respon.json()
 	else:
@@ -101,14 +107,12 @@ def json_to_entities(json_data, logger):
 
 def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 	api_entities_L = []
-	if logger is not None:
-		logger.info("======Begin calling API...")
+	logger.info("======Begin calling API...")
 	k, i = 0, 0
 	while k < len(api_key_L):
-		if logger is not None:
-			logger.info("Using a new API key: %s..." % api_key_L[k][0:5])
+		logger.info("Using a new API key: %s..." % api_key_L[k][0:5])
 		while i < len(target_svc_L):
-			req_url = api_url % (api_key_L[k], target_svc_L[i])
+			req_url = api_url + "svctags=" + target_svc_L[i] + "&apikey=" + api_key_L[k]
 			json_data = get_response_batch(req_url, logger)
 			if json_data is not None:
 				if type(json_data) is dict:
@@ -118,14 +122,14 @@ def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 					k += 1
 					break
 		if k == len(api_key_L):
-			if logger is not None:
-				logger.warn("API keys are used up for this batch")
+			logger.warn("API keys are used up for this batch")
 		if i == len(target_svc_L):
 			break
 	return api_entities_L
 
-def test():
-	target_svc_L = ['ABCDE07']
-	api_url = "https://api.dell.com/support/v2/assetinfo/warranty/tags.json?apikey=%s&svctags=%s"
-	api_key_L = ["6c6d3cad0df30d0263d909aa7b1bbc75", "c56b2b130aa6422800000000b43b0f91"]
-	print api_entities_batch(target_svc_L, api_url, api_key_L, logger=Logger())
+if __name__ == "__main__":
+	print "Starting test..."
+	target_svc_L = ['ABCDEF2']
+	api_url = "https://api.dell.com/support/v2/assetinfo/warranty/tags.json?"
+	api_key_L = ["", ""] # Provide API key here
+	print api_entities_batch(target_svc_L, api_url, api_key_L, logger=Logger(verbose=True))
