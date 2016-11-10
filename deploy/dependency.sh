@@ -12,8 +12,6 @@ git clone https://github.com/liukun1016/DellWarranty.git
 
 mv DellWarranty git
 
-mkdir dell
+sudo yum install gcc -y
 
-scp -r ec2-user@54.201.75.244:/dell/* ~/dell/
-
-sudo /usr/bin/pip install flask xlsxwriter
+sudo /usr/bin/pip install flask xlsxwriter uwsgi

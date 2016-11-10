@@ -160,8 +160,6 @@ class DellAsset(object):
 		da_L = []
 		for svc in target_svc_S:
 			path = "%s%s%s" % (dell_asset_path, svc, file_format)
-			if logger is not None:
-				logger.info("Read and parse dell asset of " + svc)
 			da = DellAsset.parse_dell_asset_file(path)
 			if da is not None:
 				da_L.append(da)

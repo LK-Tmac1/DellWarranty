@@ -62,6 +62,7 @@ if __name__ == "__main__":
 				else:
 					logger.warn("======No data for Dell Asset from previous API call")
 			if len(existing_svc_S) > 0:
+				logger.info("Read and parse %s existing dell asset" % len(existing_svc_S))
 				existing_dell_asset_L = DellAsset.parse_dell_asset_file_batch(dell_asset_path, existing_svc_S, logger=logger)
 				# Translate all Warranties of each DellAsset, and find those warranties without available translation
 				updated_dell_asset_L, NA_dict2 = update_dell_warranty_translation(transl_url, existing_dell_asset_L, dell_asset_path, logger)

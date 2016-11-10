@@ -106,7 +106,7 @@ def json_to_entities(json_data, logger):
 
 def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 	api_entities_L = []
-	logger.info("======Begin calling API from URL %s ..." % api_url)
+	logger.info("======Begin calling API from URL %s" % api_url)
 	k, i = 0, 0
 	while k < len(api_key_L):
 		logger.info("Using a new API key: %s..." % api_key_L[k][0:5])
