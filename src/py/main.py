@@ -92,7 +92,7 @@ if __name__ == "__main__":
 		except Exception, e:
 			logger.error(str(e))
 			logger.error(traceback.format_exc())
-		logger.info("FINISH>>>>>>>>>>>>>>>> main")
+		logger.info("\nFINISH\n")
 		additional_text += "\n总用时 %s\n总共 %s个结果" % (diff_two_datetime(start_time, get_current_datetime()), len(output_dell_asset_L))
 		logger.info(additional_text)
 		subject = subject_temp % ("[查询任务结束] ", get_current_datetime(is_date=True), svctag)
