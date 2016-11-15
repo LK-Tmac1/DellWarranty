@@ -113,7 +113,6 @@ def filter_invalid_svctags_URL(svc_S, dell_support_url, logger, svc_job=False):
 	logger.info("Valid svctags from those %s unknown svctags:" % total)
 	if len(valid_L) > 0:
 		logger.info("%s in total:" % len(valid_L))
-		logger.info(",".join(valid_L))
 	else:
 		logger.warn("None")
 	return valid_svc_S
