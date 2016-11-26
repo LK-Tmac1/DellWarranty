@@ -7,7 +7,7 @@ Search warranty of dell devices from Dell Warranty API by using service tags (sv
 Service tag is a 7 digits of characters and/or numbers used to identify an dell device. Say DG5QYW1 is Latitude E6430.
 
 1. Input: part of a service tag, say the first 4 are fixed as DG5Q while the last three are unknown. 
-2. Output: based on part of a service tag, reterive all dell warranty info of those valid service tags.
+2. Output: based on part of a service tag, reterive all dell warranty info of those valid service tags. Then generate an excel file and send the file as an attachment to an email address.
 
 ####Challenge: design the workflow
 
