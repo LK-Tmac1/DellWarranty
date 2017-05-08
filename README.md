@@ -1,6 +1,6 @@
 ## Dell Warranty Search Web App
 
-####Use case
+#### Use case
 
 Search warranty of dell devices from Dell Warranty API by using service tags (svctag).
 
@@ -9,7 +9,7 @@ Service tag is a 7 digits of characters and/or numbers used to identify an dell 
 1. Input: part of a service tag, say the first 4 are fixed as DG5Q while the last three are unknown. 
 2. Output: based on part of a service tag, reterive all dell warranty info of those valid service tags. Then generate an excel file and send the file as an attachment to an email address.
 
-####Challenge: design the workflow
+#### Challenge: design the workflow
 
 1. How to get all valid service tags?
 
@@ -30,7 +30,7 @@ Service tag is a 7 digits of characters and/or numbers used to identify an dell 
   Also, reload the sys.setdefaultencoding('utf8').
   
 
-####Reference
+#### Reference
 
 More about the searching: http://www.dell.com/support/home/en/cndhs1/Products/?app=warranty
 
