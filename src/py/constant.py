@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 
 # Parameters that used by more than one module
-
 import os
 
 config_translation_url = "translation_url"

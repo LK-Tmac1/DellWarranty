@@ -125,10 +125,3 @@ def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 		if i == len(target_svc_L):
 			break
 	return api_entities_L
-
-if __name__ == "__main__":
-	print "Starting test..."
-	target_svc_L = ['ABCDEF2']
-	api_url = "https://api.dell.com/support/v2/assetinfo/warranty/tags.json?"
-	api_key_L = ["", ""] # Provide API key here
-	print api_entities_batch(target_svc_L, api_url, api_key_L, logger=Logger(verbose=True))

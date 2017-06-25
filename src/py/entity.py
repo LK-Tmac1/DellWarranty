@@ -193,11 +193,4 @@ class DellAsset(object):
 			if da is not None and da.svctag != "":
 				temp_path = output_path + da.svctag + history_DA_file_format
 				save_object_to_path(value=da, output_path=temp_path)
-		# print len(output_dell_asset_L), "results generated"
-
-
-def adhoc():
-	path = "/Users/Kun/dell/temp/"
-	dell_asset_multiple_path = path + "?_?_H_X_K_1_2.csv"
-	DellAsset.parse_dell_asset_multiple_batch(dell_asset_multiple_path, path)
 

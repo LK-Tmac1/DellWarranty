@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import sys, xlsxwriter
 from entity import Warranty, DellAsset
-from utility import list_file_name_in_dir
 
 reload(sys)
 sys.setdefaultencoding('utf8')
+
 
 def save_dell_asset_excel(output_dell_asset_L, dell_asset_output_path):
     wbk = xlsxwriter.Workbook(filename=dell_asset_output_path)
@@ -34,10 +34,3 @@ def save_dell_asset_excel(output_dell_asset_L, dell_asset_output_path):
             row += 1
     wbk.close()
     return True
-
-def txt_to_excel_batch(txt_file_path, excel_output_path):
-    txt_file_path = "/Users/Kun/Desktop/excel2/"
-    excel_output_path = "/Users/Kun/Desktop/?_?_?_B_K_7_2.xlsx"
-    target_svc_S = set(list_file_name_in_dir(input_path=txt_file_path))
-    dell_asset_L = DellAsset.parse_dell_asset_file_batch(txt_file_path, target_svc_S)
-    return save_dell_asset_excel(dell_asset_L, excel_output_path)

@@ -126,4 +126,3 @@ def load_file_as_set(valid_svctag_path, target_value_S=None):
 		_set = set.intersection(_set, target_value_S)
 	return _set	
 
-# print list_file_name_in_dir("/Users/kunliu/dell/existing_dell_asset", target_file_name_S=set(['ABCDE01','ABCDE03']))
