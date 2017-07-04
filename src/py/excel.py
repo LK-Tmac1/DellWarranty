@@ -6,6 +6,7 @@ from utility import list_file_name_in_dir
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+
 def save_dell_asset_excel(output_dell_asset_L, dell_asset_output_path):
     wbk = xlsxwriter.Workbook(filename=dell_asset_output_path)
     sheet = wbk.add_worksheet('sheet1')
