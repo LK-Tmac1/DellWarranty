@@ -6,7 +6,7 @@ def send_email(subject, text, config, attachment_path_L=None, cc_mode=False, add
 			"to": config["mail_to"],
 			"cc": config["mail_cc"],
 			"subject": subject,
-			"text": text + "\n" + additional_text}
+			"text_list": text + "\n" + additional_text}
 	if not cc_mode:
 		data.pop('cc')
 	attachment_L = []

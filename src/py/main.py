@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
-
-# python main.py --parent_path=/Users/kunliu/dell/ --svctag=A_B_C_D_E_F_? --v=1
-
+# python main.py --parent_path=/Users/kunliu/dell/ --svctag=?_?_F_F_4_Z_1 --v=1
 from svc_process import target_svctags_batch
 from api_entity import api_entities_batch
-from utility import read_file, get_current_datetime, parse_cmd_args, save_object_to_path, diff_two_datetime, \
-	delete_file
+from utility import read_file, get_current_datetime, parse_cmd_args, save_object_to_path, diff_two_datetime, delete_file
 from translate import translate_dell_warranty, update_dell_warranty_translation, verify_NA_translation
 from email_job import send_email
 from entity import DellAsset, Logger
-from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, \
-	history_DA_file_format, config_translation_url
+from constant import svc_delimitor, file_config_name, existing_dell_asset_dir, history_DA_file_format, config_translation_url
 from excel import save_dell_asset_excel
 import sys, traceback, socket
 
@@ -49,7 +45,7 @@ if __name__ == "__main__":
 		subject = subject_temp % ('新的查询开始', start_time, svctag)
 		if not verbose:
 			send_email(subject=subject, text="请等待邮件结果", config=config)
-		logger.info("Send email to %s" % config['mail_to'])	
+		logger.info("Send email to %s" % config['mail_to'])
 		target_svc_L, existing_svc_S = target_svctags_batch(svc_L, dell_support_url, dell_asset_path, history_valid_svctag_path, logger, search_history_path)
 		# Use valid service tags to call Dell API, and parse JSON data into a list of DellAsset entities
 		if len(target_svc_L) == 0:
@@ -100,5 +96,5 @@ if __name__ == "__main__":
 		additional_text += "\n查询程序出现错误，请等待解决。"
 	save_object_to_path(value=logger, output_path=log_output_path)
 	send_email(subject=subject, text=additional_text, config=config, cc_mode=logger.has_error or need_translation, attachment_path_L=[log_output_path, dell_asset_output_path])
-	delete_file(dell_asset_output_path)
-	delete_file(log_output_path)
+	#delete_file(dell_asset_output_path)
+	#delete_file(log_output_path)

@@ -80,10 +80,12 @@ def filter_search_history_expired(svc_S, search_history_path, day_offset):
 
 
 def filter_invalid_svctags_URL(svc_S, dell_support_url, logger, svc_job=False):
-	valid_svc_S = set([])
+	from temp import valid_set, invalid_set
+	valid_svc_S = valid_set
+	print "----total %s valid" % len(valid_set)
 	svc_L = list(svc_S)
 	total = len(svc_S)
-	logger.info("Beging filtering %s unknown svctags" % total)
+	logger.info("Begin filtering %s unknown svctags" % total)
 	i = 0
 	last_error_index = 0
 	retry_count = 1
@@ -91,11 +93,16 @@ def filter_invalid_svctags_URL(svc_S, dell_support_url, logger, svc_job=False):
 	valid_L = []
 	while i < len(svc_L):
 		try:
+			#if svc_L[i] in invalid_set: i += 1; continue
+			#if svc_L[i] in valid_set: i += 1; continue
 			resp_suffix = requests.get(dell_support_url + svc_L[i]).url
-			if str(resp_suffix).endswith(svc_L[i]):
+			if not str(resp_suffix).lower().endswith('false'):
+				print "---valid:", svc_L[i]
 				valid_svc_S.add(svc_L[i])
 				valid_L.append(svc_L[i])
-			i += 1
+			else:
+				print "not valid:", svc_L[i]
+			i += 1; time.sleep(0.1)
 		except requests.exceptions.ConnectionError:
 			if last_error_index == i:
 				retry_count += 1

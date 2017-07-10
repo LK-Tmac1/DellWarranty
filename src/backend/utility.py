@@ -48,22 +48,6 @@ def diff_two_datetime(time1, time2):
     return time.strftime(hour_str_format, time.gmtime(diff.seconds))
 
 
-def read_file(file_path, isYML, isURL=False, lines=False):
-    # Read input file in .yml format, either the yml_path is a URL or or local path
-    result = None
-    if isURL:
-        resp = requests.get(file_path)
-        if str(resp.status_code) == '200':
-            result = yaml.load(resp.content) if isYML else resp.content
-    else:
-        if is_path_existed(file_path):
-            with open(file_path, "r") as value:
-                result = yaml.load(value) if isYML else value.read()
-    if lines and result is not None:
-        result = result.split("\n")
-    return result
-
-
 def convert_linux_to_win(input_path, output_path):
     with open(input_path, 'r') as value:
         value = value.read()
@@ -95,25 +79,3 @@ def save_object_to_path(value, output_path, isYML=False):
     return True
 
 
-def list_file_name_in_dir(input_path, file_format=history_DA_file_format, target_file_name_S=None):
-    if not is_path_existed(input_path):
-        return None
-    name_L = []
-    for n in set(os.listdir(input_path)):
-        if n.endswith(file_format):
-            name = n[0:len(n) - len(file_format)]
-            if target_file_name_S is not None:
-                if name not in target_file_name_S:
-                    continue
-            name_L.append(name)
-    return name_L
-
-
-def load_file_as_set(valid_svctag_path, target_value_S=None):
-    _file = read_file(valid_svctag_path, isYML=False)
-    _set = set(_file.split("\n"))
-    if '' in _set:
-        _set.remove('')
-    if target_value_S is not None:
-        _set = set.intersection(_set, target_value_S)
-    return _set

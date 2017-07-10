@@ -58,7 +58,7 @@
   						<tr style="background-color: #f2f2f2">
   							<td>{{ da.svctag }}</td>
 	  						<td>{{ da.machine_id }}</td>
-	  						<td>{{ da.get_ship_date() }}</td>
+	  						<td>{{ da.get_ship_date_str() }}</td>
 	  					{% for w in da.warranty_L %}
 	  						{% if not loop.first %}
 	  						<tr>
@@ -68,8 +68,8 @@
 	  						{% endif %}
 		  						<td>{{ w.service_en }}</td>
 		  						<td>{{ w.service_ch }}</td>
-		  						<td>{{ w.get_start_date() }}</td>
-		  						<td>{{ w.get_end_date() }}</td>
+		  						<td>{{ w.get_start_date_str() }}</td>
+		  						<td>{{ w.get_end_date_str() }}</td>
 		  						<td>{{ w.is_provider }}</td>
 		  					</tr>
   						{% endfor %}

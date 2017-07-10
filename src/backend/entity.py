@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from utility import read_file, parse_str_date, save_object_to_path, is_path_existed
-from constant import history_DA_file_format, service_ch_placeholder
+from utility import parse_str_date
+import xlsxwriter
 
 
 class Warranty(object):
@@ -26,19 +26,19 @@ class Warranty(object):
         self.is_provider = is_provider
         self.service_ch = service_ch.encode('utf-8')
 
-    def get_start_date(self):
+    def get_start_date_str(self):
         return parse_str_date(self.start_date)
 
-    def get_end_date(self):
+    def get_end_date_str(self):
         return parse_str_date(self.end_date)
 
     def get_w_header(self):
         return [self.service_en, self.service_ch,
-                self.get_start_date(), self.get_end_date(), self.is_provider]
+                self.get_start_date_str(), self.get_end_date_str(), self.is_provider]
 
     def __repr__(self):
         return "%s,%s,%s,%s,%s" % (self.service_en, self.service_ch,
-                                   self.get_start_date(), self.get_end_date(), self.is_provider)
+                                   self.get_start_date_str(), self.get_end_date_str(), self.is_provider)
 
 
 class DellAsset(object):
@@ -59,82 +59,46 @@ class DellAsset(object):
         self.machine_id = machine_id
         self.svc_tag = svc_tag
         self.ship_date = ship_date
-        self.warranty_L = warranty_L
+        self.warranty_L = warranty_L if warranty_L else list([])
         self.is_translation_updated = False
 
-    def get_ship_date(self):
+    def get_ship_date_str(self):
         return parse_str_date(self.ship_date)
 
     def get_da_header(self):
-        return [self.machine_id, self.svctag, self.get_ship_date()]
+        return [self.machine_id, self.svc_tag, self.get_ship_date_str()]
 
-	def __repr__(self):
-		dell_asset = "%s,%s\n" % (DellAsset.header, Warranty.header)
-		dell_asset += "%s,%s,%s" % (self.machine_id, self.svctag, self.get_ship_date())
-		if len(self.warranty_L) > 0:
-			dell_asset += "," + str(self.warranty_L[0]) + "\n"
-			for w in xrange(1, len(self.warranty_L)):
-				dell_asset += "," * DellAsset.header_num + str(self.warranty_L[w]) + "\n"
-		else:
-			dell_asset += "," * Warranty.header_num
-		return dell_asset
-	def set_warranty_L(self, warranty_L):
-		self.warranty_L = warranty_L
-	def get_warranty(self):
-		return self.warranty_L
-	def __lt__(self, other):
-		return self.svctag < other.svctag
-	@staticmethod
-	def parse_dell_asset_file(dell_asset_path):
-		lines = read_file(dell_asset_path, isYML=False, isURL=False, lines=True)
-		if lines is not None and len(lines) > 1:
-			da = DellAsset(dellasset_str=','.join(lines[1].split(',')[0:DellAsset.header_num]))
-			warranty_L = []
-			for i in xrange(1, len(lines)):
-				if lines[i] != "":
-					warranty_L.append(Warranty(warranty_str=','.join(lines[i].split(',')[DellAsset.header_num:])))
-			da.set_warranty_L(warranty_L)
-			return da
-		else:
-			return None
-	@staticmethod
-	def parse_dell_asset_file_batch(dell_asset_path, target_svc_S, file_format=history_DA_file_format, logger=None):
-		# Parse dell asset object with target svctag from files in the dell_asset_path
-		# Each file contains a single dell asset object
-		da_L = []
-		for svc in target_svc_S:
-			path = "%s%s%s" % (dell_asset_path, svc, file_format)
-			da = DellAsset.parse_dell_asset_file(path)
-			if da is not None:
-				da_L.append(da)
-			elif logger is not None:
-				logger.error("Parsing dell asset of %s failed" % path)
-		return da_L
-	@staticmethod
-	def parse_dell_asset_multiple(dell_asset_multiple_path):
-		# Parse multiple dell asset object in a single path
-		da_L = []
-		lines = read_file(dell_asset_multiple_path, isYML=False, isURL=False, lines=True)
-		if lines is not None:
-			i = 0
-			while i < len(lines):
-				while  i < len(lines) and (lines[i] == "" or lines[i].find(DellAsset.header) == 0):
-					i += 1
-				if  i < len(lines):
-					da = DellAsset(dellasset_str=','.join(lines[i].split(',')[0:DellAsset.header_num]))
-					warranty_L = []
-					while i < len(lines) and lines[i] != "" and lines[i].find(DellAsset.header) < 0:
-						new_w = Warranty(warranty_str=','.join(lines[i].split(',')[DellAsset.header_num:]))
-						warranty_L.append(new_w)
-						i += 1
-					da.set_warranty_L(warranty_L)
-					da_L.append(da)
-		return da_L
-	@staticmethod
-	def parse_dell_asset_multiple_batch(dell_asset_multiple_path, output_path):
-		output_dell_asset_L = DellAsset.parse_dell_asset_multiple(dell_asset_multiple_path)
-		for da in output_dell_asset_L:
-			if da is not None and da.svctag != "":
-				temp_path = output_path + da.svctag + history_DA_file_format
-				save_object_to_path(value=da, output_path=temp_path)
-		# print len(output_dell_asset_L), "results generated"
+    def add_warranty(self, warranty):
+        if warranty:
+            self.warranty_L.append(warranty)
+
+    def get_warranty_list(self):
+        return self.warranty_L
+
+    @staticmethod
+    def save_dell_asset_to_excel(dell_asset_list, excel_output_path):
+        wbk = xlsxwriter.Workbook(filename=excel_output_path)
+        sheet = wbk.add_worksheet('sheet1')
+        col = 0
+        while col < DellAsset.header_num:
+            sheet.write(0, col, DellAsset.header_L[col])
+            col += 1
+        while col < DellAsset.header_num + Warranty.header_num:
+            sheet.write(0, col, Warranty.header_L[col - DellAsset.header_num])
+            col += 1
+        row = 1
+        for da in dell_asset_list:
+            col = 0
+            for h in da.get_da_header():
+                sheet.write(row, col, h)
+                col += 1
+            for w in da.get_warranty_list():
+                for h in w.get_w_header():
+                    sheet.write(row, col, h)
+                    col += 1
+                col = DellAsset.header_num
+                row += 1
+            row += 1
+        wbk.close()
+        return True
+

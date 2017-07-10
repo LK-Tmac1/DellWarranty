@@ -112,6 +112,7 @@ def api_entities_batch(target_svc_L, api_url, api_key_L, logger):
 		logger.info("Using a new API key: %s..." % api_key_L[k][0:5])
 		while i < len(target_svc_L):
 			req_url = api_url + "svctags=" + target_svc_L[i] + "&apikey=" + api_key_L[k]
+			print req_url
 			json_data = get_response_batch(req_url, logger)
 			if json_data is not None:
 				if type(json_data) is dict:

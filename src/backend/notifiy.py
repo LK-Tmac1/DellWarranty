@@ -10,14 +10,17 @@ class Email(object):
         self._post_url = kwargs["mail_post_url"]
         self._api_key = kwargs["mail_api_key"]
         self.subject = ""
-        self.text = ""
+        self.text_list = list([])
         self.attachment_list = list([])
 
     def update_subject(self, subject):
         self.subject = subject
 
-    def update_text(self, text, append=True):
-        self.text = self.text + text if append else text
+    def add_text(self, text, append=True):
+        if append:
+            self.text_list.append(text)
+        else:
+            self.text_list = list([text])
 
     def add_attachment(self, file_path, append=True):
         if append:
@@ -31,7 +34,8 @@ class Email(object):
                 self.add_attachment(file_path)
 
     def send(self, cc_mode=False):
-        data = {"from": self._from, "to": self._to, "subject": self.subject, "text": self.text}
+        data = {"from": self._from, "to": self._to,
+                "subject": self.subject, "text": "\n".join(self.text_list)}
         if cc_mode:
             data["cc"] = self._cc
         auth = ("api", self._api_key)

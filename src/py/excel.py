@@ -10,8 +10,7 @@ sys.setdefaultencoding('utf8')
 def save_dell_asset_excel(output_dell_asset_L, dell_asset_output_path):
     wbk = xlsxwriter.Workbook(filename=dell_asset_output_path)
     sheet = wbk.add_worksheet('sheet1')
-    row = 0
-    col = 0
+    row = col = 0
     while col < DellAsset.header_num:
         sheet.write(row, col, DellAsset.header_L[col])
         col += 1
