@@ -1,27 +1,38 @@
 import MySQLdb
 
 
-class DBClient(object):
+class MySQLClient(object):
 
     def __init__(self, **kwargs):
-        self.db_name = kwargs["db_name"]
+        self.db_name = "dellwarranty"
         if False:
-            self.client = MySQLdb.connect(host=kwargs["host"], user=kwargs["user"],
-                                      passwd=kwargs["passwd"], db=kwargs["db_name"])
+            self.client = MySQLdb.connect(host="localhost", user="root", passwd="password", db="dellwarranty")
             self.cursor = self.client.cursor()
 
-    def execute_query(self, query):
+    def execute_query(self, query, result=True):
         result_list = []
         try:
             self.cursor().execute(query)
             self.cursor.commit()
-            for i in xrange(self.cursor.rowcount):
-                result_list.append(self.cursor.fetchone())
+            if result:
+                for i in xrange(self.cursor.rowcount):
+                    result_list.append(self.cursor.fetchone())
         except:
             print "=======Exception for", query
-        return result_list
+        return result_list if result else None
 
-    def build_select_statement(self, tb_name, target_columns=None, filter_map=None):
+    @staticmethod
+    def build_filters(stmt_list, filters):
+        if not filters: return
+        stmt_list.append("WHERE")
+        for filter in filters:
+            stmt_list.append(filter)
+            stmt_list.append(",")
+        if stmt_list[-1] == ",":
+            stmt_list.pop()
+
+    @staticmethod
+    def build_select_statement(db_name, tb_name, target_columns=None, filters=None):
         select_statement = list(["SELECT"])
         if not target_columns:
             select_statement.append("*")
@@ -29,55 +40,49 @@ class DBClient(object):
             for target in target_columns:
                 select_statement.append("`%s`" % target)
                 select_statement.append(",")
-            select_statement.pop()
-        select_statement.append("FROM %s.%s WHERE 1=1" % (self.db_name, tb_name))
-        if filter_map:
-            select_statement.append("AND")
-            for k, v in filter_map.items():
-                select_statement.append("`%s`=%s" % (k, v))
+            if select_statement[-1] == ',':
+                select_statement.pop()
+        select_statement.append("FROM %s.%s" % (db_name, tb_name))
+        MySQLClient.build_filters(select_statement, filters)
         return " ".join(select_statement)
 
+    @staticmethod
+    def build_delete_statement(db_name, tb_name, filters=None):
+        delete_statement = list(["DELETE * "])
+        delete_statement.append("FROM %s.%s" % (db_name, tb_name))
+        MySQLClient.build_filters(delete_statement, filters)
+        return " ".join(delete_statement)
 
-class DellAssetClient(DBClient):
-
-    def __init__(self):
-        pass
-
-class WarrantyClient(DBClient):
-
-    def __init__(self):
-        pass
-
-class DellWarrantyClient(DBClient):
-    def __init__(self):
-        pass
+    @staticmethod
+    def build_insert_statement(db_name, tb_name, columns, value_string):
+        insert_statement = list(["INSERT INTO %s.%s" % (db_name, tb_name)])
+        insert_statement.append("(")
+        for col in columns:
+            insert_statement.append(col)
+        insert_statement.append(") VALUES")
+        insert_statement.append(value_string)
+        return " ".join(insert_statement)
 
 
-class Solution(object):
-    def convert(self, s, rowNum):
-        if rowNum<=1: return 2
-        temp = []
-        for i in xrange(rowNum):
-            temp.append([])
-        row = 0; is_down = True
-        for i in xrange(len(s)):
-            # add s[i] to correct row
-            temp[row].append(s[i])
-            if is_down:
-                row += 1
-                if row == rowNum:
-                    is_down = False
-                    row -= 2
-            else:
-                if row == 0:
-                    is_down = True
-                    row += 1
-                else:
-                    row -= 1
-        res_list = []
-        for t in temp:
-            res_list.append("".join(t))
-        return "".join(res_list)
+class InvalidHistoryClient(MySQLClient):
 
-s="ABCDEF"; r = 3
-print Solution().convert(s, r)
+    def __init__(self, **kwargs):
+        self.tb_name = "InvalidHistory"
+        self.svc_column = "svc_tag"
+        MySQLClient.__init__(self, **kwargs)
+
+    def get_invalid_from_regex(self, svc_tag):
+        filters = ["AND %s REGEXP '%s'" % (self.svc_column, svc_tag)]
+        sql_stmt = self.build_select_statement(self.db_name, self.tb_name, self.svc_column, filters)
+        return self.execute_query(sql_stmt, result=True)
+
+    def delete_invalid_batch(self, svc_list):
+        filters = self.svc_column
+        filters += " IN (%s)" % ', '.join("'{0}'".format(svc) for svc in svc_list)
+        sql_stmt = MySQLClient.build_delete_statement(self.db_name, self.tb_name, filters)
+        self.execute_query(sql_stmt, result=False)
+
+    def insert_invalid_batch(self, svc_list):
+        value_string = ', '.join("('{0}')".format(svc) for svc in svc_list)
+        sql_stmt = MySQLClient.build_insert_statement(self.db_name, self.tb_name, self.svc_column, value_string)
+        self.execute_query(sql_stmt, result=False)

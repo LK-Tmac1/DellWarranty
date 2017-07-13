@@ -4,58 +4,39 @@ import xlsxwriter
 
 
 class Warranty(object):
-    header = "保修服务(英),保修服务(中),开始日期,结束日期,提供商"
-    header_L = header.split(",")
-    header_num = len(header_L)
-
-    @staticmethod
-    def init_warranty_string(warranty_str):
-        # Used for de-serailzation of warranty from .csv files
-        L = warranty_str.split(',')
-        service_en = L[0] if len(L) > 0 else ""
-        service_ch = L[1] if len(L) > 1 else ""
-        start_date = L[2] if len(L) > 2 else ""
-        end_date = L[3] if len(L) > 3 else ""
-        is_provider = L[4] if len(L) > 4 else ""
-        return Warranty(start_date, end_date, service_en, is_provider, service_ch)
-
-    def __init__(self, start_date, end_date, service_en, is_provider, service_ch):
+    def __init__(self, service_en, service_ch, start_date, end_date, is_provider):
         self.start_date = start_date
         self.end_date = end_date
         self.service_en = service_en
         self.is_provider = is_provider
-        self.service_ch = service_ch.encode('utf-8')
+        self.service_ch = service_ch
 
-    def get_start_date_str(self):
-        return parse_str_date(self.start_date)
-
-    def get_end_date_str(self):
-        return parse_str_date(self.end_date)
-
-    def get_w_header(self):
+    def excel_data(self):
         return [self.service_en, self.service_ch,
-                self.get_start_date_str(), self.get_end_date_str(), self.is_provider]
+                parse_str_date(self.start_date), parse_str_date(self.end_date), self.is_provider]
 
     def __repr__(self):
-        return "%s,%s,%s,%s,%s" % (self.service_en, self.service_ch,
-                                   self.get_start_date_str(), self.get_end_date_str(), self.is_provider)
+        return "%s,%s,%s,%s,%s" % (self.service_ch, self.service_en,
+                                   self.start_date, self.end_date, self.is_provider)
+
+    @staticmethod
+    def deserialize_txt(warranty_line):
+        if warranty_line:
+            items = warranty_line.split(",")
+            if len(items) >= 5:
+                service_ch = items[1]
+                service_en = items[0]
+                start_date = items[2]
+                end_date = items[3]
+                is_provider = items[4]
+                return Warranty(service_en, service_ch, start_date, end_date, is_provider)
+        return None
 
 
 class DellAsset(object):
-    header = "机器型号,服务标签,发货日期"
-    header_L = header.split(",")
-    header_num = len(header_L)
+    headers = "服务标签,机器型号,发货日期,保修(中),保修(英),开始日期,结束日期,提供商".split(",")
 
-    @staticmethod
-    def init_dell_asset_string(dellasset_str):
-        # Used for de-serailzation of dell asset from .csv files
-        L = dellasset_str.split(',')
-        machine_id = L[0] if len(L) > 0 else ""
-        svc_tag = L[1] if len(L) > 1 else ""
-        ship_date = L[2] if len(L) > 2 else ""
-        return DellAsset(machine_id, svc_tag, ship_date, None)
-
-    def __init__(self, machine_id="", svc_tag="", ship_date="", warranty_L=None):
+    def __init__(self, machine_id, svc_tag, ship_date, warranty_L=None):
         self.machine_id = machine_id
         self.svc_tag = svc_tag
         self.ship_date = ship_date
@@ -75,26 +56,58 @@ class DellAsset(object):
     def get_warranty_list(self):
         return self.warranty_L
 
+    def __repr__(self):
+        return "%s,%s,%s" % (self.svc_tag, self.machine_id, self.ship_date)
+
+    def serialize_txt(self):
+        contents = list([str(self)])
+        for w in self.warranty_L:
+            contents.append(str(w))
+        return "\n".join(contents)
+
+    @staticmethod
+    def deserialize_txt(lines):
+        if lines:
+            items = lines[0].split(",")
+            svc_tag, machine_id, ship_date = items[0], items[1], items[2]
+            warranty_list = list([])
+            for warranty_line in lines[1:]:
+                warranty_list.append(Warranty.deserialize_txt(warranty_line))
+            return DellAsset(machine_id, svc_tag, ship_date, warranty_list)
+
+    @staticmethod
+    def deserialize_csv(lines):
+        # Used for de-serailzation of a dell asset from .csv files
+        if not lines or len(lines) < 2:
+            return None
+        warranty_list = list([])
+        for line in lines[1:]:
+            line = line.split(",")[3:]
+            warranty_line = ",".join(line)
+            w = Warranty.deserialize_txt(warranty_line)
+            if w:
+                warranty_list.append(w)
+        items = lines[1].split(",")
+        if len(items) >= 3:
+            machine_id, svc_tag, ship_date = items[0], items[1], items[2]
+            return DellAsset(machine_id, svc_tag, ship_date, warranty_list)
+        return None
+
     @staticmethod
     def save_dell_asset_to_excel(dell_asset_list, excel_output_path):
         wbk = xlsxwriter.Workbook(filename=excel_output_path)
         sheet = wbk.add_worksheet('sheet1')
-        col = 0
-        while col < DellAsset.header_num:
-            sheet.write(0, col, DellAsset.header_L[col])
-            col += 1
-        while col < DellAsset.header_num + Warranty.header_num:
-            sheet.write(0, col, Warranty.header_L[col - DellAsset.header_num])
-            col += 1
+        for i in xrange(len(DellAsset.headers)):
+            sheet.write(0, i, DellAsset.headers[i])
         row = 1
         for da in dell_asset_list:
             col = 0
-            for h in da.get_da_header():
-                sheet.write(row, col, h)
+            for d in da.get_da_data():
+                sheet.write(row, col, d)
                 col += 1
             for w in da.get_warranty_list():
-                for h in w.get_w_header():
-                    sheet.write(row, col, h)
+                for d in w.excel_data():
+                    sheet.write(row, col, d)
                     col += 1
                 col = DellAsset.header_num
                 row += 1

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from zipfile import ZipFile
+from entity import DellAsset
 import re, os, requests, yaml
 
 
@@ -19,7 +20,7 @@ class FileUtility(object):
         result = None
         if isURL:
             resp = requests.get(file_path)
-            if str(resp.status_code) == '200':
+            if resp.status_code == 200:
                 result = yaml.load(resp.content) if isYML else resp.content
         else:
             if FileUtility.is_path_existed(file_path):
@@ -56,14 +57,6 @@ class ZipFileSVC(object):
         self.file_path = zip_file_path
         self.file = ZipFile(file=zip_file_path, mode=mode)
         self.file_list = self.file.filelist
-        self.invalid_svc = set([])
-        self.history_svc = set([])
-
-    def is_history(self, svc):
-        return svc in self.history_svc
-
-    def is_known(self, svc):
-        return svc in self.invalid_svc or svc in self.history_svc
 
     def file_names(self):
         return self.file.namelist()
@@ -75,22 +68,16 @@ class ZipFileSVC(object):
                 result_list.append(data.filename)
         return result_list
 
-    def add_new_file(self, file_path):
-        # duplicated files are allowed
-        if FileUtility.is_path_existed(file_path):
-            arcname = os.path.split(file_path)[1]
-            self.file.write(filename=file_path, arcname=arcname)
+    def add_new_file_batch(self, file_path_list):
+        # duplicated files are allowed, so be careful
+        for file_path in file_path_list:
+            if FileUtility.is_path_existed(file_path):
+                arcname = os.path.split(file_path)[1]
+                self.file.write(filename=file_path, arcname=arcname)
 
     def get_member_content(self, file_name):
         try:
-            return self.file.read(file_name).decode('utf-8')
+            return self.file.read(file_name)
         except KeyError:
             print 'ERROR: No %s in zip file' % file_name
 
-
-# path = "/Users/kunliu/dell/all.zip"
-# zipfile = ZipFileSVC(path, mode='a')
-# print zipfile.file_names(),'----'
-#zipfile.add_new_file('/Users/kunliu/dell/valid_svctags.txt')
-#print zipfile.get_member_content('valid_svctags.txt')
-#print zipfile.file_names()

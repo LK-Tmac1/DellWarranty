@@ -1,6 +1,12 @@
-import yaml, requests, datetime, time
-from constant import *
+# -*- coding: utf-8 -*-
+
+import yaml, datetime, time, os
 from dateutil.parser import parse
+
+datetime_str_format = '%Y-%m-%d %H:%M:%S'
+date_str_format = "%s年%s月%s日"
+date_str_format_search = "%Y-%m-%d"
+hour_str_format = "%H小时%M分钟%S秒"
 
 
 def is_path_existed(path):

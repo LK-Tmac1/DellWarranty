@@ -1,14 +1,20 @@
+# -*- coding: utf-8 -*-
 import requests
 from utility import is_path_existed
 
+mail_post_url = "https://api.mailgun.net/v3/sandbox37699e306f69436d8f89f81915ad9f0a.mailgun.org/messages"
+mail_from = "戴尔保修查询 <postmaster@sandbox37699e306f69436d8f89f81915ad9f0a.mailgun.org>"
+mail_to = "Hotmail <daierchaxun@hotmail.com>"
+mail_cc = "Kun <liukun1016@gmail.com>"
+
 
 class Email(object):
-    def __init__(self, **kwargs):
-        self._from = kwargs["mail_from"]
-        self._cc = kwargs["mail_cc"]
-        self._to = kwargs["mail_to"]
-        self._post_url = kwargs["mail_post_url"]
-        self._api_key = kwargs["mail_api_key"]
+    def __init__(self, mail_api_key, **kwargs):
+        self._from = kwargs.get("mail_from", mail_from)
+        self._cc = kwargs.get("mail_cc", mail_cc)
+        self._to = kwargs.get("mail_to", mail_to)
+        self._post_url = kwargs.get("mail_post_url", mail_post_url)
+        self._api_key = mail_api_key
         self.subject = ""
         self.text_list = list([])
         self.attachment_list = list([])
