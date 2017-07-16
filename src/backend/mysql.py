@@ -11,14 +11,11 @@ class MySQLClient(object):
 
     def execute_query(self, query, result=True):
         result_list = []
-        try:
-            self.cursor().execute(query)
-            self.cursor.commit()
-            if result:
-                for i in xrange(self.cursor.rowcount):
-                    result_list.append(self.cursor.fetchone())
-        except:
-            print "=======Exception for", query
+        self.cursor().execute(query)
+        self.cursor.commit()
+        if result:
+            for i in xrange(self.cursor.rowcount):
+                result_list.append(self.cursor.fetchone())
         return result_list if result else None
 
     @staticmethod
