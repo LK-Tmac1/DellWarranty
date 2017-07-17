@@ -6,14 +6,6 @@ from collections import deque
 
 api_offset = 50
 
-api_error_code = ["Service Profile Throttle Limit Reached",
-    "The number of tags that returned no data exceeded the maximum percentage of incorrect tags",
-    "The request has failed due to an internal authorization configuration issue",
-    "User Identification failed in Key Management Service"
-]
-
-api_error_code = set(api_error_code)
-
 
 class APIClient(object):
     # properly handles API response
@@ -21,6 +13,7 @@ class APIClient(object):
     raw_response = None
     dell_asset_response = None
     fault_exception_list = None
+    quote_full = False
 
     def __init__(self, api_key):
         self.api_key = str(api_key)
@@ -67,6 +60,16 @@ class JSONClient(APIClient):
         self.json_response = None
         self.base_url = "https://api.dell.com/support/v2/assetinfo/warranty/tags.json?apikey=%s&svctags=" % self.api_key
 
+    @staticmethod
+    def clean_dell_asset_response_nil(data, key, nil_value=""):
+        if data and type(data) is dict:
+            value = data.get(key)
+            if type(value) is dict and "@nil" in value:
+                return nil_value
+            else:
+                return value
+        return ""
+
     def response_to_entities(self):
         # Given a JSON format data, return a list of DellAsset objects
         da_entity_list = list([])
@@ -78,24 +81,20 @@ class JSONClient(APIClient):
                 if w_response_list:
                     warranty_list = list([])
                     for w in w_response_list:
-                        if not w or type(w) is not dict:
+                        if not w or type(w) is not dict or w.get("@nil"):
                             continue
-                        service_en = w.get("ServiceLevelDescription")
+                        service_en = JSONClient.clean_dell_asset_response_nil(w, "ServiceLevelDescription")
                         if not service_en:
                             # if no warranty description, skip to the next
                             continue
-                        start_date = w.get("StartDate")
-                        end_date = w.get("EndDate")
-                        provider = "DELL"
-                        if w.get("ServiceProvider") and type(w.get("ServiceProvider")) is dict:
-                            provider = w.get("ServiceProvider").get("@nil")
-                            if provider == "true":
-                                provider = "DELL"
+                        start_date = JSONClient.clean_dell_asset_response_nil(w, "StartDate")
+                        end_date = JSONClient.clean_dell_asset_response_nil(w, "EndDate")
+                        provider = JSONClient.clean_dell_asset_response_nil(w, "ServiceProvider", "DELL")
                         w = Warranty(start_date=start_date, end_date=end_date, service_en=service_en, provider=provider)
                         warranty_list.append(w)
                     machine_id = da.get("MachineDescription")
                     svc_tag = da.get("ServiceTag")
-                    ship_date = da.get("ShipDate")
+                    ship_date = JSONClient.clean_dell_asset_response_nil(da, "ShipDate")
                     dell_asset = DellAsset(machine_id, svc_tag, ship_date, warranty_list)
                     da_entity_list.append(dell_asset)
         return da_entity_list
@@ -109,15 +108,14 @@ class JSONClient(APIClient):
 
     def handle_response_error(self, response):
         resolved = skip = True
-        quote_full = False
         for fault_exception in self.fault_exception_list:
             code, message = fault_exception.get("Code"), fault_exception.get("Message")
             if code == 403 and message == "Rate Limit Exceeded":
                 # handles API "quote fully used" exception
-                quote_full = True
+                self.quote_full = True
                 resolved = skip = False
                 break
-        return resolved, skip, quote_full
+        return resolved, skip
 
     def new_response(self, svc_parameter):
         self.raw_response = requests.get(self.base_url + svc_parameter)
@@ -175,6 +173,9 @@ class XMLClient(APIClient):
 
     def is_response_error(self):
         raise NotImplementedError
+
+    def get_fault_message(self):
+        pass
 
     def __repr__(self):
         return "XML Client, key=%s" % self.api_key[:5]

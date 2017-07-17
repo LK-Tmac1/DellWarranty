@@ -5,9 +5,9 @@ import re, os
 
 
 class ZipFileSVC(object):
-    def __init__(self, zip_file_path, mode='w'):
+    def __init__(self, zip_file_path, mode='r'):
         self.file_path = zip_file_path
-        self.file = ZipFile(file=zip_file_path, mode=mode)
+        self.file = ZipFile(file=zip_file_path, mode=mode, allowZip64 = True)
         self.file_list = self.file.filelist
 
     def file_names(self):
@@ -26,8 +26,11 @@ class ZipFileSVC(object):
     def add_new_file_batch(self, file_path_list):
         # duplicated files are allowed, so be careful
         for file_path in file_path_list:
-            if FileUtil.is_path_existed(file_path):
-                self.file.write(filename=file_path, arcname=os.path.split(file_path)[-1])
+            if not FileUtil.is_path_existed(file_path):
+                continue
+            file_name = os.path.split(file_path)[-1]
+            if len(file_name) >= 7:
+                self.file.write(filename=file_path, arcname=file_name)
 
     def get_member_content(self, file_name):
         try:

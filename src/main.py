@@ -1,23 +1,28 @@
 # -*- coding: utf-8 -*-
 
-import sys, os, traceback
+import os
+import sys
+import traceback
 from collections import deque
-from backend.zip import ZipFileSVC, FileUtil
-from backend.mysql import InvalidHistoryClient
-from backend.svctag import SVCTagContainer
-from backend.entity import DellAsset
-from backend.utility import DateTimeUtil, Logger, Email
-from backend.batch import Batch
+
+from batch import Batch
+from svctag import SVCGenerator
+from utility import DateTimeUtil, Logger, Email
+from zip import ZipFileSVC, FileUtil
+
+from entity import DellAsset
 
 parent_path = "/Users/kunliu/Desktop/dell"
-history_zipfile = os.path.join(parent_path, "查询历史.zip")
+history_path = os.path.join(parent_path, "历史记录")
+history_zipfile = os.path.join(history_path, "查询历史.zip")
+temp_dir = os.path.join(history_path, "临时文件")
+log_file_path = os.path.join(temp_dir, "查询日志.txt")
+invalid_history_file_path = os.path.join(history_path, "非法查询码.txt")
 config_yml = os.path.join(parent_path,"程序配置.yml")
-excel_dir = os.path.join(parent_path, "temp")
-temp_dir = os.path.join(parent_path, "临时文件")
+excel_dir = os.path.join(parent_path, "Excel结果")
 
 
-def main(arguments):
-    svc_input = arguments[0]
+def main(svc_input):
     logger = Logger("查询日志", verbose=True)
     logger.info("[开始查询] %s" % svc_input)
     # 加载运行环境配置
@@ -25,50 +30,44 @@ def main(arguments):
     email_api_key = configs["email_api_key"]
     email = Email(email_api_key, subject="[查询任务结束] 标签 %s" % svc_input)
     try:
+        # 找到本地匹配的保修历史记录
+        history_zip = ZipFileSVC(zip_file_path=history_zipfile, mode='a')
         start_time = DateTimeUtil.get_current_datetime()
         # 创建出所有可能查询码
-        svc_generator = SVCTagContainer(svc_input)
-        logger.info("创建出所有可能查询码：%s" % svc_generator.svc_size())
-        # 找到本地匹配的历史记录
-        history_zip = ZipFileSVC(zip_file_path=history_zipfile)
-        # 调用数据库，找到匹配的非法查询码历史
-        # db_client = InvalidHistoryClient()
-        # invalid_history = db_client.get_invalid_from_regex(svc_generator.regex)
-        invalid_history = set([])
-        logger.info("从数据库总找到匹配的非法查询码历史：%s" % len(invalid_history))
-        # 根据历史，筛选出目标查询码，以及非法查询码
-        svc_generator.filter_history(invalid_history)
+        svc_generator = SVCGenerator(svc_input, logger)
+        logger.info("创建出所有可能查询码：%s" % svc_generator.target_svc_size())
+        # 根据本地匹配的非法查询码历史，筛选出目标查询码，以及非法查询码
         existed_svc = history_zip.find_file_regex(svc_generator.regex)
-        svc_generator.split_existed(existed_svc)
-        logger.info("已经存在的查询码历史：%s" % len(svc_generator.existed_svc_set))
-        invalid_svc_list = svc_generator.remove_invalid_batch()
-        logger.info("过滤掉非法的查询码：%s" % len(invalid_svc_list))
-        logger.info("更新数据库非法查询码")
-        # db_client.insert_invalid_batch(invalid_svc_list)
+        svc_generator.generate_target_svc_batch(existed_svc, invalid_history_file_path)
         # 调用戴尔查询API，并将API数据转化为实体类数据
-        batch = Batch(logger, configs)
-        api_dell_asset_list = batch.begin(svc_generator.target_svc_set)
-        logger.info("从API中总共得到%s个结果" % (len(api_dell_asset_list)))
-        logger.info("将实体类序列化到本地临时TXT文件")
-        output_file_names = DellAsset.serialize_txt_batch(api_dell_asset_list, temp_dir)
-        logger.info("将序列化临时文件存到本地zip历史记录，并删除临时文件")
-        for file_name in output_file_names:
-            history_zip.add_new_file_batch(os.path.join(temp_dir, file_name))
-            FileUtil.delete_file(os.path.join(temp_dir, file_name))
-        logger.info("将API得到的实体类和历史记录实体类合并，存为Excel文档")
-        total = len(api_dell_asset_list)
+        output_dell_asset_list = list([])
+        if svc_generator.target_svc_set:
+            batch = Batch(logger, configs)
+            api_dell_asset_list = batch.begin(svc_generator.target_svc_set)
+            output_dell_asset_list = api_dell_asset_list
+            logger.info("从API中总共得到%s个结果" % (len(api_dell_asset_list)))
+            logger.info("将实体类序列化到本地临时TXT文件")
+            temp_text_files_path = DellAsset.serialize_txt_batch(api_dell_asset_list, temp_dir)
+            logger.info("将序列化临时文件存到本地zip历史记录，总数：%s" % len(temp_text_files_path))
+            history_zip.add_new_file_batch(temp_text_files_path)
+            logger.info("删除临时 %s 个TXT文件" % len(temp_text_files_path))
+            for file_path in temp_text_files_path:
+                FileUtil.delete_file(file_path)
+            logger.info("将API得到的实体类和历史记录实体类合并")
+        else:
+            logger.warn("目标查询码为空，仅从从历史记录中导出结果")
         for svc in svc_generator.existed_svc_set:
             dell_asset_content = history_zip.get_member_content(file_name="%s.txt" % svc)
-            api_dell_asset_list.append(DellAsset.deserialize_txt(dell_asset_content))
-        logger.info("添加历史记录，总共得到%s个结果" % (len(api_dell_asset_list)))
-        excel_output_path = os.path.join(excel_dir, "%s.xlsx" % svc_generator.get_output_name())
-        DellAsset.save_as_excel_batch(api_dell_asset_list, excel_output_path)
+            output_dell_asset_list.append(DellAsset.deserialize_txt(dell_asset_content))
+        logger.info("添加历史记录，总共得到%s个结果" % (len(output_dell_asset_list)))
+        excel_output_path = os.path.join(excel_dir, "%s.xlsx" % svc_generator.get_file_name())
+        DellAsset.save_as_excel_batch(output_dell_asset_list, excel_output_path)
         if FileUtil.is_path_existed(excel_output_path):
-            logger.info("成功存到结果文件：%s" % excel_output_path)
+            logger.info("存为Excel文档成功")
             email.add_attachment(excel_output_path)
             end_time = DateTimeUtil.get_current_datetime()
             logger.info("总用时 %s " % DateTimeUtil.datetime_diff(start_time, end_time))
-            logger.info("[查询结束] 总共%s个结果 存在%s" % (total, excel_output_path))
+            logger.info("[查询结束] 总共%s个结果 保存在：%s" % (len(output_dell_asset_list), excel_output_path))
         else:
             logger.error("[保存结果失败] %s" % excel_output_path)
     except Exception as e:
@@ -78,9 +77,10 @@ def main(arguments):
         logger.error("[查询失败] 已发送报告 请等待解决")
     finally:
         logger.info("发送邮件通知")
-        if logger.has_error:
-            email.add_text(logger.__repr__())
-        email.send(cc_mode=logger.has_error)
+        FileUtil.save_object_to_path(logger, log_file_path)
+        email.add_attachment(log_file_path)
+        email.send(cc_mode=True)
+        FileUtil.delete_file(log_file_path)
 
 
 if __name__ == '__main__':
@@ -88,8 +88,7 @@ if __name__ == '__main__':
     arguments = deque(sys.argv)
     if arguments[0].find("main") >= 0:
         arguments.popleft()
-    arguments[0] = "ABCDEF?"
     if len(arguments) == 0 or len(arguments[0]) != 7:
         print "需要7位查询保修码，比如ABCEF??"
     else:
-        main(arguments)
+        main(arguments.popleft())

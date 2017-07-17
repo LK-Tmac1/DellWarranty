@@ -18,7 +18,7 @@ email_cc = "Kun <liukun1016@gmail.com>"
 class FileUtil(object):
     @staticmethod
     def is_path_existed(file_path):
-        return os.path.exists(file_path)
+        return file_path and os.path.exists(file_path)
 
     @staticmethod
     def delete_file(file_path):
@@ -42,25 +42,28 @@ class FileUtil(object):
         return result
 
     @staticmethod
-    def save_object_to_path(value, output_path, isYML=False):
+    def save_object_to_path(object_list, output_path, isYML=False, append=False):
+        if not object_list:
+            return
+        if type(object_list) is not list:
+            object_list = [object_list]
+        content = list([])
+        for obj in object_list:
+            content.append(str(obj))
+        if content[-1] != "":
+            content.append("")  # last line always empty
+        content = "\n".join(content)
+
         parent_dir = output_path[0:output_path.rfind(os.sep)]
         # If output parent dir does not exist, create it
         if not FileUtil.is_path_existed(parent_dir):
             os.makedirs(parent_dir)
-        with open(output_path, 'w') as output:
+        with open(output_path, mode="a" if append else "w") as output:
             if isYML:
-                yaml.safe_dump(value, output)
+                yaml.safe_dump(object_list, output)
             else:
-                object_list = value
-                if type(object_list) is not list:
-                    object_list = [object_list]
-                content = list([])
-                for obj in object_list:
-                    content.append(str(obj))
-                    if content[-1][-1] != '\n':
-                        content.append('\n')
-                    output.write("".join(content))
-        return True
+                output.write(content)
+                output.close()
 
 
 class DateTimeUtil(object):
