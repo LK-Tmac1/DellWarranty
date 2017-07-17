@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from utility import DateTimeUtil, FileUtil
-import xlsxwriter, os
-import sys
+import xlsxwriter, os, sys
 
 reload(sys)
 sys.setdefaultencoding('utf8')

@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import traceback
+import os, sys, traceback
 from collections import deque
 
 from batch import Batch
 from svctag import SVCGenerator
 from utility import DateTimeUtil, Logger, Email
 from zip import ZipFileSVC, FileUtil
-
 from entity import DellAsset
 
-parent_path = "/Users/kunliu/Desktop/dell"
+parent_path = cwd = os.getcwd() # current working dir
 history_path = os.path.join(parent_path, "历史记录")
 history_zipfile = os.path.join(history_path, "查询历史.zip")
 temp_dir = os.path.join(history_path, "临时文件")
@@ -35,7 +32,7 @@ def main(svc_input):
         start_time = DateTimeUtil.get_current_datetime()
         # 创建出所有可能查询码
         svc_generator = SVCGenerator(svc_input, logger)
-        logger.info("创建出所有可能查询码：%s" % svc_generator.target_svc_size())
+        logger.info("创建出所有可能查询码：%s" % len(svc_generator.target_svc_set))
         # 根据本地匹配的非法查询码历史，筛选出目标查询码，以及非法查询码
         existed_svc = history_zip.find_file_regex(svc_generator.regex)
         svc_generator.generate_target_svc_batch(existed_svc, invalid_history_file_path)

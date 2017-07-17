@@ -35,9 +35,6 @@ class SVCGenerator(object):
     def get_file_name(self):
         return self.regex.replace(".", "?")
 
-    def target_svc_size(self):
-        return len(self.target_svc_set)
-
     def split_existed(self, existed_svc):
         # Split existed svc from target
         for svc in existed_svc:
