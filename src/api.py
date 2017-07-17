@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import json, xml, requests
+import json, xml, requests, traceback
 from entity import DellAsset, Warranty
 from collections import deque
 
@@ -73,30 +73,36 @@ class JSONClient(APIClient):
     def response_to_entities(self):
         # Given a JSON format data, return a list of DellAsset objects
         da_entity_list = list([])
-        if self.dell_asset_response:
-            for da in self.dell_asset_response:
+        dell_asset_response = self.dell_asset_response
+        if dell_asset_response:
+            if type(dell_asset_response) is not list:
+                dell_asset_response = list([dell_asset_response])
+            for da in dell_asset_response:
                 w_response_list = JSONClient.get_value_by_chain(da, ["Warranties", "Warranty"])
-                if type(w_response_list) is not list:
-                    w_response_list = list([w_response_list])
                 if w_response_list:
-                    warranty_list = list([])
-                    for w in w_response_list:
-                        if not w or type(w) is not dict or w.get("@nil"):
-                            continue
-                        service_en = JSONClient.clean_dell_asset_response_nil(w, "ServiceLevelDescription")
-                        if not service_en:
-                            # if no warranty description, skip to the next
-                            continue
-                        start_date = JSONClient.clean_dell_asset_response_nil(w, "StartDate")
-                        end_date = JSONClient.clean_dell_asset_response_nil(w, "EndDate")
-                        provider = JSONClient.clean_dell_asset_response_nil(w, "ServiceProvider", "DELL")
-                        w = Warranty(start_date=start_date, end_date=end_date, service_en=service_en, provider=provider)
-                        warranty_list.append(w)
-                    machine_id = da.get("MachineDescription")
-                    svc_tag = da.get("ServiceTag")
-                    ship_date = JSONClient.clean_dell_asset_response_nil(da, "ShipDate")
-                    dell_asset = DellAsset(machine_id, svc_tag, ship_date, warranty_list)
-                    da_entity_list.append(dell_asset)
+                    try:
+                        warranty_list = list([])
+                        if type(w_response_list) is not list:
+                            w_response_list = list([w_response_list])
+                        for w in w_response_list:
+                            if not w or type(w) is not dict or w.get("@nil"):
+                                continue
+                            service_en = JSONClient.clean_dell_asset_response_nil(w, "ServiceLevelDescription")
+                            if not service_en:
+                                # if no warranty description, skip to the next
+                                continue
+                            start_date = JSONClient.clean_dell_asset_response_nil(w, "StartDate")
+                            end_date = JSONClient.clean_dell_asset_response_nil(w, "EndDate")
+                            provider = JSONClient.clean_dell_asset_response_nil(w, "ServiceProvider", "DELL")
+                            warranty_list.append(Warranty(start_date=start_date,
+                                                          end_date=end_date, service_en=service_en, provider=provider))
+                        machine_id = da.get("MachineDescription")
+                        svc_tag = da.get("ServiceTag")
+                        ship_date = JSONClient.clean_dell_asset_response_nil(da, "ShipDate")
+                        dell_asset = DellAsset(machine_id, svc_tag, ship_date, warranty_list)
+                        da_entity_list.append(dell_asset)
+                    except Exception as e:
+                        print "发现异常，忽略：%s\n%s" % (e, traceback.format_exc())
         return da_entity_list
 
     def flatten_svc_parameter(self, api_svc_list):
@@ -145,7 +151,7 @@ class JSONClient(APIClient):
     def get_value_by_chain(json_data, chain):
         # Given a json dict data, and a list of keys, find the value of the last key by levels
         for key in chain:
-            if json_data:
+            if json_data and type(json_data) is dict:
                 json_data = json_data.get(key)
             else:
                 return None
