@@ -5,6 +5,7 @@ import xlsxwriter, os, sys
 
 reload(sys)
 sys.setdefaultencoding('utf8')
+
 translation_url = "https://raw.githubusercontent.com/liukun1016/DellWarranty/master/translation.yml"
 
 

@@ -3,27 +3,19 @@
 import yaml, datetime, time, os, requests
 from dateutil.parser import parse
 
-datetime_str_format = '%Y-%m-%d %H:%M:%S'
-date_str_format = "%s年%s月%s日"
-time_str_format = "%H:%M:%S"
-date_str_format_search = "%Y-%m-%d"
-hour_str_format = "%H小时%M分钟%S秒"
-
-email_post_url = "https://api.mailgun.net/v3/sandbox37699e306f69436d8f89f81915ad9f0a.mailgun.org/messages"
-email_from = "戴尔保修查询 <postmaster@sandbox37699e306f69436d8f89f81915ad9f0a.mailgun.org>"
-email_to = "Hotmail <daierchaxun@hotmail.com>"
-email_cc = "Kun <liukun1016@gmail.com>"
-
 
 class FileUtil(object):
     @staticmethod
     def is_path_existed(file_path):
-        return file_path and os.path.exists(file_path)
+        return file_path and os.path.exists(file_path.strip())
 
     @staticmethod
     def delete_file(file_path):
         if FileUtil.is_path_existed(file_path):
-            os.remove(file_path)
+            try:
+                os.remove(file_path)
+            except Exception:
+                return
 
     @staticmethod
     def read_file(file_path, isYML, isURL=False, lines=False):
@@ -58,12 +50,20 @@ class FileUtil(object):
         # If output parent dir does not exist, create it
         if not FileUtil.is_path_existed(parent_dir):
             os.makedirs(parent_dir)
-        with open(output_path, mode="a" if append else "w") as output:
+        output = open(output_path, mode="a" if append else "w")
+        try:
             if isYML:
                 yaml.safe_dump(object_list, output)
             else:
                 output.write(content)
-                output.close()
+        finally:
+            output.close()
+
+datetime_str_format = '%Y-%m-%d %H:%M:%S'
+date_str_format = "%s年%s月%s日"
+time_str_format = "%H:%M:%S"
+date_str_format_search = "%Y-%m-%d"
+hour_str_format = "%H小时%M分钟%S秒"
 
 
 class DateTimeUtil(object):
@@ -124,6 +124,11 @@ class Logger(object):
 
     def __repr__(self):
         return "\n".join(self.messages)
+
+email_post_url = "https://api.mailgun.net/v3/sandbox37699e306f69436d8f89f81915ad9f0a.mailgun.org/messages"
+email_from = "戴尔保修查询 <postmaster@sandbox37699e306f69436d8f89f81915ad9f0a.mailgun.org>"
+email_to = "Hotmail <daierchaxun@hotmail.com>"
+email_cc = "Kun <liukun1016@gmail.com>"
 
 
 class Email(object):

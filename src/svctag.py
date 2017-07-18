@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import itertools, requests, time
+import itertools, requests, time, sys
 from utility import FileUtil
 
 dell_support_url = "http://www.dell.com/support/home/cn/zh/cndhs1/product-support/servicetag/"
@@ -33,7 +33,7 @@ class SVCGenerator(object):
                 self.target_svc_set.add(''.join(pattern))
 
     def get_file_name(self):
-        return self.regex.replace(".", "?")
+        return self.regex.replace(".", "#")
 
     def split_existed(self, existed_svc):
         # Split existed svc from target
