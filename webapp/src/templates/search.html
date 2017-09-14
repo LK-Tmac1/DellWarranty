@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Dell保修查询主页</title>
+<link rel="stylesheet" type="text/css" href="../static/view.css" media="all">
+
+<style>
+            table {
+                border-collapse: collapse;
+                border: 2px black;
+                font: 14px sans-serif;
+            }
+
+            td {
+            	padding: 15px;
+                border: 1px black solid;
+                padding: 5px;
+                text-align: left;
+            }
+            th {
+            	padding: 10px;
+            	text-align: left;
+            }
+        tr:hover{background-color:#f5f5f5}
+
+</style>
+</head>
+<body>
+	
+	<img id="top" src="../static/top.png" alt="" style="width:1310px">
+
+	<div id="form_container" style="width:1300px">
+
+		<form id="form_1150242" class="appnitro"  method="post" action="">
+		<ul>
+		<li><h4><a href="/home">点击这里返查询回主页。</a>
+
+			{%  if dell_asset_L|length > 0 %}
+				
+				{% if search_all == "true" %}
+				<h4>以下是<font color="red">所有</font>的历史查询保修记录，共<font color="red">{{ dell_asset_L|length }}</font> 条保修记录：</h4></li>
+				{% else %}
+				<h4>以下是针对服务标签 <font color="red">{{ svctag }}</font> 的历史查询保修记录，共<font color="red">{{ dell_asset_L|length }}</font> 条保修记录：</h4></li>
+				{% endif %} 
+				<table class="tablesorter" id="da_table">
+					<tr>
+					<th>服务标签</th>
+					<th>机器型号</th>
+					<th>发货日期</th>
+					<th>保修(英)</th>
+					<th>保修(中)</th>
+					<th>开始日期</th>
+					<th>结束日期</th>
+					<th>提供商</th>
+					</tr>
+					{% for da in dell_asset_L %}
+  						<tr style="background-color: #f2f2f2">
+  							<td>{{ da.svctag }}</td>
+	  						<td>{{ da.machine_id }}</td>
+	  						<td>{{ da.get_ship_date() }}</td>
+	  					{% for w in da.warranty_L %}
+	  						{% if not loop.first %}
+	  						<tr>
+	  							<td></td>
+		  						<td></td>
+		  						<td></td>
+	  						{% endif %}
+		  						<td>{{ w.service_en }}</td>
+		  						<td>{{ w.service_ch }}</td>
+		  						<td>{{ w.get_start_date() }}</td>
+		  						<td>{{ w.get_end_date() }}</td>
+		  						<td>{{ w.is_provider }}</td>
+		  					</tr>
+  						{% endfor %}
+					{% endfor %}
+				</table>
+			{% else %}
+				<h4>服务标签 <font color="red">{{ svctag }}</font> 暂无任何历史记录。</h4></li>
+			{% endif %}
+		</ul>
+		</form>	
+	</div>
+	
+	<img id="bottom" src="../static/bottom.png" alt="" style="width:1310px">
+
+</body>
+</html>
