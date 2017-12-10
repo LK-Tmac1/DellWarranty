@@ -12,13 +12,13 @@ class APIClient(object):
     base_url = None
     raw_response = None
     dell_asset_response = None
-    fault_exception_list = None
+    fault_exception_list = list([])
     quote_full = False
 
     def __init__(self, api_key):
         self.api_key = str(api_key)
 
-    def response_to_entities(self, response):
+    def response_to_entities(self):
         # parse response to DellAsset entity list
         raise NotImplementedError
 
@@ -49,16 +49,13 @@ class APIClient(object):
 
 class JSONClient(APIClient):
     parent_chain = ["GetAssetWarrantyResponse", "GetAssetWarrantyResult"]
-    dell_asset_chain = parent_chain + ["Response", "DellAsset"]
-    fault_chain = parent_chain + ["Faults"]
-    fault_code_chain = ["FaultException", "Code"]
-    fault_message_chain = ["FaultException", "Message"]
+    fault_chain = ["InvalidFormatAssets", "BadAssets"]
     nil_warranty_chain = ["ServiceLevelDescription","ServiceLevelDescription","nil"]
 
     def __init__(self, api_key):
         APIClient.__init__(self, api_key)
         self.json_response = None
-        self.base_url = "https://api.dell.com/support/v2/assetinfo/warranty/tags.json?apikey=%s&svctags=" % self.api_key
+        self.base_url = "https://api.dell.com/support/assetinfo/v4/getassetwarranty/{}?apikey=%s" % self.api_key
 
     @staticmethod
     def clean_dell_asset_response_nil(data, key, nil_value=""):
@@ -78,7 +75,7 @@ class JSONClient(APIClient):
             if type(dell_asset_response) is not list:
                 dell_asset_response = list([dell_asset_response])
             for da in dell_asset_response:
-                w_response_list = JSONClient.get_value_by_chain(da, ["Warranties", "Warranty"])
+                w_response_list = JSONClient.get_value_by_chain(da, ["AssetEntitlementData"])
                 if w_response_list:
                     try:
                         warranty_list = list([])
@@ -88,19 +85,23 @@ class JSONClient(APIClient):
                             if not w or type(w) is not dict or w.get("@nil"):
                                 continue
                             service_en = JSONClient.clean_dell_asset_response_nil(w, "ServiceLevelDescription")
-                            if not service_en:
+                            if not service_en or service_en == "Do Not Generate":
                                 # if no warranty description, skip to the next
                                 continue
                             start_date = JSONClient.clean_dell_asset_response_nil(w, "StartDate")
                             end_date = JSONClient.clean_dell_asset_response_nil(w, "EndDate")
-                            provider = JSONClient.clean_dell_asset_response_nil(w, "ServiceProvider", "DELL")
+                            provider = JSONClient.clean_dell_asset_response_nil(w, "ServiceProvider")
+                            if provider is None or provider == "None":
+                                provider = "DELL"
                             warranty_list.append(Warranty(start_date=start_date,
                                                           end_date=end_date, service_en=service_en, provider=provider))
-                        machine_id = da.get("MachineDescription")
-                        svc_tag = da.get("ServiceTag")
-                        ship_date = JSONClient.clean_dell_asset_response_nil(da, "ShipDate")
-                        dell_asset = DellAsset(machine_id, svc_tag, ship_date, warranty_list)
-                        da_entity_list.append(dell_asset)
+                        da = da.get("AssetHeaderData")
+                        if da:
+                            machine_id = da.get("MachineDescription")
+                            svc_tag = da.get("ServiceTag")
+                            ship_date = JSONClient.clean_dell_asset_response_nil(da, "ShipDate")
+                            dell_asset = DellAsset(machine_id, svc_tag, ship_date, warranty_list)
+                            da_entity_list.append(dell_asset)
                     except Exception as e:
                         print "发现异常，忽略：%s\n%s" % (e, traceback.format_exc())
         return da_entity_list
@@ -110,9 +111,11 @@ class JSONClient(APIClient):
         return "|".join(api_svc_list) if api_svc_list else None
 
     def is_response_error(self):
-        return self.raw_response and self.raw_response.status_code == 200 and self.fault_exception_list is None
+        return self.raw_response and self.raw_response.status_code == 200 and not self.fault_exception_list
 
     def handle_response_error(self, response):
+        # Try to recover from error that blocks the ETL flow
+        # It is possible that it could not be resolved, or it could be skipped
         resolved = skip = True
         for fault_exception in self.fault_exception_list:
             code, message = fault_exception.get("Code"), fault_exception.get("Message")
@@ -124,25 +127,27 @@ class JSONClient(APIClient):
         return resolved, skip
 
     def new_response(self, svc_parameter):
-        self.raw_response = requests.get(self.base_url + svc_parameter)
+        def retrieve_exception(json_response, fault_exception_list):
+            if json_response:
+                e1 = JSONClient.get_value_by_chain(json_response, ["InvalidFormatAssets", "BadAssets"])
+                e2 = JSONClient.get_value_by_chain(json_response, ["InvalidBILAssets", "BadAssets"])
+                e3 = JSONClient.get_value_by_chain(json_response, ["ExcessTags", "BadAssets"])
+                fault_exception_list.append(e1)
+                fault_exception_list.append(e2)
+                fault_exception_list.append(e3)
+        target_url = self.base_url.format(svc_parameter)
+        self.raw_response = requests.get(target_url, headers={"content-type": "application/json"})
         self.json_response = self.raw_response.json()
-        fault_response = JSONClient.get_value_by_chain(self.json_response, JSONClient.fault_chain)
-        self.fault_exception_list = list([])
-        if type(fault_response) is not list:
-            fault_response = list([fault_response])
-        if fault_response:
-            for fault_exception in fault_response:
-                if fault_exception:
-                    fault_exception = fault_exception.get("FaultException")
-                    if fault_exception:
-                        self.fault_exception_list.append(fault_exception)
-        self.dell_asset_response = JSONClient.get_value_by_chain(self.json_response, JSONClient.dell_asset_chain)
+        retrieve_exception(self.json_response, self.fault_exception_list)
+        self.dell_asset_response = JSONClient.get_value_by_chain(self.json_response, ["AssetWarrantyResponse"])
         return self.raw_response is not None
 
     def get_fault_message(self):
+        message_list = []
         if self.fault_exception_list:
-            return "\n".join(["Code=%s, Message=%s" % (fault_exception.get("Code"), fault_exception.get("Message"))
-                              for fault_exception in self.fault_exception_list])
+            for fault_exception in self.fault_exception_list:
+                message_list.append(fault_exception)
+        return "\n".join(message_list)
 
     def __repr__(self):
         return "JSON Client, key=%s" % self.api_key[:5]
@@ -163,7 +168,7 @@ class XMLClient(APIClient):
         APIClient.__init__(self, api_key)
         self.base_url = "https://api.dell.com/support/assetinfo/v4/getassetwarranty/%s?apikey=" + self.api_key
 
-    def response_to_entities(self, response):
+    def response_to_entities(self):
         raise NotImplementedError
 
     def flatten_svc_parameter(self, api_svc_list):
@@ -185,3 +190,15 @@ class XMLClient(APIClient):
 
     def __repr__(self):
         return "XML Client, key=%s" % self.api_key[:5]
+
+
+def test():
+    client = JSONClient(api_key="")
+
+    client.new_response("305MF12,ABCDEF7")
+    result = client.response_to_entities()
+    for r in result:
+        print r
+        for w in r.warranty_list:
+            print w
+        print "-----------"

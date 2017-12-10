@@ -14,12 +14,12 @@ if sys.stdout.encoding == 'cp936':
 
 # 加载运行环境配置
 parent_path = os.getcwd() # current working dir
-history_path = WindowsUtil.convert_win_path(os.path.join(parent_path, "历史记录"))
-history_zipfile = WindowsUtil.convert_win_path(os.path.join(history_path, "查询历史.zip"))
-temp_dir = WindowsUtil.convert_win_path(os.path.join(history_path, "临时文件"))
-invalid_history_file_path = WindowsUtil.convert_win_path(os.path.join(history_path, "非法查询码.txt"))
-config_yml_path = WindowsUtil.convert_win_path(os.path.join(parent_path, "程序配置.yml"))
-excel_dir = WindowsUtil.convert_win_path(os.path.join(parent_path, "Excel结果"))
+history_path = WindowsUtil.convert_win_path(os.path.join(parent_path, "history"))
+history_zipfile = WindowsUtil.convert_win_path(os.path.join(history_path, "all.zip"))
+temp_dir = WindowsUtil.convert_win_path(os.path.join(history_path, "temp"))
+invalid_history_file_path = WindowsUtil.convert_win_path(os.path.join(history_path, "invalid.txt"))
+config_yml_path = WindowsUtil.convert_win_path(os.path.join(history_path, "config.yml"))
+excel_dir = WindowsUtil.convert_win_path(os.path.join(history_path, "excel"))
 
 
 def main(svc_input, configs):
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         required_file_path = [history_zipfile, config_yml_path, invalid_history_file_path]
         start = True
         for f in required_file_path:
-            if not FileUtil.is_path_existed():
+            if not FileUtil.is_path_existed(f):
                 print "请把程序运行文件放到程序运行文件夹下"
                 start = False
                 break
