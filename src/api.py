@@ -137,10 +137,14 @@ class JSONClient(APIClient):
                 fault_exception_list.append(e3)
         target_url = self.base_url.format(svc_parameter)
         self.raw_response = requests.get(target_url, headers={"content-type": "application/json"}, verify=False)
-        self.json_response = self.raw_response.json()
-        retrieve_exception(self.json_response, self.fault_exception_list)
-        self.dell_asset_response = JSONClient.get_value_by_chain(self.json_response, ["AssetWarrantyResponse"])
-        return self.raw_response is not None
+        try:
+            self.json_response = self.raw_response.json()
+        catch ValueError:
+            self.json_response = None
+        finally:
+            retrieve_exception(self.json_response, self.fault_exception_list)
+            self.dell_asset_response = JSONClient.get_value_by_chain(self.json_response, ["AssetWarrantyResponse"])
+            return self.raw_response is not None
 
     def get_fault_message(self):
         message_list = []
