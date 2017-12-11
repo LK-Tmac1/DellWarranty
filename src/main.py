@@ -89,6 +89,8 @@ if __name__ == '__main__':
                 break
         if start:
             line = sys.stdin.readline()
+            if line == "q":
+                sys.exit(0)
             svc_input = line.split()[0]
             configs = FileUtil.read_file(config_yml_path, isYML=True)
             if len(svc_input) != 7:
