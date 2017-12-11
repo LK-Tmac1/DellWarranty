@@ -73,7 +73,7 @@ def main(svc_input, configs):
         logger.error("%s\n%s" % (e, traceback.format_exc()))
         email_api_key = configs["email_api_key"]
         email = Email(email_api_key, subject="[查询失败] %s %s" % (DateTimeUtil.get_current_datetime(is_date=True), svc_input))
-        email.add_attachment(log_file_path)
+        #email.add_attachment(log_file_path)
         email.send(cc_mode=logger.has_error)
 
 
