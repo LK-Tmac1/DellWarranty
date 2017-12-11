@@ -139,7 +139,7 @@ class JSONClient(APIClient):
         self.raw_response = requests.get(target_url, headers={"content-type": "application/json"}, verify=False)
         try:
             self.json_response = self.raw_response.json()
-        catch ValueError:
+        except ValueError:
             self.json_response = None
         finally:
             retrieve_exception(self.json_response, self.fault_exception_list)
