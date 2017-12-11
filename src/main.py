@@ -24,7 +24,7 @@ excel_dir = WindowsUtil.convert_win_path(os.path.join(history_path, "excel"))
 
 def main(svc_input, configs):
     logger = Logger("查询日志", verbose=True)
-    log_file_name = "查询日志%s %s.txt" % (svc_input.replace("?", "#"), DateTimeUtil.get_current_datetime(is_date=True))
+    log_file_name = "log%s_%s.txt" % (svc_input.replace("?", "#"), DateTimeUtil.get_current_datetime(is_date=True))
     log_file_path = WindowsUtil.convert_win_path(os.path.join(temp_dir, log_file_name))
     logger.info("[开始查询] %s" % svc_input)
     try:
