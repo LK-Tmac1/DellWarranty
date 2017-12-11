@@ -4,7 +4,7 @@ import json, xml, requests, traceback
 from entity import DellAsset, Warranty
 from collections import deque
 
-api_offset = 50
+api_offset = 20
 
 
 class APIClient(object):
