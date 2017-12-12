@@ -14,7 +14,7 @@ if sys.stdout.encoding == 'cp936':
 
 # 加载运行环境配置
 parent_path = os.getcwd() # current working dir
-history_path = WindowsUtil.convert_win_path(os.path.join(parent_path, "lishi"))
+history_path = WindowsUtil.convert_win_path(os.path.join(parent_path, "history"))
 history_zipfile = WindowsUtil.convert_win_path(os.path.join(history_path, "all.zip"))
 temp_dir = WindowsUtil.convert_win_path(os.path.join(history_path, "temp"))
 invalid_history_file_path = WindowsUtil.convert_win_path(os.path.join(history_path, "invalid.txt"))
