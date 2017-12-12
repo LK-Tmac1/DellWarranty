@@ -14,7 +14,7 @@ if sys.stdout.encoding == 'cp936':
 
 # 加载运行环境配置
 parent_path = os.getcwd() # current working dir
-history_path = WindowsUtil.convert_win_path(os.path.join(parent_path, "history"))
+history_path = WindowsUtil.convert_win_path(os.path.join(parent_path, "lishi"))
 history_zipfile = WindowsUtil.convert_win_path(os.path.join(history_path, "all.zip"))
 temp_dir = WindowsUtil.convert_win_path(os.path.join(history_path, "temp"))
 invalid_history_file_path = WindowsUtil.convert_win_path(os.path.join(history_path, "invalid.txt"))
@@ -71,9 +71,10 @@ def main(svc_input, configs):
         # 若程序出现错误失败，发送邮件
         logger.error("[查询失败] 已发送报告 请等待解决")
         logger.error("%s\n%s" % (e, traceback.format_exc()))
+        logger.save(log_file_path)
         email_api_key = configs["email_api_key"]
         email = Email(email_api_key, subject="[查询失败] %s %s" % (DateTimeUtil.get_current_datetime(is_date=True), svc_input))
-        #email.add_attachment(log_file_path)
+        email.add_attachment(log_file_path)
         email.send(cc_mode=logger.has_error)
 
 
@@ -89,8 +90,6 @@ if __name__ == '__main__':
                 break
         if start:
             line = sys.stdin.readline()
-            if line == "q":
-                sys.exit(0)
             svc_input = line.split()[0]
             configs = FileUtil.read_file(config_yml_path, isYML=True)
             if len(svc_input) != 7:
