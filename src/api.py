@@ -5,6 +5,7 @@ from entity import DellAsset, Warranty
 from collections import deque
 
 api_offset = 20
+api_delimitor = ","
 
 
 class APIClient(object):
@@ -107,8 +108,8 @@ class JSONClient(APIClient):
         return da_entity_list
 
     def flatten_svc_parameter(self, api_svc_list):
-        # Given a list of service tags, return the concatenated string delimited by "|"
-        return "|".join(api_svc_list) if api_svc_list else None
+        # Given a list of service tags, return the concatenated string delimited by api_delimitor
+        return api_delimitor.join(api_svc_list) if api_svc_list else None
 
     def is_response_error(self):
         return self.raw_response and self.raw_response.status_code == 200 and not self.fault_exception_list
