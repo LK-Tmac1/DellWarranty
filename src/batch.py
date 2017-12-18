@@ -28,8 +28,8 @@ class Batch(object):
     def begin(self, api_svc_set):
         dell_asset_list = list([])
         api_svc_list = list(api_svc_set)
-        temp_svc_list = list([])
         while api_svc_list and (self.continue_with_current_client() or self.client_queue):
+            temp_svc_list = list([])
             while len(temp_svc_list) < api_offset and api_svc_list:
                 temp_svc_list.append(api_svc_list.pop())
             svc_parameter = self.current_client.flatten_svc_parameter(temp_svc_list)
