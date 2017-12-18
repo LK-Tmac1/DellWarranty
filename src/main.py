@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os, sys, traceback
+import os, sys, traceback, requests
 from batch import Batch
 from svctag import SVCGenerator, letters
 from utility import DateTimeUtil, Logger, Email, FileUtil
