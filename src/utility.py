@@ -22,7 +22,7 @@ class FileUtil(object):
         # Read input file in .yml format, either the yml_path is a URL or or local path
         result = None
         if isURL:
-            resp = requests.get(file_path)
+            resp = requests.get(file_path, verify=False)
             if resp.status_code == 200:
                 result = yaml.load(resp.content) if isYML else resp.content
         else:
