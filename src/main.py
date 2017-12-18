@@ -8,6 +8,14 @@ from zip import ZipFileSVC
 from entity import DellAsset
 from windows import WindowsUtil, UnicodeStreamFilter
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from requests.packages.urllib3.exceptions import InsecurePlatformWarning
+from requests.packages.urllib3.exceptions import SNIMissingWarning
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
+requests.packages.urllib3.disable_warnings(SNIMissingWarning)
+
 if sys.stdout.encoding == 'cp936':
     # 解决Windows系统下，命令行中文打印问题
     sys.stdout = UnicodeStreamFilter(sys.stdout)
